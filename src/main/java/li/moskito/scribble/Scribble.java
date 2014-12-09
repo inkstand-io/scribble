@@ -31,8 +31,8 @@ public final class Scribble {
         }
 
         /**
-         * Injects a value into a deltaspike config property with the given configuration name. The method is intended
-         * for simple JUnit tests without a CDI container.
+         * Injects a value into a deltaspike {@link ConfigProperty} with the given configuration name. The method is
+         * intended for simple JUnit tests without a CDI container.
          * 
          * @param configPropertyName
          *            the name of the ConfigProperty

@@ -10,6 +10,9 @@ import org.junit.runners.model.Statement;
  */
 public class ExternalResource extends org.junit.rules.ExternalResource {
 
+    /**
+     * Verifies if the caller is a Suite and triggers the beforeClass and afterClass behavior.
+     */
     @Override
     public Statement apply(final Statement base, final Description description) {
         if (description.isSuite()) {
@@ -20,6 +23,7 @@ public class ExternalResource extends org.junit.rules.ExternalResource {
 
 /**
      * Creates a statement that will execute {@code beforeClass) and {@code afterClass)
+     * 
      * @param base
      *  the base statement to be executed
      * @return

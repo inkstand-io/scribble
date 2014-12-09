@@ -1,4 +1,4 @@
-package li.moskito.scribble;
+package li.moskito.scribble.rules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,12 +9,16 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import li.moskito.scribble.rules.ContentRepository;
-
 import org.junit.rules.ExternalResource;
+import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A {@link TestRule} for creating a JCR session for a test.
+ * 
+ * @author Gerald Muecke, gerald@moskito.li
+ */
 public class JCRSession extends ExternalResource {
 
     /**
