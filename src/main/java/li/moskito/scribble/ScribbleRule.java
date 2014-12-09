@@ -2,6 +2,7 @@ package li.moskito.scribble;
 
 import li.moskito.scribble.rules.ContentRepository;
 import li.moskito.scribble.rules.InMemoryContentRepository;
+import li.moskito.scribble.rules.JCRSession;
 
 import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;

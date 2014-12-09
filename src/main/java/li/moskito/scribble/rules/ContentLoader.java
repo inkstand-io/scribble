@@ -1,12 +1,10 @@
-package li.moskito.scribble;
+package li.moskito.scribble.rules;
 
 import java.net.URL;
 
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-
-import li.moskito.scribble.rules.ContentRepository;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;

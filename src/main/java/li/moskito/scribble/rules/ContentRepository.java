@@ -18,7 +18,8 @@ import li.moskito.scribble.Scribble;
 import org.junit.rules.TemporaryFolder;
 
 /**
- * Rule for testing with java content repositories
+ * Rule for testing with java content repositories (JCR). The rule implementations rely on the reference implementation
+ * Jackrabbit. The Rule provides access to the {@link Repository} instance and logging in.
  * 
  * @author Gerald Muecke, gerald@moskito.li
  */
