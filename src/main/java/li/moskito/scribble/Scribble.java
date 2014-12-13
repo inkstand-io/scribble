@@ -18,7 +18,50 @@ public final class Scribble {
     }
 
     /**
-     * Target to wrap around an object. It provides various method for injecting certain values into the object.
+     * Defines which value should be injected into the injectionTarget.
+     *
+     * @author Gerald Muecke, gerald@moskito.li
+     */
+    public static class InjectionValueDefinition {
+
+        private final Field field;
+        private final Object target;
+        private final Object defaultValue;
+
+        private InjectionValueDefinition(final Field field, final Object target, final Object defaultValue) {
+            this.field = field;
+            this.target = target;
+            this.defaultValue = defaultValue;
+        }
+
+        /**
+         * Injects the specified value into the injection target
+         *
+         * @param value
+         *            the value to be injected
+         * @throws AssertionError
+         *             if the value could not be injected.
+         */
+        public void value(final Object value) {
+            field.setAccessible(true);
+            try {
+                field.set(target, value);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                throw new AssertionError("Could not inject value '" + value + "' into " + field.getName(), e);
+            }
+        }
+
+        /**
+         * Injects the default value into the injection target.
+         */
+        public void defaultValue() {
+            value(defaultValue);
+        }
+
+    }
+
+    /**
+     * Defines a target for an injection operation to prepare a test.
      *
      * @author Gerald Muecke, gerald@moskito.li
      */
@@ -41,44 +84,25 @@ public final class Scribble {
          * @throws IllegalAccessException
          * @throws IllegalArgumentException
          */
-        public void configProperty(final String configPropertyName, final Object value)
-                throws IllegalArgumentException, IllegalAccessException {
+        public InjectionValueDefinition configProperty(final String configPropertyName) {
+
             for (final Field field : target.getClass().getDeclaredFields()) {
                 final ConfigProperty cp = field.getAnnotation(ConfigProperty.class);
                 if (cp != null && configPropertyName.equals(cp.name())) {
-                    field.setAccessible(true);
-                    field.set(target, value);
+                    return new InjectionValueDefinition(field, target, cp.defaultValue());
                 }
             }
+            throw new AssertionError("No ConfigProperty with name " + configPropertyName + " found on " + target);
         }
 
-        /**
-         * Injects the default a value into a deltaspike {@link ConfigProperty} with the given configuration name. The
-         * method is intended for simple JUnit tests without a CDI container. The default value is defined in the
-         * {@link ConfigProperty} itself.
-         *
-         * @param configPropertyName
-         *            the name of the ConfigProperty
-         * @throws IllegalAccessException
-         * @throws IllegalArgumentException
-         */
-        public void defaultConfigProperty(final String configPropertyName) throws IllegalArgumentException,
-        IllegalAccessException {
-            for (final Field field : target.getClass().getDeclaredFields()) {
-                final ConfigProperty cp = field.getAnnotation(ConfigProperty.class);
-                if (cp != null && configPropertyName.equals(cp.name())) {
-                    field.setAccessible(true);
-                    field.set(target, cp.defaultValue());
-                }
-            }
-        }
     }
 
     /**
      * Creates an {@link InjectionTarget} for the Object
      *
      * @param target
-     * @return
+     *            the target object into which an object should be injected
+     * @return an {@link InjectionTarget} that allows the definition of the what should be injected.
      */
     public static InjectionTarget injectInto(final Object target) {
         return new InjectionTarget(target);
