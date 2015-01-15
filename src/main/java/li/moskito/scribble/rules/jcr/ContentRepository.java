@@ -128,7 +128,7 @@ public abstract class ContentRepository extends ExternalResource {
     /**
      * @return the workingDirectory in which the repository and its configuration is located
      */
-    protected TemporaryFolder getWorkingDirectory() {
+    public TemporaryFolder getWorkingDirectory() {
         return workingDirectory;
     }
 

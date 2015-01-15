@@ -7,6 +7,8 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
 import li.moskito.scribble.rules.BaseRule;
+import li.moskito.scribble.rules.RuleSetup;
+import li.moskito.scribble.rules.RuleSetup.RequirementLevel;
 
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -21,11 +23,20 @@ public class ContentLoader extends BaseRule {
     private static final Logger LOG = LoggerFactory.getLogger(ContentLoader.class);
 
     private final ContentRepository repository;
-    private final URL contentDescriptorUrl;
+    private URL contentDescriptorUrl;
 
-    public ContentLoader(final ContentRepository repository, final URL contentDescriptorUrl) {
+    public ContentLoader(final ContentRepository repository) {
         super(repository);
         this.repository = repository;
+    }
+
+    /**
+     * Sets the resource containing the description of the content ro
+     * 
+     * @param contentDescriptorUrl
+     */
+    @RuleSetup(RequirementLevel.REQUIRED)
+    public void setContentDescriptorUrl(final URL contentDescriptorUrl) {
         this.contentDescriptorUrl = contentDescriptorUrl;
     }
 
@@ -42,6 +53,7 @@ public class ContentLoader extends BaseRule {
                     final Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
                     // TODO replace with content provider
                     // JCRUtil.loadContent(session, contentDescriptorUrl);
+                    System.out.println(contentDescriptorUrl);
                     session.logout();
                     base.evaluate();
 
