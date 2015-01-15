@@ -16,16 +16,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link TestRule} for creating a JCR session for a test.
+ * A {@link TestRule} for creating an active JCR session for a test.
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public class JCRSession extends ExternalResource {
+public class ActiveSession extends ExternalResource {
 
     /**
      * SLF4J Logger for this class
      */
-    private static final Logger LOG = LoggerFactory.getLogger(JCRSession.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActiveSession.class);
 
     private Session adminSession;
     private Session anonSession;
@@ -35,11 +35,11 @@ public class JCRSession extends ExternalResource {
     private final String password;
     private final String username;
 
-    public JCRSession(final ContentRepository repository) {
+    public ActiveSession(final ContentRepository repository) {
         this(repository, null, null);
     }
 
-    public JCRSession(final ContentRepository repository, final String username, final String password) {
+    public ActiveSession(final ContentRepository repository, final String username, final String password) {
         super(repository);
         repositoryRule = repository;
         this.username = username;

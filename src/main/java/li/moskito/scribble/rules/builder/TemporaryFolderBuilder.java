@@ -34,7 +34,7 @@ public class TemporaryFolderBuilder extends Builder<TemporaryFolder> {
      *            the name of the temporary file
      * @return a {@link TemporaryFileBuilder}
      */
-    public TemporaryFileBuilder aroundTemporaryFile(final String filename) {
+    public TemporaryFileBuilder aroundTempFile(final String filename) {
         return new TemporaryFileBuilder(build(), filename);
     }
 

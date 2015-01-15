@@ -15,12 +15,12 @@ public class ContentLoaderBuilder extends Builder<ContentLoader> {
 
     /**
      * Uses the content descriptor specified by the URL.
-     * 
+     *
      * @param contentDescriptorUrl
      *            the URL referencing a content descriptor file
      * @return this builder
      */
-    public ContentLoaderBuilder withContent(final URL contentDescriptorUrl) {
+    public ContentLoaderBuilder fromUrl(final URL contentDescriptorUrl) {
         contentLoader.setContentDescriptorUrl(contentDescriptorUrl);
         return this;
     }

@@ -1,23 +1,23 @@
 package li.moskito.scribble.rules.builder;
 
 import li.moskito.scribble.rules.jcr.ContentRepository;
-import li.moskito.scribble.rules.jcr.JCRSession;
+import li.moskito.scribble.rules.jcr.ActiveSession;
 
 /**
- * A builder for a {@link JCRSession}. The {@link JCRSession} rule requires {@link ContentRepository} as outer rule.
+ * A builder for a {@link ActiveSession}. The {@link ActiveSession} rule requires {@link ContentRepository} as outer rule.
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public class JCRSessionBuilder extends Builder<JCRSession> {
+public class JCRSessionBuilder extends Builder<ActiveSession> {
 
-    private final JCRSession jcrSession;
+    private final ActiveSession jcrSession;
 
     public JCRSessionBuilder(final ContentRepository contentRepository) {
-        jcrSession = new JCRSession(contentRepository);
+        jcrSession = new ActiveSession(contentRepository);
     }
 
     @Override
-    public JCRSession build() {
+    public ActiveSession build() {
         return jcrSession;
     }
 
