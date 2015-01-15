@@ -5,7 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+import li.moskito.scribble.rules.builder.Builder;
+import li.moskito.scribble.rules.builder.MockContentRepositoryBuilder;
 import li.moskito.scribble.rules.builder.TemporaryFolderBuilder;
+import li.moskito.scribble.rules.jcr.MockContentRepository;
 
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.junit.rules.TemporaryFolder;
@@ -112,12 +115,22 @@ public final class Scribble {
     }
 
     /**
-     * Creates a new Builder for a {@link TemporaryFolder}.
-     * 
-     * @return a builder for a {@link TemporaryFolder}.
+     * Creates a new {@link Builder} for a {@link TemporaryFolder}. The {@link TemporaryFolderBuilder} allows further
+     * chaining of rules that require a temporary folder.
+     *
+     * @return a {@link TemporaryFolderBuilder}.
      */
     public static TemporaryFolderBuilder newTempFolder() {
         return new TemporaryFolderBuilder();
+    }
+
+    /**
+     * Creates a new {@link Builder} for a {@link MockContentRepository}
+     *
+     * @return a {@link MockContentRepositoryBuilder}
+     */
+    public static MockContentRepositoryBuilder newMockContentRepository() {
+        return new MockContentRepositoryBuilder();
     }
 
     /**
