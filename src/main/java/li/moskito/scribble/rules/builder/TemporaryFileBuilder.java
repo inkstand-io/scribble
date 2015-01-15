@@ -8,14 +8,12 @@ import org.junit.rules.TemporaryFolder;
 
 /**
  * Builder for creating a temporary file in a temporary folder.
- * 
+ *
  * @author Gerald Muecke, gerald@moskito.li
  */
 public class TemporaryFileBuilder extends Builder<TemporaryFile> {
 
     private final TemporaryFile temporaryFile;
-    private URL contentUrl;
-    private boolean forceContent;
 
     public TemporaryFileBuilder(final TemporaryFolder folder, final String fileName) {
         temporaryFile = new TemporaryFile(folder, fileName);
@@ -23,8 +21,6 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
 
     @Override
     public TemporaryFile build() {
-        temporaryFile.setContentUrl(contentUrl);
-        temporaryFile.setForceContent(forceContent);
         return temporaryFile;
     }
 
@@ -37,11 +33,13 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      */
     public TemporaryFileBuilder fromClasspathResource(final String pathToResource) {
         final ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+        URL contentUrl;
         if (ccl != null) {
             contentUrl = ccl.getResource(pathToResource);
         } else {
             contentUrl = getClass().getResource(pathToResource);
         }
+        temporaryFile.setContentUrl(contentUrl);
         return this;
     }
 
@@ -53,7 +51,7 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      * @return the builder
      */
     public TemporaryFileBuilder fromResource(final URL resource) {
-        contentUrl = resource;
+        temporaryFile.setContentUrl(resource);
         return this;
     }
 
@@ -64,7 +62,7 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      * @return the builder
      */
     public TemporaryFileBuilder withContent() {
-        forceContent = true;
+        temporaryFile.setForceContent(true);
         return this;
     }
 
