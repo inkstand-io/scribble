@@ -14,6 +14,11 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
 
+/**
+ * Assertion for writing unit tests against a JCR repository.
+ * 
+ * @author Gerald Muecke, gerald@moskito.li
+ */
 public final class JCRAssert {
 
     private JCRAssert() {
@@ -163,7 +168,7 @@ public final class JCRAssert {
 
     /**
      * Asserts that a specific node type is registered in the workspace of the session.
-     * 
+     *
      * @param session
      *            the session to perform the lookup
      * @param nodeTypeName

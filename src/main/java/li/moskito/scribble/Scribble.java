@@ -1,17 +1,16 @@
 package li.moskito.scribble;
 
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+import li.moskito.scribble.inject.Injection;
 import li.moskito.scribble.rules.BaseRule;
 import li.moskito.scribble.rules.builder.Builder;
 import li.moskito.scribble.rules.builder.MockContentRepositoryBuilder;
 import li.moskito.scribble.rules.builder.TemporaryFolderBuilder;
 import li.moskito.scribble.rules.jcr.MockContentRepository;
 
-import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 
@@ -60,38 +59,38 @@ import org.junit.rules.TemporaryFolder;
  * <ul>
  * <li>Creating a temporary file with content from a classpath resource in a temporary folder:<br>
  * Rule for a file with content
- * 
+ *
  * <pre>
  * {@literal @}Rule
  * TemporaryFile file = Scribble.newTempFolder().aroundTempFile("example.txt").withContent().fromClasspathResource("/test/example.txt").build();
  * </pre>
- * 
+ *
  * Rule for an empty file
- * 
+ *
  * <pre>
  * {@literal @}Rule
  * TemporaryFile file = Scribble.newTempFolder().aroundTempFile("example.txt").build();
  * </pre>
- * 
+ *
  * </li>
  * <li>Creating an in memory JCR content repository
- * 
+ *
  * <pre>
  * {@literal @}Rule
  * InMemoryContentRepository jcr = Scribble.newTempFolder().aroundInMemoryContentRepository().build();
  * </pre>
- * 
+ *
  * </li>
  * <li>Creating an active JCR Session
- * 
+ *
  * <pre>
  * {@literal @}Rule
  * ActiveSession jcrSession = Scribble.newTempFolder().aroundInMemoryContentRepository().aroundSession().build();
  * </pre>
- * 
+ *
  * </li>
  * <li>Creating an content repository with initialized content.
- * 
+ *
  * <pre>
  * {@literal @}Rule
  * ContentLoader content = Scribble.newTempFolder().aroundInMemoryContentRepository().aroundPreparedContent().fromUrl(someUrl).build();
@@ -108,94 +107,14 @@ public final class Scribble {
     }
 
     /**
-     * Defines which value should be injected into the injectionTarget.
-     *
-     * @author Gerald Muecke, gerald@moskito.li
-     */
-    public static class InjectionValueDefinition {
-
-        private final Field field;
-        private final Object target;
-        private final Object defaultValue;
-
-        private InjectionValueDefinition(final Field field, final Object target, final Object defaultValue) {
-            this.field = field;
-            this.target = target;
-            this.defaultValue = defaultValue;
-        }
-
-        /**
-         * Injects the specified value into the injection target
-         *
-         * @param value
-         *            the value to be injected
-         * @throws AssertionError
-         *             if the value could not be injected.
-         */
-        public void value(final Object value) {
-            field.setAccessible(true);
-            try {
-                field.set(target, value);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                throw new AssertionError("Could not inject value '" + value + "' into " + field.getName(), e);
-            }
-        }
-
-        /**
-         * Injects the default value into the injection target.
-         */
-        public void defaultValue() {
-            value(defaultValue);
-        }
-
-    }
-
-    /**
-     * Defines a target for an injection operation to prepare a test.
-     *
-     * @author Gerald Muecke, gerald@moskito.li
-     */
-    public static class InjectionTarget {
-
-        private final Object target;
-
-        private InjectionTarget(final Object target) {
-            this.target = target;
-        }
-
-        /**
-         * Injects a value into a deltaspike {@link ConfigProperty} with the given configuration name. The method is
-         * intended for simple JUnit tests without a CDI container.
-         *
-         * @param configPropertyName
-         *            the name of the ConfigProperty
-         * @param value
-         *            the value to be injected
-         * @throws IllegalAccessException
-         * @throws IllegalArgumentException
-         */
-        public InjectionValueDefinition configProperty(final String configPropertyName) {
-
-            for (final Field field : target.getClass().getDeclaredFields()) {
-                final ConfigProperty cp = field.getAnnotation(ConfigProperty.class);
-                if (cp != null && configPropertyName.equals(cp.name())) {
-                    return new InjectionValueDefinition(field, target, cp.defaultValue());
-                }
-            }
-            throw new AssertionError("No ConfigProperty with name " + configPropertyName + " found on " + target);
-        }
-
-    }
-
-    /**
-     * Creates an {@link InjectionTarget} for the Object
+     * Helper method to create an {@link Injection} support instance for the value.
      *
      * @param target
-     *            the target object into which an object should be injected
-     * @return an {@link InjectionTarget} that allows the definition of the what should be injected.
+     *            the value to be injected
+     * @return an {@link Injection} support for injecting the value into a target
      */
-    public static InjectionTarget injectInto(final Object target) {
-        return new InjectionTarget(target);
+    public static Injection inject(final Object value) {
+        return new Injection(value);
     }
 
     /**
@@ -204,18 +123,18 @@ public final class Scribble {
      * To create a new Temporary folder there are two options:
      * <ul>
      * <li>instantiate it directly, using the JUnit way:
-     * 
+     *
      * <pre>
      * TemporaryFolder folder = new TemporaryFolder();
      * </pre>
-     * 
+     *
      * </li>
      * <li>instantiate it with a builder (the Scribble way):
-     * 
+     *
      * <pre>
      * TemporaryFolder folder = Scribble.newTempFolder().build();
      * </pre>
-     * 
+     *
      * This is slightly longer but allows chaining of dependent rules.</li>
      * </ul>
      *
