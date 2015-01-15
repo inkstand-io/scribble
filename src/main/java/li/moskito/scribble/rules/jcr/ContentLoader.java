@@ -1,4 +1,4 @@
-package li.moskito.scribble.rules;
+package li.moskito.scribble.rules.jcr;
 
 import java.net.URL;
 
@@ -6,13 +6,14 @@ import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.junit.rules.TestRule;
+import li.moskito.scribble.rules.BaseRule;
+
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContentLoader implements TestRule {
+public class ContentLoader extends BaseRule {
 
     /**
      * SLF4J Logger for this class
@@ -23,6 +24,7 @@ public class ContentLoader implements TestRule {
     private final URL contentDescriptorUrl;
 
     public ContentLoader(final ContentRepository repository, final URL contentDescriptorUrl) {
+        super(repository);
         this.repository = repository;
         this.contentDescriptorUrl = contentDescriptorUrl;
     }

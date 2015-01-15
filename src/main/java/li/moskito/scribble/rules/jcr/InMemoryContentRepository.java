@@ -1,4 +1,4 @@
-package li.moskito.scribble.rules;
+package li.moskito.scribble.rules.jcr;
 
 import static org.junit.Assert.assertNotNull;
 

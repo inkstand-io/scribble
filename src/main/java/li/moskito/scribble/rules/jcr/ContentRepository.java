@@ -1,4 +1,4 @@
-package li.moskito.scribble.rules;
+package li.moskito.scribble.rules.jcr;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -14,13 +14,14 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
 import li.moskito.scribble.Scribble;
+import li.moskito.scribble.rules.ExternalResource;
 
 import org.junit.rules.TemporaryFolder;
 
 /**
  * Rule for testing with java content repositories (JCR). The rule implementations rely on the reference implementation
  * Jackrabbit. The Rule provides access to the {@link Repository} instance and logging in.
- * 
+ *
  * @author Gerald Muecke, gerald@moskito.li
  */
 public abstract class ContentRepository extends ExternalResource {
@@ -45,10 +46,11 @@ public abstract class ContentRepository extends ExternalResource {
 
     /**
      * Creates the content repository in the working directory
-     * 
+     *
      * @param workingDirectory
      */
     public ContentRepository(final TemporaryFolder workingDirectory) {
+        super(workingDirectory);
         this.workingDirectory = workingDirectory;
     }
 
@@ -58,9 +60,9 @@ public abstract class ContentRepository extends ExternalResource {
     @Override
     protected void beforeClass() throws Throwable {
         super.before();
-        this.testRunId = Scribble.generateRunId();
-        this.repository = createRepository();
-        this.initialized = true;
+        testRunId = Scribble.generateRunId();
+        repository = createRepository();
+        initialized = true;
     }
 
     /**
@@ -68,7 +70,7 @@ public abstract class ContentRepository extends ExternalResource {
      */
     @Override
     protected void afterClass() {
-        this.initialized = false;
+        initialized = false;
         super.after();
         destroyRepository();
 
@@ -78,7 +80,7 @@ public abstract class ContentRepository extends ExternalResource {
     protected void before() throws Throwable {
         if (!initialized) {
             beforeClass();
-            this.beforeExecuted = true;
+            beforeExecuted = true;
         }
     }
 
@@ -94,7 +96,7 @@ public abstract class ContentRepository extends ExternalResource {
      * The id of the test run. A TestRunId is created for every Suite and remains the same for all tests in that suite.
      * It is intended to be used when testing against a persistent repository to reduce the risk of node name
      * collisions.
-     * 
+     *
      * @return the testRunId
      */
     public String getTestRunId() {
@@ -111,7 +113,7 @@ public abstract class ContentRepository extends ExternalResource {
     /**
      * Logs into the repository with the given credentials. The created session is not managed and be logged out after
      * use by the caller.
-     * 
+     *
      * @param userId
      *            the user id to log in
      * @param password
@@ -119,7 +121,7 @@ public abstract class ContentRepository extends ExternalResource {
      * @return the {@link Session} for the user
      * @throws RepositoryException
      */
-    public Session login(String userId, String password) throws RepositoryException {
+    public Session login(final String userId, final String password) throws RepositoryException {
         return repository.login(new SimpleCredentials(userId, password.toCharArray()));
     }
 
@@ -132,7 +134,7 @@ public abstract class ContentRepository extends ExternalResource {
 
     /**
      * Creates a transient repository with files in the local temp directory.
-     * 
+     *
      * @return the created repository
      * @throws IOException
      * @throws ConfigurationException
@@ -142,7 +144,7 @@ public abstract class ContentRepository extends ExternalResource {
     /**
      * Closes the admin session, and in case of local transient respository for unit test, shuts down the repository and
      * cleans all temporary files.
-     * 
+     *
      * @throws IOException
      */
     protected abstract void destroyRepository();
@@ -150,7 +152,7 @@ public abstract class ContentRepository extends ExternalResource {
     /**
      * Method to define the jndi lookup name for the repository. Use this mehtod in combination with the
      * {@code injectRepository} method to inject the test repository into a field of a test subject
-     * 
+     *
      * @param jndiName
      *            the name for retrieving the repository. The name should match the lookup name configured for the
      *            injection target field of the test subject.
@@ -164,14 +166,14 @@ public abstract class ContentRepository extends ExternalResource {
     /**
      * Injects the repository reference from the rule into a field annotated with {@link Resource} and a mapped name
      * that equals the configured {@code lookupName}
-     * 
+     *
      * @param subject
      *            the subject into which the repository should be injected
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      */
     public ContentRepository injectTo(final Object subject) throws IllegalArgumentException, IllegalAccessException {
-        assertNotNull("A jndiName must be defined", this.jndiName);
+        assertNotNull("A jndiName must be defined", jndiName);
         Class<?> type = subject.getClass();
         while (!type.equals(Object.class)) {
             if (findAndSetRepository(subject, type)) {
@@ -187,7 +189,7 @@ public abstract class ContentRepository extends ExternalResource {
     /**
      * Searchs the current type for a declared field that denotes a repository injection point. If such a field is
      * found, the {@link Repository} is injected and <code>true</code> is returned.
-     * 
+     *
      * @param subject
      *            the subject into which the repository should be injected
      * @param type
@@ -209,7 +211,7 @@ public abstract class ContentRepository extends ExternalResource {
     /**
      * Checks the given field for a matching annotation. If an annotation that matches this repository is found, it is
      * injected
-     * 
+     *
      * @param subject
      *            the subject into which the repository might be injected
      * @param f
@@ -220,7 +222,7 @@ public abstract class ContentRepository extends ExternalResource {
     private boolean checkAnnotationAndInject(final Object subject, final Field f) throws IllegalAccessException {
         boolean result = false;
         final javax.annotation.Resource resAn = f.getAnnotation(javax.annotation.Resource.class);
-        if (resAn != null && this.jndiName.equals(resAn.mappedName())) {
+        if (resAn != null && jndiName.equals(resAn.mappedName())) {
             f.setAccessible(true);
             f.set(subject, repository);
             result = true;

@@ -1,4 +1,4 @@
-package li.moskito.scribble.rules;
+package li.moskito.scribble.rules.jcr;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,14 +9,15 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.junit.rules.ExternalResource;
+import li.moskito.scribble.rules.ExternalResource;
+
 import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * A {@link TestRule} for creating a JCR session for a test.
- * 
+ *
  * @author Gerald Muecke, gerald@moskito.li
  */
 public class JCRSession extends ExternalResource {
@@ -39,7 +40,8 @@ public class JCRSession extends ExternalResource {
     }
 
     public JCRSession(final ContentRepository repository, final String username, final String password) {
-        this.repositoryRule = repository;
+        super(repository);
+        repositoryRule = repository;
         this.username = username;
         this.password = password;
     }
@@ -50,21 +52,21 @@ public class JCRSession extends ExternalResource {
     @Override
     protected void after() {
         super.after();
-        if (this.adminSession != null) {
-            LOG.info("Logging off {}", this.adminSession.getUserID());
-            this.adminSession.logout();
-            this.adminSession = null;
+        if (adminSession != null) {
+            LOG.info("Logging off {}", adminSession.getUserID());
+            adminSession.logout();
+            adminSession = null;
         }
-        if (this.anonSession != null) {
-            LOG.info("Logging off {}", this.anonSession.getUserID());
-            this.anonSession.logout();
-            this.anonSession = null;
+        if (anonSession != null) {
+            LOG.info("Logging off {}", anonSession.getUserID());
+            anonSession.logout();
+            anonSession = null;
         }
-        for (final Session session : this.userSessions.values()) {
+        for (final Session session : userSessions.values()) {
             LOG.info("Logging off {}", session.getUserID());
             session.logout();
         }
-        this.userSessions.clear();
+        userSessions.clear();
         LOG.info("Closed all sessions");
     }
 
@@ -91,7 +93,7 @@ public class JCRSession extends ExternalResource {
     /**
      * Logs into the repository. If a username and password has been specified, is is used for the login, otherwise an
      * anonymous login is done.
-     * 
+     *
      * @return the session for the login
      * @throws RepositoryException
      * @throws LoginException
@@ -100,7 +102,7 @@ public class JCRSession extends ExternalResource {
         final Session session;
         if (username != null && password != null) {
             session = getRepository().login(new SimpleCredentials(username, password.toCharArray()));
-            this.userSessions.put(username, session);
+            userSessions.put(username, session);
         } else if (anonSession == null) {
             anonSession = getRepository().login();
             session = anonSession;
@@ -112,7 +114,7 @@ public class JCRSession extends ExternalResource {
 
     /**
      * Creates a login for the given username and password
-     * 
+     *
      * @param username
      *            the username to log in
      * @param password
@@ -121,11 +123,10 @@ public class JCRSession extends ExternalResource {
      * @throws RepositoryException
      */
     public Session login(final String username, final String password) throws RepositoryException {
-        if (!this.userSessions.containsKey(username)) {
-            this.userSessions.put(username,
-                    getRepository().login(new SimpleCredentials(username, password.toCharArray())));
+        if (!userSessions.containsKey(username)) {
+            userSessions.put(username, getRepository().login(new SimpleCredentials(username, password.toCharArray())));
         }
-        return this.userSessions.get(username);
+        return userSessions.get(username);
     }
 
     /**
@@ -133,9 +134,9 @@ public class JCRSession extends ExternalResource {
      * @throws RepositoryException
      */
     public Session getAdminSession() throws RepositoryException {
-        if (this.adminSession == null) {
-            this.adminSession = getRepository().login(new SimpleCredentials("admin", "admin".toCharArray()));
+        if (adminSession == null) {
+            adminSession = getRepository().login(new SimpleCredentials("admin", "admin".toCharArray()));
         }
-        return this.adminSession;
+        return adminSession;
     }
 }

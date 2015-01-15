@@ -5,7 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+import li.moskito.scribble.rules.builder.TemporaryFolderBuilder;
+
 import org.apache.deltaspike.core.api.config.ConfigProperty;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * Test utility for inkstand.
@@ -106,6 +109,15 @@ public final class Scribble {
      */
     public static InjectionTarget injectInto(final Object target) {
         return new InjectionTarget(target);
+    }
+
+    /**
+     * Creates a new Builder for a {@link TemporaryFolder}.
+     * 
+     * @return a builder for a {@link TemporaryFolder}.
+     */
+    public static TemporaryFolderBuilder newTempFolder() {
+        return new TemporaryFolderBuilder();
     }
 
     /**

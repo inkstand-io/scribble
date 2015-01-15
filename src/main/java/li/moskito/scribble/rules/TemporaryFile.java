@@ -14,36 +14,52 @@ import org.junit.rules.TemporaryFolder;
 /**
  * A rule for creating an external file in a temporary folder with a specific content. If no content is defined an empty
  * file will be created
- * 
+ *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public class ExternalFile extends ExternalResource {
+public class TemporaryFile extends ExternalResource {
 
+    /**
+     * The URL that points to the resource that provides the content for the file
+     */
     private URL contentUrl;
-    private TemporaryFolder folder;
-    private String filename;
+    /**
+     * The temporary folder the file will be created in
+     */
+    private final TemporaryFolder folder;
+    /**
+     * The name of the file
+     */
+    private final String filename;
+    /**
+     * The actual created file
+     */
     private File file;
+    /**
+     * Flag to indicate that content URL must be set
+     */
     private boolean forceContent;
 
     /**
      * Creates an ExternalFile in the specified temporary folder with the specified filename
-     * 
+     *
      * @param folder
      * @param filename
      */
-    public ExternalFile(TemporaryFolder folder, String filename) {
+    public TemporaryFile(final TemporaryFolder folder, final String filename) {
+        super(folder);
         this.folder = folder;
         this.filename = filename;
     }
 
     @Override
     protected void before() throws Throwable {
-        this.file = folder.newFile(filename);
-        if (this.forceContent && this.contentUrl == null) {
+        file = folder.newFile(filename);
+        if (forceContent && contentUrl == null) {
             throw new AssertionFailedError("ContentUrl is not set");
-        } else if (this.contentUrl != null) {
-            InputStream is = this.contentUrl.openStream();
-            OutputStream os = new FileOutputStream(this.file);
+        } else if (contentUrl != null) {
+            final InputStream is = contentUrl.openStream();
+            final OutputStream os = new FileOutputStream(file);
             IOUtils.copy(is, os);
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
@@ -52,56 +68,44 @@ public class ExternalFile extends ExternalResource {
 
     @Override
     protected void after() {
-        if (this.file != null) {
-            this.file.delete();
+        if (file != null) {
+            file.delete();
         }
 
-    }
-
-    /**
-     * Defines the classpath resource from where the content of the file should be retrieved
-     * 
-     * @param pathToResource
-     * @return
-     */
-    public ExternalFile fromClasspathResource(String pathToResource) {
-        ClassLoader ccl = Thread.currentThread().getContextClassLoader();
-        if (ccl != null) {
-            this.contentUrl = ccl.getResource(pathToResource);
-        } else {
-            this.contentUrl = getClass().getResource(pathToResource);
-        }
-        return this;
-    }
-
-    /**
-     * Defines, that the external file must not be empty, which means, the rule enforces, the contentUrl is set.
-     * 
-     * @return
-     */
-    public ExternalFile withContent() {
-        this.forceContent = true;
-        return this;
-    }
-
-    /**
-     * Defines the resource by URL from where the content of the file should be retrieved
-     * 
-     * @param resource
-     * @return
-     */
-    public ExternalFile fromResource(URL resource) {
-        this.contentUrl = resource;
-        return this;
     }
 
     /**
      * Returns the file handle of the external file
-     * 
+     *
      * @return
      */
     public File getFile() {
         return file;
+    }
+
+    /**
+     * Sets the URL that contains the content for the file. <br>
+     * The method must be invoked before the rule is applied.
+     *
+     * @param contentUrl
+     */
+    @RuleSetup
+    public void setContentUrl(final URL contentUrl) {
+        this.contentUrl = contentUrl;
+    }
+
+    /**
+     * Setting this to true will ensure, the file has content provided by the content url. If set to false the file may
+     * not have a content url associated and therefore may be empty. <br>
+     * <br>
+     * The method must be invoked before the rule is applied.
+     *
+     * @param forceContent
+     *            <code>true</code> if contentURL has to be set
+     */
+    @RuleSetup
+    public void setForceContent(final boolean forceContent) {
+        this.forceContent = forceContent;
     }
 
 }
