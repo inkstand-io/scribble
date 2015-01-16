@@ -2,6 +2,7 @@ package li.moskito.scribble.rules.builder;
 
 import li.moskito.scribble.rules.TemporaryFile;
 import li.moskito.scribble.rules.jcr.InMemoryContentRepository;
+import li.moskito.scribble.rules.jcr.StandaloneContentRepository;
 
 import org.junit.rules.TemporaryFolder;
 
@@ -19,6 +20,15 @@ public class TemporaryFolderBuilder extends Builder<TemporaryFolder> {
     }
 
     /**
+     * Creates a builder for an {@link StandaloneContentRepository} that is chained inside the {@link TemporaryFolder}
+     *
+     * @return an {@link StandaloneContentRepositoryBuilder}
+     */
+    public StandaloneContentRepositoryBuilder aroundStandaloneContentRepository() {
+        return new StandaloneContentRepositoryBuilder(build());
+    }
+
+    /**
      * Creates a builder for an {@link InMemoryContentRepository} that is chained inside the {@link TemporaryFolder}
      *
      * @return an {@link InMemoryContentRepositoryBuilder}
@@ -29,7 +39,7 @@ public class TemporaryFolderBuilder extends Builder<TemporaryFolder> {
 
     /**
      * Creates a builder for a {@link TemporaryFile} that is chained inside the {@link TemporaryFolder}
-     * 
+     *
      * @param filename
      *            the name of the temporary file
      * @return a {@link TemporaryFileBuilder}

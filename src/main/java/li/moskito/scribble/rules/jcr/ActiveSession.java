@@ -87,6 +87,7 @@ public class ActiveSession extends ExternalResource {
      * @return the repository
      */
     public Repository getRepository() {
+        assertInitialized();
         return repositoryRule.getRepository();
     }
 
@@ -99,6 +100,7 @@ public class ActiveSession extends ExternalResource {
      * @throws LoginException
      */
     public Session login() throws RepositoryException {
+        assertInitialized();
         final Session session;
         if (username != null && password != null) {
             session = getRepository().login(new SimpleCredentials(username, password.toCharArray()));
@@ -123,6 +125,7 @@ public class ActiveSession extends ExternalResource {
      * @throws RepositoryException
      */
     public Session login(final String username, final String password) throws RepositoryException {
+        assertInitialized();
         if (!userSessions.containsKey(username)) {
             userSessions.put(username, getRepository().login(new SimpleCredentials(username, password.toCharArray())));
         }
@@ -134,6 +137,7 @@ public class ActiveSession extends ExternalResource {
      * @throws RepositoryException
      */
     public Session getAdminSession() throws RepositoryException {
+        assertInitialized();
         if (adminSession == null) {
             adminSession = getRepository().login(new SimpleCredentials("admin", "admin".toCharArray()));
         }

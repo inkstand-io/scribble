@@ -11,9 +11,7 @@ import java.util.Set;
 import javax.security.auth.Subject;
 
 /**
- * 
  * @author Gerald Muecke, gerald@moskito.li
- * 
  */
 public final class SecurityTestHelper {
 
@@ -22,23 +20,36 @@ public final class SecurityTestHelper {
 
     /**
      * Creates a subject for a user with the given name
-     * 
+     *
      * @param userName
      *            name of the user
      * @return a subject for the user
      */
     public static Subject subjectForUser(final String userName) {
+
         final SimpleUserPrincipal principal = new SimpleUserPrincipal(userName);
+        return subjectForUser(principal);
+
+    }
+
+    /**
+     * Creates a subject for the given user principal
+     *
+     * @param userPrincipal
+     *            the user principal to be added to the subject
+     * @return the subject for the user
+     */
+    public static Subject subjectForUser(final Principal userPrincipal) {
 
         final Set<Principal> principals = new HashSet<>();
-        principals.add(principal);
+        principals.add(userPrincipal);
 
-        return new Subject(true, principals, Collections.EMPTY_SET, Collections.EMPTY_SET);
+        return new Subject(false, principals, Collections.EMPTY_SET, Collections.EMPTY_SET);
     }
 
     /**
      * Invokes the specified method on the target in the JAAS Context of the given subject
-     * 
+     *
      * @param jaasSubject
      *            the subject in whose context the method should be invoked
      * @param target
@@ -49,10 +60,7 @@ public final class SecurityTestHelper {
      *            the parameters passed to the method
      * @return the result of the method invocation
      */
-    public static <T> T invokeAs(
-            final Subject jaasSubject,
-            final Object target,
-            final Method method,
+    public static <T> T invokeAs(final Subject jaasSubject, final Object target, final Method method,
             final Object... params) {
 
         return Subject.doAs(jaasSubject, new PrivilegedAction<T>() {
@@ -74,7 +82,7 @@ public final class SecurityTestHelper {
 
     /**
      * Invokes the specified method on the target in the JAAS Context of the given user
-     * 
+     *
      * @param user
      *            the user in whose context the method should be invoked
      * @param target

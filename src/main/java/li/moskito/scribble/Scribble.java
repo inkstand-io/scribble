@@ -7,8 +7,10 @@ import java.util.Random;
 import li.moskito.scribble.inject.Injection;
 import li.moskito.scribble.rules.BaseRule;
 import li.moskito.scribble.rules.builder.Builder;
+import li.moskito.scribble.rules.builder.JNDIContentRepositoryBuilder;
 import li.moskito.scribble.rules.builder.MockContentRepositoryBuilder;
 import li.moskito.scribble.rules.builder.TemporaryFolderBuilder;
+import li.moskito.scribble.rules.jcr.JNDIContentRepository;
 import li.moskito.scribble.rules.jcr.MockContentRepository;
 
 import org.junit.rules.RuleChain;
@@ -151,6 +153,15 @@ public final class Scribble {
      */
     public static MockContentRepositoryBuilder newMockContentRepository() {
         return new MockContentRepositoryBuilder();
+    }
+
+    /**
+     * Creates a new {@link Builder} for a {@link JNDIContentRepository}
+     * 
+     * @return a {@link JNDIContentRepositoryBuilder}
+     */
+    public static JNDIContentRepositoryBuilder newJNDIContextRepository() {
+        return new JNDIContentRepositoryBuilder();
     }
 
     /**

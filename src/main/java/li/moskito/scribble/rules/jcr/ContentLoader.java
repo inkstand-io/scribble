@@ -32,11 +32,12 @@ public class ContentLoader extends BaseRule {
 
     /**
      * Sets the resource containing the description of the content ro
-     * 
+     *
      * @param contentDescriptorUrl
      */
     @RuleSetup(RequirementLevel.REQUIRED)
     public void setContentDescriptorUrl(final URL contentDescriptorUrl) {
+        assertNotInitialized();
         this.contentDescriptorUrl = contentDescriptorUrl;
     }
 
