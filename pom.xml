@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>li.moskito</groupId>
+	<groupId>io.inkstand</groupId>
 	<artifactId>scribble</artifactId>
 	<version>0.0.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -52,9 +52,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git@github.com:moskitoli/scribble.git</connection>
-		<developerConnection>scm:git:git@github.com:moskitoli/scribble.git</developerConnection>
-		<url>git@github.com:moskitoli/scribble.git</url>
+		<connection>scm:git:git@github.com:inkstand-io/scribble.git</connection>
+		<developerConnection>scm:git:git@github.com:inkstand-io/scribble.git</developerConnection>
+		<url>git@github.com:inkstand-io/scribble.git</url>
 	</scm>
 
 	<developers>
@@ -62,7 +62,7 @@
 			<name>Gerald Muecke</name>
 			<email>gerald@moskito.li</email>
 			<organization>Moskito.li</organization>
-			<organizationUrl>https://github.com/moskitoli</organizationUrl>
+			<organizationUrl>https://github.com/inkstand-io</organizationUrl>
 		</developer>
 	</developers>
 
