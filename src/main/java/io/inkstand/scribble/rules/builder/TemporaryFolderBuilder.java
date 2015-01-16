@@ -1,0 +1,55 @@
+package io.inkstand.scribble.rules.builder;
+
+import io.inkstand.scribble.rules.TemporaryFile;
+import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
+import io.inkstand.scribble.rules.jcr.StandaloneContentRepository;
+
+import org.junit.rules.TemporaryFolder;
+
+/**
+ * Builder for the Temporary Folder.
+ *
+ * @author Gerald Muecke, gerald@moskito.li
+ */
+public class TemporaryFolderBuilder extends Builder<TemporaryFolder> {
+
+    private final TemporaryFolder temporaryFolder;
+
+    public TemporaryFolderBuilder() {
+        temporaryFolder = new TemporaryFolder();
+    }
+
+    /**
+     * Creates a builder for an {@link StandaloneContentRepository} that is chained inside the {@link TemporaryFolder}
+     *
+     * @return an {@link StandaloneContentRepositoryBuilder}
+     */
+    public StandaloneContentRepositoryBuilder aroundStandaloneContentRepository() {
+        return new StandaloneContentRepositoryBuilder(build());
+    }
+
+    /**
+     * Creates a builder for an {@link InMemoryContentRepository} that is chained inside the {@link TemporaryFolder}
+     *
+     * @return an {@link InMemoryContentRepositoryBuilder}
+     */
+    public InMemoryContentRepositoryBuilder aroundInMemoryContentRepository() {
+        return new InMemoryContentRepositoryBuilder(build());
+    }
+
+    /**
+     * Creates a builder for a {@link TemporaryFile} that is chained inside the {@link TemporaryFolder}
+     *
+     * @param filename
+     *            the name of the temporary file
+     * @return a {@link TemporaryFileBuilder}
+     */
+    public TemporaryFileBuilder aroundTempFile(final String filename) {
+        return new TemporaryFileBuilder(build(), filename);
+    }
+
+    @Override
+    public TemporaryFolder build() {
+        return temporaryFolder;
+    }
+}

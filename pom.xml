@@ -102,7 +102,7 @@
 						<configuration>
 							<skip>${skipTests}</skip>
 							<includes>
-								<include>li.moskito.scribble.*</include>
+								<include>io.inkstand.scribble.*</include>
 							</includes>
 						</configuration>
 						<executions>
