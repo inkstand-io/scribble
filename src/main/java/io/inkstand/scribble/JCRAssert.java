@@ -14,12 +14,20 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Assertion for writing unit tests against a JCR repository.
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
 public final class JCRAssert {
+
+    /**
+     * SLF4J Logger for this class
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(JCRAssert.class);
 
     private JCRAssert() {
     }
@@ -57,7 +65,8 @@ public final class JCRAssert {
         try {
             session.getNode(absPath);
         } catch (final PathNotFoundException e) {
-            fail("Node " + absPath + " does not exist");
+            LOG.debug("Node path {} does not exist", absPath, e);
+            fail(e.getMessage());
         }
     }
 
@@ -93,7 +102,8 @@ public final class JCRAssert {
         try {
             session.getNodeByIdentifier(itemId);
         } catch (final ItemNotFoundException e) {
-            fail("ItemNotFoundException expected");
+            LOG.debug("Item with id {} does not exist", itemId, e);
+            fail(e.getMessage());
         }
     }
 
@@ -110,7 +120,7 @@ public final class JCRAssert {
         try {
             session.getNodeByIdentifier(itemId);
             fail("ItemNotFoundException expected");
-        } catch (final ItemNotFoundException e) {
+        } catch (final ItemNotFoundException e) { // NOSONAR
             // this was expected
         }
     }
@@ -130,7 +140,8 @@ public final class JCRAssert {
         try {
             rootNode.getNode(relPath);
         } catch (final PathNotFoundException e) {
-            fail("Node " + relPath + " does not exist under " + rootNode.getPath());
+            LOG.debug("Node {} does not exist in path {}", relPath, rootNode.getPath(), e);
+            fail(e.getMessage());
         }
     }
 

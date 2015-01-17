@@ -10,10 +10,18 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Gerald Muecke, gerald@moskito.li
  */
 public final class SecurityTestHelper {
+
+    /**
+     * SLF4J Logger for this class
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityTestHelper.class);
 
     private SecurityTestHelper() {
     }
@@ -75,6 +83,7 @@ public final class SecurityTestHelper {
                 }
             });
         } catch (final PrivilegedActionException e) {
+            LOG.debug("Exception in privileged action", e);
             throw e.getCause();
         }
 
