@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 public class ContentLoader extends BaseRule {
 
+    // TODO add proper content loading and refactor class
+
     /**
      * SLF4J Logger for this class
      */

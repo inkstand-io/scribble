@@ -123,7 +123,7 @@ public abstract class ContentRepository extends ExternalResource implements Inje
      * @throws Exception
      *             if the creation of the repository failed.
      */
-    protected abstract Repository createRepository() throws Exception;
+    protected abstract Repository createRepository() throws Exception; // NOSONAR
 
     /**
      * Is invoked after the test has been executed. Implementation may perform actions to shutdown the repository

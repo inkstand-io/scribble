@@ -266,7 +266,7 @@ public class ResourceInjection extends Injection {
         }
 
         @Override
-        public boolean equals(final Object obj) {
+        public boolean equals(final Object obj) { // NOSONAR
 
             if (this == obj) {
                 return true;

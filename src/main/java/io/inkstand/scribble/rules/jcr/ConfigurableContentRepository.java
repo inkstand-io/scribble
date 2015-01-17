@@ -58,10 +58,10 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      */
     protected RepositoryConfig createRepositoryConfiguration() throws ConfigurationException, IOException {
         final File repositoryLocation = getWorkingDirectory().getRoot();
-        final URL configUrl = getConfigUrl();
-        assertNotNull("No Repository Configuration found", configUrl);
+        final URL configurationUrl = getConfigUrl();
+        assertNotNull("No Repository Configuration found", configurationUrl);
 
-        return RepositoryConfig.create(configUrl.openStream(), repositoryLocation.getAbsolutePath());
+        return RepositoryConfig.create(configurationUrl.openStream(), repositoryLocation.getAbsolutePath());
     }
 
 }

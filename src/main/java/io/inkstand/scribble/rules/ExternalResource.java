@@ -82,7 +82,7 @@ public class ExternalResource extends BaseRule {
      * @throws Throwable
      *             if setup fails (which will disable {@code afterClass}
      */
-    protected void beforeClass() throws Throwable {
+    protected void beforeClass() throws Throwable { // NOSONAR
         // do nothing
     }
 
@@ -99,7 +99,7 @@ public class ExternalResource extends BaseRule {
      * @throws Throwable
      *             if setup fails (which will disable {@code after}
      */
-    protected void before() throws Throwable {
+    protected void before() throws Throwable { // NOSONAR
         // do nothing
     }
 

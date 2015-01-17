@@ -14,18 +14,17 @@ import org.mockito.Mockito;
  * using the {@code when} method of {@link Mockito} on the {@link Repository} that can be obtained by
  * {@code getRepository} <br>
  * Example:<br>
- * 
+ *
  * <pre>
  * <code>
  * final Repository mock = mockRepository.injectTo(subject).getRepository();
  * when(mock.login()).thenThrow(LoginException.class);
  * </code>
  * </pre>
- * 
+ *
  * The MockContentRepository can be initialized per test or per class.
- * 
+ *
  * @author Gerald Muecke, gerald@moskito.li
- * 
  */
 public class MockContentRepository extends ContentRepository {
 
@@ -37,13 +36,12 @@ public class MockContentRepository extends ContentRepository {
      * Creates a repository mock.
      */
     @Override
-    protected Repository createRepository()
-            throws IOException {
+    protected Repository createRepository() throws IOException {
         return mock(Repository.class, RETURNS_DEEP_STUBS);
     }
 
     @Override
-    protected void destroyRepository() {
+    protected void destroyRepository() { // NOSONAR
 
     }
 

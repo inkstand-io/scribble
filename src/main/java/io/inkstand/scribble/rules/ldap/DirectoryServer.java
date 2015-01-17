@@ -34,7 +34,7 @@ public class DirectoryServer implements TestRule {
         };
     }
 
-    protected void startServer() throws Exception {
+    protected void startServer() throws Exception { // NOSONAR
 
         ldapServer = new LdapServer();
         ldapServer.setDirectoryService(directory.getDirectoryService());

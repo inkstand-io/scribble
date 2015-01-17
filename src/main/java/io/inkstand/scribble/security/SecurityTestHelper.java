@@ -1,9 +1,9 @@
 package io.inkstand.scribble.security;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.Principal;
-import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,7 +44,7 @@ public final class SecurityTestHelper {
         final Set<Principal> principals = new HashSet<>();
         principals.add(userPrincipal);
 
-        return new Subject(false, principals, Collections.EMPTY_SET, Collections.EMPTY_SET);
+        return new Subject(false, principals, Collections.emptySet(), Collections.emptySet());
     }
 
     /**
@@ -59,24 +59,24 @@ public final class SecurityTestHelper {
      * @param params
      *            the parameters passed to the method
      * @return the result of the method invocation
+     * @throws Throwable
+     *             if the invocation failed for any reason
      */
     public static <T> T invokeAs(final Subject jaasSubject, final Object target, final Method method,
-            final Object... params) {
+            final Object... params) throws Throwable { // NOSONAR
 
-        return Subject.doAs(jaasSubject, new PrivilegedAction<T>() {
+        try {
+            return Subject.doAs(jaasSubject, new PrivilegedExceptionAction<T>() {
 
-            @SuppressWarnings("unchecked")
-            @Override
-            public T run() {
-                try {
+                @SuppressWarnings("unchecked")
+                @Override
+                public T run() throws Exception {
                     return (T) method.invoke(target, params);
-                } catch (IllegalAccessException | IllegalArgumentException e) {
-                    throw new RuntimeException(e);
-                } catch (final InvocationTargetException e) {
-                    throw new RuntimeException(e.getCause());
                 }
-            }
-        });
+            });
+        } catch (final PrivilegedActionException e) {
+            throw e.getCause();
+        }
 
     }
 
@@ -92,8 +92,11 @@ public final class SecurityTestHelper {
      * @param params
      *            the parameters passed to the method
      * @return the result of the method invocation
+     * @throws Throwable
+     *             if the invokation failed for any reason
      */
-    public static <T> T invokeAs(final String user, final Object target, final Method method, final Object... params) {
+    public static <T> T invokeAs(final String user, final Object target, final Method method, final Object... params)
+            throws Throwable { // NOSONAR
         return invokeAs(subjectForUser(user), target, method, params);
     }
 

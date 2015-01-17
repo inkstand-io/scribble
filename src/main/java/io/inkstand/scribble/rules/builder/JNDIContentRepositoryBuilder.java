@@ -11,6 +11,9 @@ import javax.naming.NamingException;
 
 import junit.framework.AssertionFailedError;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A {@link Builder} for creating a {@link JNDIContentRepository}. The builder allows to override the default lookup
  * name as well setting a {@link Context} or configuring the context to create. If no context property is specified the
@@ -19,7 +22,17 @@ import junit.framework.AssertionFailedError;
  * @author Gerald Muecke, gerald@moskito.li
  */
 public class JNDIContentRepositoryBuilder extends ContentRepositoryBuilder<JNDIContentRepository> {
+
+    /**
+     * SLF4J Logger for this class
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(JNDIContentRepositoryBuilder.class);
+
+    /**
+     * The content repository rule to build
+     */
     private final JNDIContentRepository contentRepository;
+
     /**
      * Properties to use for creating the context
      */
@@ -47,6 +60,7 @@ public class JNDIContentRepositoryBuilder extends ContentRepositoryBuilder<JNDIC
                     ctx = new InitialContext(contextProperties);
                 }
             } catch (final NamingException e) {
+                LOG.error("Repository Lookup failed", e);
                 throw new AssertionFailedError("Rule building failed: " + e.getMessage());
             }
         }

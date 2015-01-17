@@ -19,6 +19,8 @@ import org.junit.runners.model.Statement;
  */
 public class Directory implements TestRule {
 
+    // TODO this class needs cleanup and refactoring
+
     private DirectoryService directoryService;
 
     private final TemporaryFolder folder;
@@ -47,7 +49,7 @@ public class Directory implements TestRule {
         };
     }
 
-    protected void setupService() throws Exception {
+    protected void setupService() throws Exception { // NOSONAR
         // Initialize the LDAP ds
         final DirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
         factory.init("scribble");
@@ -81,7 +83,7 @@ public class Directory implements TestRule {
         return directoryService;
     }
 
-    protected void tearDownService() throws Exception {
+    protected void tearDownService() throws Exception { // NOSONAR
         directoryService.shutdown();
     }
 

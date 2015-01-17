@@ -48,6 +48,7 @@ public class InMemoryContentRepository extends ConfigurableContentRepository {
             final RepositoryConfig config = createRepositoryConfiguration();
             return new TransientRepository(config);
         } catch (final ConfigurationException e) {
+            LOG.error("Configuration invalid", e);
             throw new AssertionFailedError(e.getMessage());
         }
     }

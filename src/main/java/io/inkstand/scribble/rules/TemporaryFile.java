@@ -69,7 +69,7 @@ public class TemporaryFile extends ExternalResource {
     @Override
     protected void after() {
         if (file != null) {
-            file.delete();
+            file.delete(); // NOSONAR
         }
 
     }

@@ -9,8 +9,6 @@ import io.inkstand.scribble.rules.builder.TemporaryFolderBuilder;
 import io.inkstand.scribble.rules.jcr.JNDIContentRepository;
 import io.inkstand.scribble.rules.jcr.MockContentRepository;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Random;
 
 import org.junit.rules.RuleChain;
@@ -157,21 +155,11 @@ public final class Scribble {
 
     /**
      * Creates a new {@link Builder} for a {@link JNDIContentRepository}
-     * 
+     *
      * @return a {@link JNDIContentRepositoryBuilder}
      */
     public static JNDIContentRepositoryBuilder newJNDIContextRepository() {
         return new JNDIContentRepositoryBuilder();
     }
 
-    /**
-     * Generates a random run id.
-     *
-     * @return
-     */
-    public static String generateRunId() {
-        final String ts = new SimpleDateFormat("YYYYMMdd-mm-ss").format(new Date());
-        final String runID = ts + "_" + Math.abs(new Random(System.currentTimeMillis()).nextInt()) + "";
-        return runID;
-    }
 }

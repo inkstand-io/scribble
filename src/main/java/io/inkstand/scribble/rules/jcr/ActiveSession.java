@@ -80,7 +80,7 @@ public class ActiveSession extends ExternalResource {
      * Override this method to register customer node types
      */
     protected void initializeContentModel() throws Exception {
-
+        // TODO add support initialize and destroy content
     }
 
     /**

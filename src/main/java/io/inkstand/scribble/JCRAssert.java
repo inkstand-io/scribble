@@ -16,7 +16,7 @@ import javax.jcr.nodetype.NodeTypeManager;
 
 /**
  * Assertion for writing unit tests against a JCR repository.
- * 
+ *
  * @author Gerald Muecke, gerald@moskito.li
  */
 public final class JCRAssert {
@@ -75,8 +75,8 @@ public final class JCRAssert {
         try {
             session.getNode(absPath);
             fail("Node " + absPath + " does not exist");
-        } catch (final PathNotFoundException e) {
-
+        } catch (final PathNotFoundException e) { // NOSONAR
+            // the exception is expected
         }
     }
 

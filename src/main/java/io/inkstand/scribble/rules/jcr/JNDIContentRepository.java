@@ -58,7 +58,7 @@ public class JNDIContentRepository extends ContentRepository {
     }
 
     @Override
-    protected void destroyRepository() {
+    protected void destroyRepository() { // NOSONAR
 
     }
 
