@@ -10,7 +10,7 @@ import org.junit.runners.model.Statement;
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public class ExternalResource extends BaseRule {
+public abstract class ExternalResource extends BaseRule {
 
     public ExternalResource() {
         super();
