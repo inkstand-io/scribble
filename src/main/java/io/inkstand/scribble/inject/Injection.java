@@ -5,6 +5,7 @@ package io.inkstand.scribble.inject;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -77,7 +78,7 @@ public class Injection {
      * @return the injection value
      */
     protected Object getValue() {
-    
+
         return value;
     }
 
@@ -90,7 +91,12 @@ public class Injection {
      * @return <code>true</code> if the field matches
      */
     protected boolean isMatching(final Field field) {
-    
+
+        if (value == null) {
+            // null is always type-compatible
+            return true;
+        }
+
         return field.getType().isAssignableFrom(value.getClass());
     }
 
@@ -111,11 +117,11 @@ public class Injection {
                 field.setAccessible(true);
                 try {
                     field.set(target, value);
-                    if (returnOnFirstMatch) {
-                        return;
-                    }
                 } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new AssertionError("Injection of " + value + " into " + target + " failed", e);
+                }
+                if (returnOnFirstMatch) {
+                    return;
                 }
             }
         }
@@ -131,20 +137,54 @@ public class Injection {
      */
     private List<Field> collectFieldCandidates(final Object target) {
 
-        final List<Field> fieldCandidates = new ArrayList<>();
-        final Class<?> injectedClass = value.getClass();
-        Class<?> targetClass = target.getClass();
-
-        while (targetClass != Object.class) {
-
-            for (final Field field : targetClass.getDeclaredFields()) {
-                if (field.getType().isAssignableFrom(injectedClass)) {
-                    fieldCandidates.add(field);
-                }
-            }
-            targetClass = targetClass.getSuperclass();
+        final List<Field> fieldCandidates;
+        if (value != null) {
+            final Class<?> injectedClass = value.getClass();
+            final Class<?> targetClass = target.getClass();
+            fieldCandidates = collectFieldCandidated(injectedClass, targetClass);
+        } else {
+            fieldCandidates = Collections.emptyList();
         }
 
+        return fieldCandidates;
+    }
+
+    /**
+     * Collects all matching declared fields of the target class and returns the result as a list.
+     *
+     * @param injectedClass
+     *            the class of the value that should be injected
+     * @param targetClass
+     *            the class of the target of the injection whose declared fields should be collected
+     * @return a list of fields that are type-compatible with the injected class.
+     */
+    private List<Field> collectFieldCandidated(final Class<?> injectedClass, Class<?> targetClass) {
+        final List<Field> fieldCandidates = new ArrayList<>();
+        while (targetClass != Object.class) {
+
+            fieldCandidates.addAll(collectionDeclaredFieldCandidates(injectedClass, targetClass));
+            targetClass = targetClass.getSuperclass();
+        }
+        return fieldCandidates;
+    }
+
+    /**
+     * Collects all declared fields from the targetClass that are type-compatible with the injectedClass into the
+     * fieldCandidates list.
+     *
+     * @param injectedClass
+     *            the class of the injection value
+     * @param targetClass
+     *            the class or any of its superclasses of the injection target
+     * @return list of declared {@link Field}s that are type-compatible with the injected class
+     */
+    private List<Field> collectionDeclaredFieldCandidates(final Class<?> injectedClass, final Class<?> targetClass) {
+        final List<Field> fieldCandidates = new ArrayList<>();
+        for (final Field field : targetClass.getDeclaredFields()) {
+            if (field.getType().isAssignableFrom(injectedClass)) {
+                fieldCandidates.add(field);
+            }
+        }
         return fieldCandidates;
     }
 
