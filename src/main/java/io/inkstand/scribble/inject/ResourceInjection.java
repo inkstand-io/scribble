@@ -241,15 +241,8 @@ public class ResourceInjection extends Injection {
 
         @Override
         public int hashCode() {
-
             final int prime = 31;
             int result = super.hashCode();
-            result = prime * result + ((authenticationType == null)
-                    ? 0
-                    : authenticationType.hashCode());
-            result = prime * result + ((description == null)
-                    ? 0
-                    : description.hashCode());
             result = prime * result + ((lookup == null)
                     ? 0
                     : lookup.hashCode());
@@ -259,15 +252,11 @@ public class ResourceInjection extends Injection {
             result = prime * result + ((name == null)
                     ? 0
                     : name.hashCode());
-            result = prime * result + (shareable
-                    ? 1231
-                    : 1237);
             return result;
         }
 
         @Override
-        public boolean equals(final Object obj) { // NOSONAR
-
+        public boolean equals(final Object obj) {
             if (this == obj) {
                 return true;
             }
@@ -278,16 +267,6 @@ public class ResourceInjection extends Injection {
                 return false;
             }
             final Resource other = (Resource) obj;
-            if (authenticationType != other.authenticationType()) {
-                return false;
-            }
-            if (description == null) {
-                if (other.description() != null) {
-                    return false;
-                }
-            } else if (!description.equals(other.description())) {
-                return false;
-            }
             if (lookup == null) {
                 if (other.lookup() != null) {
                     return false;
@@ -307,9 +286,6 @@ public class ResourceInjection extends Injection {
                     return false;
                 }
             } else if (!name.equals(other.name())) {
-                return false;
-            }
-            if (shareable != other.shareable()) {
                 return false;
             }
             return true;

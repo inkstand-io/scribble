@@ -158,12 +158,13 @@ public class Injection {
      *            the class of the target of the injection whose declared fields should be collected
      * @return a list of fields that are type-compatible with the injected class.
      */
-    private List<Field> collectFieldCandidated(final Class<?> injectedClass, Class<?> targetClass) {
+    private List<Field> collectFieldCandidated(final Class<?> injectedClass, final Class<?> targetClass) {
         final List<Field> fieldCandidates = new ArrayList<>();
-        while (targetClass != Object.class) {
+        Class<?> currentTargetClass = targetClass;
+        while (currentTargetClass != Object.class) {
 
-            fieldCandidates.addAll(collectionDeclaredFieldCandidates(injectedClass, targetClass));
-            targetClass = targetClass.getSuperclass();
+            fieldCandidates.addAll(collectionDeclaredFieldCandidates(injectedClass, currentTargetClass));
+            currentTargetClass = currentTargetClass.getSuperclass();
         }
         return fieldCandidates;
     }
