@@ -4,7 +4,7 @@
 
 	<groupId>io.inkstand</groupId>
 	<artifactId>scribble</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -12,7 +12,7 @@
 	a JCR repository. The framework contains mock repositories, assertion
 	and other helper classes.
 	</description>
-	<url>https://github.com/moskitoli/scribble</url>
+	<url>https://github.com/inkstand-io/scribble</url>
 
 	<properties>
 		<!-- Common Libraries Versions -->
