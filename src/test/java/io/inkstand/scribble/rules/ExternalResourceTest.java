@@ -21,6 +21,8 @@ public class ExternalResourceTest {
     @Mock
     private TestRule outer;
     @Mock
+    private Statement outerStatement;
+    @Mock
     private Statement base;
     @Mock
     private Description description;
@@ -31,6 +33,7 @@ public class ExternalResourceTest {
     public void setUp() throws Exception {
         subject = new ExternalResource() {
         };
+        when(outer.apply(base, description)).thenReturn(outerStatement);
     }
 
     @After
@@ -73,8 +76,35 @@ public class ExternalResourceTest {
     }
 
     @Test
-    public void testExternalResourceTestRule() throws Exception {
-        throw new RuntimeException("not yet implemented");
+    public void testExternalResourceTestRule_classeRule() throws Throwable {
+        // prepare
+        final ExternalResource spy = spy(new ExternalResource(outer) {
+        });
+
+        when(description.isSuite()).thenReturn(true);
+
+        // act
+        final Statement stmt = spy.apply(base, description);
+        stmt.evaluate();
+
+        // assert
+        verify(outer).apply(base, description);
+        verify(outerStatement).evaluate();
+    }
+
+    @Test
+    public void testExternalResourceTestRule_instanceRule() throws Throwable {
+        // prepare
+        final ExternalResource spy = spy(new ExternalResource(outer) {
+        });
+
+        // act
+        final Statement stmt = spy.apply(base, description);
+        stmt.evaluate();
+
+        // assert
+        verify(outer).apply(base, description);
+        verify(outerStatement).evaluate();
     }
 
 }
