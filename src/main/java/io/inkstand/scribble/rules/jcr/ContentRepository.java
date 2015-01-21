@@ -45,8 +45,9 @@ public abstract class ContentRepository extends ExternalResource implements Inje
     @Override
     protected void beforeClass() throws Throwable {
         super.before();
-        repository = createRepository();
         initialized = true;
+        repository = createRepository();
+
     }
 
     /**
@@ -62,7 +63,7 @@ public abstract class ContentRepository extends ExternalResource implements Inje
 
     @Override
     protected void before() throws Throwable {
-        if (!initialized) {
+        if (!isInitialized()) {
             beforeClass();
             beforeExecuted = true;
         }
