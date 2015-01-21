@@ -12,6 +12,7 @@ import java.net.URL;
 import junit.framework.AssertionFailedError;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
@@ -25,6 +26,7 @@ public class TemporaryFileTest {
 
     private static final String TEST_FILE_NAME = "testfile.txt";
 
+    @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
     private TemporaryFile subject;
@@ -117,16 +119,14 @@ public class TemporaryFileTest {
     @Test
     public void testApply() throws Throwable {
 
+        final TemporaryFile subject = new TemporaryFile(new TemporaryFolder(), "testfile.txt");
         // prepare
         final Statement base = spy(new Statement() {
 
             @Override
             public void evaluate() throws Throwable {
-                System.out.println("evaluate");
-                if (!subject.getFile().exists()) {
-                    throw new AssertionFailedError("Test File was not created");
-                }
-
+                assertTrue("Temporary file was not created", subject.getFile().exists());
+                assertEquals("testfile.txt", subject.getFile().getName());
             }
 
         });
