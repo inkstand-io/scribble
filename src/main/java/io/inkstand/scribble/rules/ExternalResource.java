@@ -26,9 +26,9 @@ public abstract class ExternalResource extends BaseRule {
     @Override
     public Statement apply(final Statement base, final Description description) {
         if (description.isSuite()) {
-            return classStatement(super.apply(base, description));
+            return super.apply(classStatement(base), description);
         }
-        return statement(super.apply(base, description));
+        return super.apply(statement(base), description);
     }
 
 /**
