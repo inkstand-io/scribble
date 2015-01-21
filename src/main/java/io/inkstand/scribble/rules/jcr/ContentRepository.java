@@ -116,6 +116,11 @@ public abstract class ContentRepository extends ExternalResource implements Inje
         return repository.login(new SimpleCredentials(userId, password.toCharArray()));
     }
 
+    @Override
+    protected boolean isInitialized() {
+        return initialized;
+    }
+
     /**
      * Creates a JCR {@link Repository}
      *

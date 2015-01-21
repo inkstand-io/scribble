@@ -55,9 +55,20 @@ public abstract class BaseRule implements TestRule {
      * also annotated with {@link RuleSetup}.
      */
     protected void assertNotInitialized() {
-        if (initialized) {
+        if (isInitialized()) {
             throw new AssertionFailedError("Rule is already initialized");
         }
+    }
+
+    /**
+     * Returns whether the rule is initialized. The base rule itself is initialized as soon as it is applied. If an
+     * implementing class determines the initialization state on other condition, this method should be overriden so
+     * that the both initialization assertion methods can be used properly
+     *
+     * @return <code>true</code> when the rule is initialized, <code>false</code> if not
+     */
+    protected boolean isInitialized() {
+        return initialized;
     }
 
     /**
@@ -65,7 +76,7 @@ public abstract class BaseRule implements TestRule {
      * initialized and methods that are intended for being used by tests should be possible to be performed.
      */
     protected void assertInitialized() {
-        if (!initialized) {
+        if (!isInitialized()) {
             throw new AssertionFailedError("Rule is not initialized");
         }
     }

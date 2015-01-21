@@ -1,9 +1,14 @@
 package io.inkstand.scribble.rules;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.After;
 import org.junit.Before;
@@ -12,6 +17,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -78,9 +84,21 @@ public class ExternalResourceTest {
     @Test
     public void testExternalResourceTestRule_classeRule() throws Throwable {
         // prepare
+        final AtomicBoolean beforeClassInvoked = new AtomicBoolean();
+        final AtomicBoolean afterClassInvoked = new AtomicBoolean();
         final ExternalResource spy = spy(new ExternalResource(outer) {
+            @Override
+            protected void beforeClass() throws Throwable {
+                beforeClassInvoked.set(true);
+            }
+
+            @Override
+            protected void afterClass() {
+                afterClassInvoked.set(true);
+            }
         });
 
+        when(outer.apply(any(Statement.class), any(Description.class))).thenReturn(outerStatement);
         when(description.isSuite()).thenReturn(true);
 
         // act
@@ -88,23 +106,50 @@ public class ExternalResourceTest {
         stmt.evaluate();
 
         // assert
-        verify(outer).apply(base, description);
-        verify(outerStatement).evaluate();
+        assertEquals(outerStatement, stmt);
+        final ArgumentCaptor<Statement> captor = ArgumentCaptor.forClass(Statement.class);
+        verify(outer).apply(captor.capture(), any(Description.class));
+
+        // get the statement created by the external rule that is passed to the outer rule
+        final Statement internalStatement = captor.getValue();
+        internalStatement.evaluate();
+        assertTrue(beforeClassInvoked.get());
+        assertTrue(afterClassInvoked.get());
     }
 
     @Test
     public void testExternalResourceTestRule_instanceRule() throws Throwable {
         // prepare
+        final AtomicBoolean beforeInvoked = new AtomicBoolean();
+        final AtomicBoolean afterInvoked = new AtomicBoolean();
         final ExternalResource spy = spy(new ExternalResource(outer) {
+            @Override
+            protected void before() throws Throwable {
+                beforeInvoked.set(true);
+            }
+
+            @Override
+            protected void after() {
+                afterInvoked.set(true);
+            }
         });
+        when(outer.apply(any(Statement.class), any(Description.class))).thenReturn(outerStatement);
 
         // act
         final Statement stmt = spy.apply(base, description);
         stmt.evaluate();
 
         // assert
-        verify(outer).apply(base, description);
-        verify(outerStatement).evaluate();
+        assertEquals(outerStatement, stmt);
+        final ArgumentCaptor<Statement> captor = ArgumentCaptor.forClass(Statement.class);
+        verify(outer).apply(captor.capture(), any(Description.class));
+
+        // get the statement created by the external rule that is passed to the outer rule
+        final Statement internalStatement = captor.getValue();
+        internalStatement.evaluate();
+        assertTrue(beforeInvoked.get());
+        assertTrue(afterInvoked.get());
+
     }
 
 }
