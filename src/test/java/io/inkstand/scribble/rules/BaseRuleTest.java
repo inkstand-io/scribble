@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import junit.framework.AssertionFailedError;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,13 +62,13 @@ public class BaseRuleTest {
         subject.assertNotInitialized();
     }
 
-    @Test(expected = AssertionFailedError.class)
+    @Test(expected = AssertionError.class)
     public void testAssertNotInitialized_initialized_fail() throws Exception {
         subject.apply(base, description);
         subject.assertNotInitialized();
     }
 
-    @Test(expected = AssertionFailedError.class)
+    @Test(expected = AssertionError.class)
     public void testAssertInitialized_notInitialized_fail() throws Exception {
         subject.assertInitialized();
     }

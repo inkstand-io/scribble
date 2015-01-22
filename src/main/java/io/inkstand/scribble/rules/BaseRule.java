@@ -1,7 +1,5 @@
 package io.inkstand.scribble.rules;
 
-import junit.framework.AssertionFailedError;
-
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -56,7 +54,7 @@ public abstract class BaseRule implements TestRule {
      */
     protected void assertNotInitialized() {
         if (isInitialized()) {
-            throw new AssertionFailedError("Rule is already initialized");
+            throw new AssertionError("Rule is already initialized");
         }
     }
 
@@ -77,7 +75,7 @@ public abstract class BaseRule implements TestRule {
      */
     protected void assertInitialized() {
         if (!isInitialized()) {
-            throw new AssertionFailedError("Rule is not initialized");
+            throw new AssertionError("Rule is not initialized");
         }
     }
 }

@@ -3,8 +3,6 @@ package io.inkstand.scribble.rules.jcr;
 import java.io.IOException;
 import java.net.URL;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.config.ConfigurationException;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
@@ -49,7 +47,7 @@ public class InMemoryContentRepository extends ConfigurableContentRepository {
             return new TransientRepository(config);
         } catch (final ConfigurationException e) {
             LOG.error("Configuration invalid", e);
-            throw new AssertionFailedError(e.getMessage());
+            throw new AssertionError(e.getMessage(), e);
         }
     }
 

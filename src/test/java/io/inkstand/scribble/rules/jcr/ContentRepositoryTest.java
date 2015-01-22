@@ -12,8 +12,6 @@ import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import junit.framework.AssertionFailedError;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -107,7 +105,7 @@ public class ContentRepositoryTest {
         verify(spy, times(0)).destroyRepository();
     }
 
-    @Test(expected = AssertionFailedError.class)
+    @Test(expected = AssertionError.class)
     public void testGetRepository_uninitialized_fail() throws Exception {
         subject.getRepository();
     }
@@ -118,7 +116,7 @@ public class ContentRepositoryTest {
         assertEquals(repository, subject.getRepository());
     }
 
-    @Test(expected = AssertionFailedError.class)
+    @Test(expected = AssertionError.class)
     public void testGetInjectionValue_uninitialized_fail() throws Exception {
         subject.getInjectionValue();
     }
@@ -139,12 +137,12 @@ public class ContentRepositoryTest {
         assertEquals(folder, workingDirectory);
     }
 
-    @Test(expected = AssertionFailedError.class)
+    @Test(expected = AssertionError.class)
     public void testGetWorkingDirectory_notInitialized_fail() throws Throwable {
         subject.getWorkingDirectory();
     }
 
-    @Test(expected = AssertionFailedError.class)
+    @Test(expected = AssertionError.class)
     public void testLogin_notInitialized_fail() throws Throwable {
         subject.login("aUser", "aPassword");
     }

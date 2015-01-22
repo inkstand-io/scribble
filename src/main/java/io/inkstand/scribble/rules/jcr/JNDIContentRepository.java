@@ -3,6 +3,7 @@
  */
 package io.inkstand.scribble.rules.jcr;
 
+import static org.junit.Assert.assertNotNull;
 import io.inkstand.scribble.rules.RuleSetup;
 import io.inkstand.scribble.rules.RuleSetup.RequirementLevel;
 
@@ -32,7 +33,7 @@ public class JNDIContentRepository extends ContentRepository {
      */
     private Context context;
 
-    @RuleSetup(RequirementLevel.OPTIONAL)
+    @RuleSetup(RequirementLevel.REQUIRED)
     public void setContext(final Context context) {
         assertNotInitialized();
         this.context = context;
@@ -54,6 +55,8 @@ public class JNDIContentRepository extends ContentRepository {
 
     @Override
     protected Repository createRepository() throws Exception {
+        assertNotNull("No Context set", context);
+        assertNotNull("No lookup name set", lookupName);
         return (Repository) context.lookup(lookupName);
     }
 

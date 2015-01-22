@@ -13,8 +13,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -186,10 +184,10 @@ public class RemoteContentRepository extends ContentRepository {
             return xp.evaluate(xpExpr, document);
         } catch (SAXException | IOException | ParserConfigurationException e) {
             LOG.error("Could not parse arquilian.xml", e);
-            throw new AssertionFailedError("Could not parse arquilian.xml:" + e.getMessage());
+            throw new AssertionError("Could not parse arquilian.xml:" + e.getMessage(), e);
         } catch (final XPathExpressionException e) {
             LOG.error("Could evaluate {}", xpExpr, e);
-            throw new AssertionFailedError("Could evaluate " + xpExpr + ":" + e.getMessage());
+            throw new AssertionError("Could evaluate " + xpExpr + ":" + e.getMessage(), e);
         }
     }
 

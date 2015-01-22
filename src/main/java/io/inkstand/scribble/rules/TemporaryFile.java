@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
-import junit.framework.AssertionFailedError;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.rules.TemporaryFolder;
 
@@ -56,7 +54,7 @@ public class TemporaryFile extends ExternalResource {
     protected void before() throws Throwable {
         file = folder.newFile(filename);
         if (forceContent && contentUrl == null) {
-            throw new AssertionFailedError("ContentUrl is not set");
+            throw new AssertionError("ContentUrl is not set");
         } else if (contentUrl != null) {
             final InputStream is = contentUrl.openStream();
             final OutputStream os = new FileOutputStream(file);

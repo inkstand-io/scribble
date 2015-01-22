@@ -9,8 +9,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import junit.framework.AssertionFailedError;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +59,7 @@ public class JNDIContentRepositoryBuilder extends ContentRepositoryBuilder<JNDIC
                 }
             } catch (final NamingException e) {
                 LOG.error("Repository Lookup failed", e);
-                throw new AssertionFailedError("Rule building failed: " + e.getMessage());
+                throw new AssertionError("Rule building failed: " + e.getMessage(), e);
             }
         }
         contentRepository.setContext(ctx);

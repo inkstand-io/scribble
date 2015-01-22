@@ -9,8 +9,6 @@ import static org.mockito.Mockito.verify;
 
 import java.net.URL;
 
-import junit.framework.AssertionFailedError;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,7 +55,7 @@ public class TemporaryFileTest {
         assertEquals(0, subject.getFile().length());
     }
 
-    @Test(expected = AssertionFailedError.class)
+    @Test(expected = AssertionError.class)
     public void testBefore_noContentForceContent() throws Throwable {
         // prepare
         subject.setForceContent(true);
