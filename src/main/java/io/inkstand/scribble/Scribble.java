@@ -3,13 +3,12 @@ package io.inkstand.scribble;
 import io.inkstand.scribble.inject.Injection;
 import io.inkstand.scribble.rules.BaseRule;
 import io.inkstand.scribble.rules.builder.Builder;
+import io.inkstand.scribble.rules.builder.GenericBuilder;
 import io.inkstand.scribble.rules.builder.JNDIContentRepositoryBuilder;
 import io.inkstand.scribble.rules.builder.MockContentRepositoryBuilder;
 import io.inkstand.scribble.rules.builder.TemporaryFolderBuilder;
 import io.inkstand.scribble.rules.jcr.JNDIContentRepository;
 import io.inkstand.scribble.rules.jcr.MockContentRepository;
-
-import java.util.Random;
 
 import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
@@ -115,6 +114,17 @@ public final class Scribble {
      */
     public static Injection inject(final Object value) {
         return new Injection(value);
+    }
+
+    /**
+     * Extension mechanism to create custom rules instances with Scribble's builder pattern.
+     *
+     * @param ruleType
+     *            the type of the rule to instantiate
+     * @return a {@link GenericBuilder} for that rule.
+     */
+    public static <T extends BaseRule<?>, B extends GenericBuilder<T>> B newRule(final Class<T> ruleType) {
+        throw new UnsupportedOperationException("newRule is not yet supported");
     }
 
     /**
