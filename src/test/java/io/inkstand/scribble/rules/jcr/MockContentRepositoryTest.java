@@ -3,6 +3,7 @@ package io.inkstand.scribble.rules.jcr;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 import javax.jcr.Repository;
 
@@ -34,7 +35,7 @@ public class MockContentRepositoryTest {
     @Test
     public void testMockContentRepository_noWorkingDirectory() throws Throwable {
         // prepare
-        subject.before();
+        BaseRuleHelper.setInitialized(subject);
         // act
         assertNull(subject.getWorkingDirectory());
     }

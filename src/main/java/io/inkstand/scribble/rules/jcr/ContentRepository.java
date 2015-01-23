@@ -16,7 +16,8 @@ import org.junit.rules.TemporaryFolder;
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public abstract class ContentRepository extends ExternalResource implements InjectableHolder<Repository> {
+public abstract class ContentRepository extends ExternalResource<TemporaryFolder> implements
+        InjectableHolder<Repository> {
 
     /**
      * The JCR Repository
@@ -24,8 +25,6 @@ public abstract class ContentRepository extends ExternalResource implements Inje
     private Repository repository;
 
     private final TemporaryFolder workingDirectory;
-
-    private boolean initialized;
 
     private boolean beforeExecuted;
 
@@ -45,7 +44,6 @@ public abstract class ContentRepository extends ExternalResource implements Inje
     @Override
     protected void beforeClass() throws Throwable {
         super.before();
-        initialized = true;
         repository = createRepository();
 
     }
@@ -55,7 +53,6 @@ public abstract class ContentRepository extends ExternalResource implements Inje
      */
     @Override
     protected void afterClass() {
-        initialized = false;
         super.after();
         destroyRepository();
 
@@ -115,11 +112,6 @@ public abstract class ContentRepository extends ExternalResource implements Inje
     public Session login(final String userId, final String password) throws RepositoryException {
         assertInitialized();
         return repository.login(new SimpleCredentials(userId, password.toCharArray()));
-    }
-
-    @Override
-    protected boolean isInitialized() {
-        return initialized;
     }
 
     /**

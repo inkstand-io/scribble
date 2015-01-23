@@ -2,6 +2,7 @@ package io.inkstand.scribble.rules.jcr;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 import java.net.URL;
 
@@ -52,7 +53,7 @@ public class ConfigurableContentRepositoryTest {
     public void testCreateRepositoryConfiguration() throws Throwable {
         // prepare
         subject.setConfigUrl(configUrl);
-        subject.before();
+        BaseRuleHelper.setInitialized(subject);
 
         // act
         final RepositoryConfig config = subject.createRepositoryConfiguration();

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 import javax.jcr.Repository;
 import javax.jcr.Session;
@@ -59,6 +60,7 @@ public class ContentRepositoryTest {
     public void testBeforeClass() throws Throwable {
         // act
         subject.beforeClass();
+        BaseRuleHelper.setInitialized(subject);
         // assert
         // now, the repositor is created
         assertNotNull(subject.getRepository());
@@ -78,6 +80,8 @@ public class ContentRepositoryTest {
     public void testBefore() throws Throwable {
         // act
         subject.before();
+        BaseRuleHelper.setInitialized(subject);
+
         // assert
         // now, the repositor is created
         assertNotNull(subject.getRepository());
@@ -112,8 +116,13 @@ public class ContentRepositoryTest {
 
     @Test
     public void testGetRepository_initialized_ok() throws Throwable {
+        // prepare
         subject.before();
-        assertEquals(repository, subject.getRepository());
+        BaseRuleHelper.setInitialized(subject);
+        // act
+        final Repository repo = subject.getRepository();
+        // assert
+        assertEquals(repository, repo);
     }
 
     @Test(expected = AssertionError.class)
@@ -123,14 +132,19 @@ public class ContentRepositoryTest {
 
     @Test
     public void testGetInjectionValue_initialized_ok() throws Throwable {
+        // prepare
         subject.before();
-        assertEquals(repository, subject.getInjectionValue());
+        BaseRuleHelper.setInitialized(subject);
+        // act
+        final Repository repo = subject.getInjectionValue();
+        // assert
+        assertEquals(repository, repo);
     }
 
     @Test
     public void testGetWorkingDirectory_initialized_ok() throws Throwable {
         // prepare
-        subject.before();
+        BaseRuleHelper.setInitialized(subject);
         // act
         final TemporaryFolder workingDirectory = subject.getWorkingDirectory();
         // aasert
@@ -152,6 +166,7 @@ public class ContentRepositoryTest {
         // prepare
         when(repository.login(any(SimpleCredentials.class))).thenReturn(session);
         subject.before();
+        BaseRuleHelper.setInitialized(subject);
         // act
         final Session userSession = subject.login("aUser", "aPassword");
         // assert

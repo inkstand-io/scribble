@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public class ActiveSession extends ExternalResource {
+public class ActiveSession extends ExternalResource<ContentRepository> {
 
     /**
      * SLF4J Logger for this class
@@ -68,19 +68,6 @@ public class ActiveSession extends ExternalResource {
         }
         userSessions.clear();
         LOG.info("Closed all sessions");
-    }
-
-    @Override
-    protected void before() throws Throwable {
-        super.before();
-        initializeContentModel();
-    }
-
-    /**
-     * Override this method to register customer node types
-     */
-    protected void initializeContentModel() throws Exception {
-        // TODO add support initialize and destroy content
     }
 
     /**

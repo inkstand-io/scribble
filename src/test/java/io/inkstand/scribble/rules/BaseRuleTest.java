@@ -26,11 +26,11 @@ public class BaseRuleTest {
     @Mock
     private Description description;
 
-    private BaseRule subject;
+    private BaseRule<TestRule> subject;
 
     @Before
     public void setUp() throws Exception {
-        subject = new BaseRule() {
+        subject = new BaseRule<TestRule>() {
         };
     }
 
@@ -40,7 +40,7 @@ public class BaseRuleTest {
         // prepare
         when(outer.apply(base, description)).thenReturn(statement);
         // act
-        final BaseRule subject = new BaseRule(outer) {
+        final BaseRule<TestRule> subject = new BaseRule<TestRule>(outer) {
         };
         final Statement stmt = subject.apply(base, description);
 
@@ -64,7 +64,7 @@ public class BaseRuleTest {
 
     @Test(expected = AssertionError.class)
     public void testAssertNotInitialized_initialized_fail() throws Exception {
-        subject.apply(base, description);
+        subject.setInitialized();
         subject.assertNotInitialized();
     }
 
@@ -75,8 +75,16 @@ public class BaseRuleTest {
 
     @Test
     public void testAssertInitialized_initialized_ok() throws Exception {
-        subject.apply(base, description);
+        subject.setInitialized();
         subject.assertInitialized();
+    }
+
+    @Test
+    public void testGetOuterRule() throws Exception {
+        final BaseRule<TestRule> subject = new BaseRule<TestRule>(outer) {
+        };
+
+        assertEquals(outer, subject.getOuterRule());
     }
 
 }

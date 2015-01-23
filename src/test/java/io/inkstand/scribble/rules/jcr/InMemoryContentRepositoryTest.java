@@ -3,6 +3,7 @@ package io.inkstand.scribble.rules.jcr;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 import java.net.URL;
 
@@ -41,6 +42,7 @@ public class InMemoryContentRepositoryTest {
     public void testDestroyRepository() throws Throwable {
         // prepare
         subject.before();
+        BaseRuleHelper.setInitialized(subject);
 
         // act
         subject.destroyRepository();
@@ -64,7 +66,7 @@ public class InMemoryContentRepositoryTest {
      */
     @Test
     public void testInMemoryConfiguraton() throws Throwable {
-        subject.before();
+        BaseRuleHelper.setInitialized(subject);
 
         final RepositoryConfig config = subject.createRepositoryConfiguration();
 
@@ -86,7 +88,7 @@ public class InMemoryContentRepositoryTest {
     public void testCreateRepository() throws Throwable {
 
         // prepare
-        subject.before();
+        BaseRuleHelper.setInitialized(subject);
         // act
         final Repository repository = subject.createRepository();
 

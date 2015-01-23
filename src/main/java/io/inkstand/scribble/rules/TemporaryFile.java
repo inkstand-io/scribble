@@ -15,7 +15,7 @@ import org.junit.rules.TemporaryFolder;
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public class TemporaryFile extends ExternalResource {
+public class TemporaryFile extends ExternalResource<TemporaryFolder> {
 
     /**
      * The URL that points to the resource that provides the content for the file

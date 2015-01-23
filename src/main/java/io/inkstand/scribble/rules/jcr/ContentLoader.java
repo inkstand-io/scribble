@@ -15,7 +15,7 @@ import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContentLoader extends BaseRule {
+public class ContentLoader extends BaseRule<ContentRepository> {
 
     // TODO add proper content loading and refactor class
 

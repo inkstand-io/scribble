@@ -11,12 +11,12 @@ import org.junit.runners.model.Statement;
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public abstract class BaseRule implements TestRule {
+public abstract class BaseRule<T extends TestRule> implements TestRule {
 
     /**
      * Test Rule that should be evaluated around this {@link TestRule}
      */
-    private final TestRule outerRule;
+    private final T outerRule;
     private boolean initialized;
 
     /**
@@ -31,7 +31,7 @@ public abstract class BaseRule implements TestRule {
      *
      * @param outerRule
      */
-    public BaseRule(final TestRule outerRule) {
+    public BaseRule(final T outerRule) {
         this.outerRule = outerRule;
     }
 
@@ -40,7 +40,6 @@ public abstract class BaseRule implements TestRule {
      */
     @Override
     public Statement apply(final Statement base, final Description description) {
-        initialized = true;
         if (outerRule != null) {
             return outerRule.apply(base, description);
         }
@@ -70,6 +69,14 @@ public abstract class BaseRule implements TestRule {
     }
 
     /**
+     * Invoke this method to indicate, the initialization is complete. The method has to be invoked by the implementing
+     * class as the {@link BaseRule} itself won't invoked it.
+     */
+    protected void setInitialized() {
+        initialized = true;
+    }
+
+    /**
      * Invoke this method to verify, it is completely initialized. As soon as the rule is applied, it is set to
      * initialized and methods that are intended for being used by tests should be possible to be performed.
      */
@@ -77,5 +84,14 @@ public abstract class BaseRule implements TestRule {
         if (!isInitialized()) {
             throw new AssertionError("Rule is not initialized");
         }
+    }
+
+    /**
+     * Returns the outer rule for this base rule. The outer rule is applied around the implementing rule
+     * 
+     * @return the outer rule or <code>null</code> if the rule has no outer rule
+     */
+    protected T getOuterRule() {
+        return this.outerRule;
     }
 }

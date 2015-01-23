@@ -10,13 +10,13 @@ import org.junit.runners.model.Statement;
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
-public abstract class ExternalResource extends BaseRule {
+public abstract class ExternalResource<T extends TestRule> extends BaseRule<T> {
 
     public ExternalResource() {
         super();
     }
 
-    public ExternalResource(final TestRule outerRule) {
+    public ExternalResource(final T outerRule) {
         super(outerRule);
     }
 
@@ -44,6 +44,7 @@ public abstract class ExternalResource extends BaseRule {
             @Override
             public void evaluate() throws Throwable {
                 before();
+                setInitialized();
                 try {
                     base.evaluate();
                 } finally {
@@ -67,6 +68,7 @@ public abstract class ExternalResource extends BaseRule {
             @Override
             public void evaluate() throws Throwable {
                 beforeClass();
+                setInitialized();
                 try {
                     base.evaluate();
                 } finally {
