@@ -1,13 +1,22 @@
 package io.inkstand.scribble.rules.builder;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import io.inkstand.scribble.rules.TemporaryFile;
+
+import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -17,39 +26,109 @@ public class TemporaryFileBuilderTest {
     private String fileName;
 
     @Mock
-    private TemporaryFolder folder;
+    private Description description;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     private TemporaryFileBuilder subject;
 
     @Before
     public void setUp() throws Exception {
+
         fileName = "testFile.txt";
         subject = new TemporaryFileBuilder(folder, fileName);
     }
 
     @After
     public void tearDown() throws Exception {
+
     }
 
     @Test
     public void testBuild() throws Exception {
+
         final TemporaryFile file = subject.build();
         assertNotNull(file);
     }
 
     @Test
-    public void testFromClasspathResource() throws Exception {
-        throw new RuntimeException("not yet implemented");
+    public void testFromClasspathResource_absolutePath_existing() throws Throwable {
+
+        // prepare
+
+        // act
+        subject.fromClasspathResource("/io/inkstand/scribble/rules/builder/TemporaryFileBuilderTest_testContent.txt");
+
+        // assert
+        final TemporaryFile tempFile = subject.build();
+        final Statement base = spy(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                final File f = tempFile.getFile();
+                assertTrue(f.exists());
+                assertEquals(4, f.length());
+
+            }
+        });
+        tempFile.apply(base, description).evaluate();
+
+        verify(base).evaluate();
+
     }
 
     @Test
-    public void testFromResource() throws Exception {
-        throw new RuntimeException("not yet implemented");
+    public void testFromResource() throws Throwable {
+
+        // prepare
+
+        // act
+        subject.fromResource(getClass().getResource(
+                "/io/inkstand/scribble/rules/builder/TemporaryFileBuilderTest_testContent.txt"));
+
+        // assert
+        final TemporaryFile tempFile = subject.build();
+        final Statement base = spy(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                final File f = tempFile.getFile();
+                assertTrue(f.exists());
+                assertEquals(4, f.length());
+
+            }
+        });
+        tempFile.apply(base, description).evaluate();
+
+        verify(base).evaluate();
     }
 
-    @Test
-    public void testWithContent() throws Exception {
-        throw new RuntimeException("not yet implemented");
+    @Test(expected = AssertionError.class)
+    public void testWithContent_noContent_fail() throws Throwable {
+
+        // prepare
+
+        // act
+        subject.withContent();
+
+        // assert
+        final TemporaryFile tempFile = subject.build();
+        final Statement base = new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                final File f = tempFile.getFile();
+                assertTrue(f.exists());
+                assertEquals(4, f.length());
+
+            }
+        };
+        tempFile.apply(base, description).evaluate();
+
     }
 
 }
