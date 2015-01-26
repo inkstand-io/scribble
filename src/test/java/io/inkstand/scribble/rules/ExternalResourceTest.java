@@ -37,6 +37,7 @@ public class ExternalResourceTest {
 
     @Before
     public void setUp() throws Exception {
+
         subject = new ExternalResource() {
         };
         when(outer.apply(base, description)).thenReturn(outerStatement);
@@ -44,10 +45,12 @@ public class ExternalResourceTest {
 
     @After
     public void tearDown() throws Exception {
+
     }
 
     @Test
     public void testApply_instanceRule() throws Throwable {
+
         // prepare
         final ExternalResource spy = spy(subject);
 
@@ -56,6 +59,7 @@ public class ExternalResourceTest {
         stmt.evaluate();
 
         // assert
+        assertTrue(spy.isInitialized());
         verify(spy).before();
         verify(spy).after();
         verify(base).evaluate();
@@ -65,6 +69,7 @@ public class ExternalResourceTest {
 
     @Test
     public void testApply_classRule() throws Throwable {
+
         // prepare
         final ExternalResource spy = spy(subject);
         when(description.isSuite()).thenReturn(true);
@@ -73,6 +78,7 @@ public class ExternalResourceTest {
         final Statement stmt = spy.apply(base, description);
         stmt.evaluate();
 
+        assertTrue(spy.isInitialized());
         // assert
         verify(spy, times(0)).before();
         verify(spy, times(0)).after();
@@ -83,17 +89,21 @@ public class ExternalResourceTest {
 
     @Test
     public void testExternalResourceTestRule_classeRule() throws Throwable {
+
         // prepare
         final AtomicBoolean beforeClassInvoked = new AtomicBoolean();
         final AtomicBoolean afterClassInvoked = new AtomicBoolean();
         final ExternalResource spy = spy(new ExternalResource(outer) {
+
             @Override
             protected void beforeClass() throws Throwable {
+
                 beforeClassInvoked.set(true);
             }
 
             @Override
             protected void afterClass() {
+
                 afterClassInvoked.set(true);
             }
         });
@@ -119,17 +129,21 @@ public class ExternalResourceTest {
 
     @Test
     public void testExternalResourceTestRule_instanceRule() throws Throwable {
+
         // prepare
         final AtomicBoolean beforeInvoked = new AtomicBoolean();
         final AtomicBoolean afterInvoked = new AtomicBoolean();
         final ExternalResource spy = spy(new ExternalResource(outer) {
+
             @Override
             protected void before() throws Throwable {
+
                 beforeInvoked.set(true);
             }
 
             @Override
             protected void after() {
+
                 afterInvoked.set(true);
             }
         });

@@ -45,6 +45,7 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
      * @param filename
      */
     public TemporaryFile(final TemporaryFolder folder, final String filename) {
+
         super(folder);
         this.folder = folder;
         this.filename = filename;
@@ -52,23 +53,23 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
 
     @Override
     protected void before() throws Throwable {
+
         file = folder.newFile(filename);
         if (forceContent && contentUrl == null) {
             throw new AssertionError("ContentUrl is not set");
         } else if (contentUrl != null) {
-            final InputStream is = contentUrl.openStream();
-            final OutputStream os = new FileOutputStream(file);
-            IOUtils.copy(is, os);
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
+            try (InputStream is = contentUrl.openStream();
+                    OutputStream os = new FileOutputStream(file)) {
+                IOUtils.copy(is, os);
+            }
+
         }
     }
 
     @Override
     protected void after() {
-        if (file != null) {
-            file.delete(); // NOSONAR
-        }
+
+        file.delete(); // NOSONAR
 
     }
 
@@ -78,6 +79,7 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
      * @return
      */
     public File getFile() {
+
         return file;
     }
 
@@ -89,6 +91,7 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
      */
     @RuleSetup
     public void setContentUrl(final URL contentUrl) {
+
         this.contentUrl = contentUrl;
     }
 
@@ -103,6 +106,7 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
      */
     @RuleSetup
     public void setForceContent(final boolean forceContent) {
+
         this.forceContent = forceContent;
     }
 
