@@ -24,7 +24,7 @@ public class Injection {
     /**
      * Creates a new Injection helper for the target object and the object to be injected.
      *
-     * @param injected
+     * @param injectedValue
      *            the object to be injected
      */
     public Injection(final Object injectedValue) {
@@ -141,7 +141,7 @@ public class Injection {
         if (value != null) {
             final Class<?> injectedClass = value.getClass();
             final Class<?> targetClass = target.getClass();
-            fieldCandidates = collectFieldCandidated(injectedClass, targetClass);
+            fieldCandidates = collectFieldCandidates(injectedClass, targetClass);
         } else {
             fieldCandidates = Collections.emptyList();
         }
@@ -158,7 +158,7 @@ public class Injection {
      *            the class of the target of the injection whose declared fields should be collected
      * @return a list of fields that are type-compatible with the injected class.
      */
-    private List<Field> collectFieldCandidated(final Class<?> injectedClass, final Class<?> targetClass) {
+    private List<Field> collectFieldCandidates(final Class<?> injectedClass, final Class<?> targetClass) {
         final List<Field> fieldCandidates = new ArrayList<>();
         Class<?> currentTargetClass = targetClass;
         while (currentTargetClass != Object.class) {
