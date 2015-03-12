@@ -5,7 +5,6 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
 /**
@@ -23,10 +22,8 @@ public class ListenPortMatcher extends BaseMatcher<TcpPort> {
         int port = ((TcpPort)item).getPortNumber();
 
         if(serverPort) {
-            try {
-                ServerSocket socket = new ServerSocket();
-                socket.bind(new InetSocketAddress(port));
-                socket.close();
+            try (ServerSocket socket = new ServerSocket(port)){
+                //do nothing, saul goodman
             } catch (IOException e) {
                 return false;
             }
