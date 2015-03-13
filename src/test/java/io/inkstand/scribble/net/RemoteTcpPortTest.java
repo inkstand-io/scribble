@@ -1,6 +1,8 @@
 package io.inkstand.scribble.net;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -9,27 +11,31 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
-public class TcpPortTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RemoteTcpPortTest {
+
 
     @Test
-    public void testGetPortNumber() throws Exception {
+    public void testRemoteTcpPort_getHostname() throws Exception {
 
         //prepare
-        int expected = 123;
+        String hostname = "local";
+        int port = 123;
 
         //act
-        TcpPort port = new TcpPort(expected);
-
+        RemoteTcpPort tcp = new RemoteTcpPort(hostname,port);
 
         //assert
-        assertEquals(expected,port.getPortNumber() );
+        assertEquals(hostname, tcp.getHostname() );
+        assertEquals(port, tcp.getPortNumber());
     }
 
     @Test
     public void testGetSocketAddress() throws Exception {
         //prepare
+        String hostname = "localhost";
         int portNumber = 123;
-        TcpPort port = new TcpPort(portNumber);
+        RemoteTcpPort port = new RemoteTcpPort(hostname, portNumber);
 
         //act
         SocketAddress addr = port.getSocketAddress();
@@ -37,6 +43,7 @@ public class TcpPortTest {
         //assert
         assertNotNull(addr);
         assumeTrue(addr instanceof InetSocketAddress);
+        assertEquals(hostname, ((InetSocketAddress)addr).getHostName());
         assertEquals(portNumber, ((InetSocketAddress)addr).getPort());
 
     }

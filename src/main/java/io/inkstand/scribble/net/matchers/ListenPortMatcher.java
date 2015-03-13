@@ -1,4 +1,4 @@
-package io.inkstand.scribble.matchers;
+package io.inkstand.scribble.net.matchers;
 
 import io.inkstand.scribble.net.TcpPort;
 import org.hamcrest.BaseMatcher;

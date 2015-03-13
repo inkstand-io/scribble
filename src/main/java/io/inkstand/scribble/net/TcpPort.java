@@ -1,5 +1,8 @@
 package io.inkstand.scribble.net;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 /**
  * Descriptor for a tcp port that provides type-safety and can be used in combination with {@link org.hamcrest
  * .Matcher}s
@@ -20,5 +23,9 @@ public class TcpPort {
     public int getPortNumber() {
 
         return portNumber;
+    }
+
+    public SocketAddress getSocketAddress() {
+        return new InetSocketAddress(portNumber);
     }
 }
