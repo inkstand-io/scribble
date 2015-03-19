@@ -12,8 +12,6 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.junit.rules.TemporaryFolder;
@@ -26,12 +24,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * Test Rule that provides a directory service. If you need an LDAP directory server, you have to
- * embed this rule in the {@link io.inkstand.scribble.rules.ldap.DirectoryServer} rule.
+ * Test Rule that provides a directory service. If you need an LDAP directory server, you have to embed this rule in the
+ * {@link io.inkstand.scribble.rules.ldap.DirectoryServer} rule.
  *
  * @author Gerald Muecke, gerald@moskito.li
  */
@@ -49,6 +48,7 @@ public class Directory implements TestRule {
     private boolean anonymousAccessEnabled = true;
 
     public Directory(final TemporaryFolder folder) {
+
         super();
         this.folder = folder;
         this.directoryService = createDirectoryService();
@@ -77,7 +77,9 @@ public class Directory implements TestRule {
 
             @Override
             public void evaluate() throws Throwable {
+
                 setupService();
+                startService();
                 try {
                     base.evaluate();
                 } finally {
@@ -90,11 +92,12 @@ public class Directory implements TestRule {
     }
 
     /**
-     * Starts the DirectoryService up. AccessControl and AnonymousAccess are enabled as configured and the
-     * cache service is initialized.
+     * Applies the configuration to the service such as AccessControl and AnonymousAccess. Both are enabled as
+     * configured. Further, the method initializes the cache service.
+     * The method does not start the service.
      *
      * @throws Exception
-     *  if starting the directory service failed for any reason
+     *         if starting the directory service failed for any reason
      */
     protected void setupService() throws Exception { // NOSONAR
 
@@ -107,50 +110,103 @@ public class Directory implements TestRule {
 
         service.setAccessControlEnabled(this.accessControlEnabled);
         service.setAllowAnonymousAccess(this.anonymousAccessEnabled);
-
-        addPartition("scribble", "dc=scribble,dc=org");
-        service.startup();
     }
 
     /**
-     * Creates an AVL implementation based in-memory partition.
-     * @param partitionId
-     *  the id of the partition
-     * @param suffix
-     *  the suffix dn of all partition entries
+     * Starts the service.
      * @throws Exception
-     *  if the partition could not be created
+     *  if the service could not be started for any reason
      */
-    protected void addPartition(final String partitionId,
-            final String suffix) throws Exception {
+    protected void startService() throws Exception { //NOSONAR
 
-        //TODO candidate to be moved to a builder
+        getDirectoryService().startup();
+    }
+
+    /**
+     * Shuts down the directory service
+     *
+     * @throws Exception
+     *         if the shutdown fails for any reason
+     */
+    protected void tearDownService() throws Exception { // NOSONAR
+
+        getDirectoryService().shutdown();
+
+    }
+
+    /**
+     * Creates an AVL implementation based in-memory partition. A partition is required to add entries or import LIDF
+     * data. Once the partition was added, the context entry has to be created. If you're using the ldif import, the use
+     * of this method and the ldif file may look like
+     * <pre>
+     *     <code>
+     *      directory.addPartition(&quot;scribble&quot;, &quot;dc=scribble&quot);
+     *      ...
+     *      // LDIF File
+     *      dn: dc=scribble
+     *      objectClass: top
+     *      objectClass: dcObject
+     *      objectClass: organization
+     *      o: inkstand.io
+     *     </code>
+     * </pre>
+     * The method may be invoked after the service is started, i.e. in the setUp method of a test.
+     *
+     * @param partitionId
+     *         the id of the partition
+     * @param suffix
+     *         the suffix dn of all partition entries
+     *
+     * @throws Exception
+     *         if the partition could not be created
+     */
+    public void addPartition(final String partitionId, final String suffix) throws Exception {
+
         final DirectoryService service = getDirectoryService();
 
         final CacheService cacheService = service.getCacheService();
         final SchemaManager schemaManager = service.getSchemaManager();
         final DnFactory dnFactory = service.getDnFactory();
 
+        final URI partitionPath = new File(service.getInstanceLayout().getPartitionsDirectory(), partitionId).toURI();
         final AvlPartition partition = new AvlPartition(schemaManager, dnFactory);
         partition.setId(partitionId);
         partition.setSuffixDn(dnFactory.create(suffix));
         partition.setCacheService(cacheService);
-        partition.setSyncOnWrite(true);
         partition.setCacheSize(1000);
-        partition.setPartitionPath(new File(service.getInstanceLayout().getPartitionsDirectory(), partitionId).toURI());
+        partition.setSyncOnWrite(true);
+        partition.setPartitionPath(partitionPath);
         partition.addIndex(new AvlIndex<Entry>("objectClass", false));
         partition.initialize();
-        LOG.info("Created partition {} in {}", partitionId, this.folder.getRoot());
+        LOG.info("Created partition {} in {}", partitionId, partitionPath);
         service.addPartition(partition);
     }
 
     /**
-     * Imports directory content that is defined in LDIF format and provided as input stream. The method
-     * writes the stream content into a temporary file.
+     * Adds a partition to the rule. Partitions can only be added before the rule is applied and the service is started
+     * up. So this method is intended to be invoked by a builder but may be used by a test as well. The test
+     * have to create the partition instance itself allowing to use different partition implementations.
+     *
+     * @param partition
+     *         the partition to be added to the service
+     *
+     * @throws Exception
+     *         if adding the partition failed for any reason
+     */
+    public void addPartition(Partition partition) throws Exception {
+
+        getDirectoryService().addPartition(partition);
+    }
+
+    /**
+     * Imports directory content that is defined in LDIF format and provided as input stream. The method writes the
+     * stream content into a temporary file.
+     *
      * @param ldifData
-     *  the ldif data to import as a stream
+     *         the ldif data to import as a stream
+     *
      * @throws IOException
-     *  if the temporary file can not be created
+     *         if the temporary file can not be created
      */
     public void importLdif(InputStream ldifData) throws IOException {
 
@@ -165,43 +221,11 @@ public class Directory implements TestRule {
 
     }
 
-    protected void setupDirectoryContent(final DirectoryService service) throws IOException {
-
-        final CoreSession session = service.getAdminSession();
-        final String ldifFile = prepareLdifFile("LdapUserProfileServiceTest_testUsers.ldif");
-        final LdifFileLoader loader = new LdifFileLoader(session, ldifFile);
-        loader.execute();
-
-    }
-
-    protected String prepareLdifFile(final String ldifResource) throws IOException {
-
-        final InputStream is = getClass().getResourceAsStream(ldifResource);
-        final File ldifFile = this.folder.newFile("testUsers.ldif");
-        try (final FileWriter writer = new FileWriter(ldifFile)) {
-            IOUtils.copy(is, writer);
-        }
-
-        return ldifFile.getAbsolutePath();
-    }
-
-    /**
-     * Adds a partition to the rule. Partitions can only be added before the rule is applied and the service
-     * is started up. So this method is intended to be invoked by a builder.
-     * @param partition
-     *  the partition to be added to the service
-     * @throws Exception
-     *  if adding the partition failed for any reason
-     */
-    protected void addPartition(Partition partition) throws Exception {
-        getDirectoryService().addPartition(partition);
-    }
-
     /**
      * Enables access control on the directory service. Default is false.
      *
      * @param accessControlEnabled
-     *  flag to indicate, if access control should be enabled
+     *         flag to indicate, if access control should be enabled
      */
     protected void setAccessControlEnabled(final boolean accessControlEnabled) {
 
@@ -210,8 +234,9 @@ public class Directory implements TestRule {
 
     /**
      * Enables anonymous access on the directory service. Default is true.
+     *
      * @param anonymousAccessEnabled
-     *  flag to indicate, if anonymous access is allowed
+     *         flag to indicate, if anonymous access is allowed
      */
     protected void setAnonymousAccessEnabled(final boolean anonymousAccessEnabled) {
 
@@ -220,23 +245,12 @@ public class Directory implements TestRule {
 
     /**
      * The Apache DS Directory Service instance wrapped by this rule.
-     * @return
-     *  the {@link org.apache.directory.server.core.api.DirectoryService) instance of this rule
+     *
+     * @return the {@link org.apache.directory.server.core.api.DirectoryService) instance of this rule
      */
     public DirectoryService getDirectoryService() {
 
         return directoryService;
-    }
-
-    /**
-     * Shuts down the directory service
-     * @throws Exception
-     *  if the shutdown fails for any reason
-     */
-    protected void tearDownService() throws Exception { // NOSONAR
-
-        directoryService.shutdown();
-
     }
 
 }
