@@ -42,6 +42,11 @@ public class ListenPortMatcherTest {
     public static final int MAX_RETRY_COUNT = 100;
 
     @Test
+    public void testMatches_nonTcpPort() throws Exception {
+        assertFalse(subject.matches(new Object()));
+    }
+
+    @Test
     public void testMatches_portAvailable_true() throws Exception {
 
         //prepare

@@ -102,6 +102,6 @@ public final class NetworkUtils {
     public static int randomPort() {
 
         int offset = PORT_OFFSET.get();
-        return RANDOM.nextInt(65535 - 1024 - offset) + 1024 + offset;
+        return RANDOM.nextInt(65536 - 1024 - offset) + 1024 + offset;
     }
 }
