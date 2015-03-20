@@ -3,12 +3,11 @@
  */
 package io.inkstand.scribble.inject;
 
+import javax.annotation.Resource;
+import javax.enterprise.util.AnnotationLiteral;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Resource;
-import javax.enterprise.util.AnnotationLiteral;
 
 /**
  * A handle for performing an injection operation of a {@link Resource} annotated field. Matching criteria can be
@@ -47,7 +46,7 @@ public class ResourceInjection extends Injection {
     /**
      * Determines the injection target {@link Resource} by its mapped name
      *
-     * @param lookup
+     * @param name
      *            the mapped name for the resoure
      * @return this {@link ResourceInjection}
      */
