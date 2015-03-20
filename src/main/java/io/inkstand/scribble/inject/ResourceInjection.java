@@ -238,57 +238,7 @@ public class ResourceInjection extends Injection {
             this.description = description;
         }
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + ((lookup == null)
-                    ? 0
-                    : lookup.hashCode());
-            result = prime * result + ((mappedName == null)
-                    ? 0
-                    : mappedName.hashCode());
-            result = prime * result + ((name == null)
-                    ? 0
-                    : name.hashCode());
-            return result;
-        }
 
-        @Override
-        public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!super.equals(obj)) {
-                return false;
-            }
-            if (!(obj instanceof Resource)) {
-                return false;
-            }
-            final Resource other = (Resource) obj;
-            if (lookup == null) {
-                if (other.lookup() != null) {
-                    return false;
-                }
-            } else if (!lookup.equals(other.lookup())) {
-                return false;
-            }
-            if (mappedName == null) {
-                if (other.mappedName() != null) {
-                    return false;
-                }
-            } else if (!mappedName.equals(other.mappedName())) {
-                return false;
-            }
-            if (name == null) {
-                if (other.name() != null) {
-                    return false;
-                }
-            } else if (!name.equals(other.name())) {
-                return false;
-            }
-            return true;
-        }
 
     }
 }
