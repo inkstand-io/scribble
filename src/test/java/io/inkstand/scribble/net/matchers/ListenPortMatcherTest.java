@@ -16,6 +16,7 @@
 
 package io.inkstand.scribble.net.matchers;
 
+import io.inkstand.scribble.net.ListenPortMatcher;
 import io.inkstand.scribble.net.NetworkUtils;
 import io.inkstand.scribble.net.TcpPort;
 import org.hamcrest.Description;

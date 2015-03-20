@@ -16,6 +16,7 @@
 
 package io.inkstand.scribble.rules.ldap;
 
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -37,9 +38,11 @@ import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -176,7 +179,7 @@ public class Directory implements TestRule {
      * @throws Exception
      *         if the partition could not be created
      */
-    public void addPartition(final String partitionId, final String suffix) throws Exception {
+    public void addPartition(final String partitionId, final String suffix) throws Exception { //NOSONAR
 
         final DirectoryService service = getDirectoryService();
 
@@ -209,7 +212,7 @@ public class Directory implements TestRule {
      * @throws Exception
      *         if adding the partition failed for any reason
      */
-    public void addPartition(Partition partition) throws Exception {
+    public void addPartition(Partition partition) throws Exception { //NOSONAR
 
         getDirectoryService().addPartition(partition);
     }
@@ -227,7 +230,8 @@ public class Directory implements TestRule {
     public void importLdif(InputStream ldifData) throws IOException {
 
         final File ldifFile = this.folder.newFile("scribble_import.ldif");
-        try (final FileWriter writer = new FileWriter(ldifFile)) {
+        try (final Writer writer = new OutputStreamWriter(new FileOutputStream(ldifFile), Charsets.UTF_8)) {
+
             IOUtils.copy(ldifData, writer);
         }
         final String pathToLdifFile = ldifFile.getAbsolutePath();

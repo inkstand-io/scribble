@@ -26,10 +26,7 @@ import java.net.ServerSocket;
 import java.util.Random;
 
 import static io.inkstand.scribble.net.NetworkUtils.findAvailablePort;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 public class NetworkUtilsTest {
@@ -132,7 +129,7 @@ public class NetworkUtilsTest {
     }
 
     @Test
-    public void testRandomPort() throws Exception {
+    public void testRandomPort_twoPorts() throws Exception {
 
         int port1 = NetworkUtils.randomPort();
         int port2 = NetworkUtils.randomPort();
@@ -144,6 +141,41 @@ public class NetworkUtilsTest {
         assertTrue(port2 < 65536);
 
         assertNotEquals(port1, port2);
+
+    }
+
+    @Test
+    public void testRandomPort_manyPorts() throws Exception {
+
+        for (int i = 0, len = 65536 * 20; i < len; i++) {
+            int port = NetworkUtils.randomPort();
+            assertTrue(port >= 1024);
+            assertTrue(port < 65536);
+        }
+    }
+
+    @Test
+    public void testGetPortOffset_default() throws Exception {
+        //prepare
+
+        //act
+        int offset = NetworkUtils.getPortOffset();
+
+        //assert
+        assertEquals(1024, offset);
+
+    }
+
+    @Test
+    public void testGetPortOffset_customOffset() throws Exception {
+        //prepare
+        NetworkUtils.PORT_OFFSET.set(10000);
+
+        //act
+        int offset = NetworkUtils.getPortOffset();
+
+        //assert
+        assertEquals(11024, offset);
 
     }
 

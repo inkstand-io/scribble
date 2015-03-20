@@ -14,39 +14,53 @@
  * limitations under the License
  */
 
-package io.inkstand.scribble.net.matchers;
+package io.inkstand.scribble.net;
 
-import io.inkstand.scribble.net.TcpPort;
+import io.inkstand.scribble.matchers.TimeoutSupport;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Matcher for verifying a tcp port is available as server port.
+ * Created by <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a> on 3/12/2015
+ *
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class ListenPortMatcher extends BaseMatcher<TcpPort> {
+public class EndpointMatcher extends BaseMatcher<TcpPort> implements TimeoutSupport{
+
+    private long timeout = 0;
+
+
+    @Override
+    public EndpointMatcher within(long duration, TimeUnit timeUnit) {
+        timeout = timeUnit.toMillis(duration);
+        return this;
+    }
+
 
     @Override
     public boolean matches(final Object item) {
 
-        if (!(item instanceof TcpPort)) {
+        if(!(item instanceof TcpPort)){
             return false;
         }
-        int port = ((TcpPort) item).getPortNumber();
 
-        try (ServerSocket socket = new ServerSocket(port)) {
-            //do nothing, saul goodman
-        } catch (IOException e) {
+        SocketAddress addr = ((TcpPort)item).getSocketAddress();
+
+        try(Socket socket = new Socket()){
+            socket.connect(addr, (int) timeout);
+            return true;
+        } catch (IOException e) { //NOSONAR
             return false;
         }
-        return true;
     }
 
     @Override
     public void describeTo(final Description description) {
-
-        description.appendText("tcp port is available");
+        description.appendText("Port reachable");
     }
 }

@@ -20,6 +20,7 @@ import java.net.ServerSocket;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -103,8 +104,9 @@ public final class NetworkUtils {
 
         try (ServerSocket socket = new ServerSocket(port)) {
 
+            assertTrue(socket.isBound());
             return true;
-        } catch (Exception e) {
+        } catch (Exception e) { //NOSONAR
             return false;
         }
     }
@@ -116,7 +118,19 @@ public final class NetworkUtils {
      */
     public static int randomPort() {
 
-        int offset = PORT_OFFSET.get();
-        return RANDOM.nextInt(65536 - 1024 - offset) + 1024 + offset;
+        final int offset = getPortOffset();
+        return RANDOM.nextInt(65536 - offset) + offset;
+    }
+
+    /**
+     * The port offset is the range of ports that should not be used to find an open server port. The portrange is
+     * always above 1024 to not collide with the standard ports below 1024. Further, the scribble system property for
+     * defining an offset is applied. The default scribble offset is 0.
+     *
+     * @return the offset to apply for port search
+     */
+    static int getPortOffset() {
+
+        return 1024 + PORT_OFFSET.get();
     }
 }

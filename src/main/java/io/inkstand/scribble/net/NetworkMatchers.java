@@ -16,15 +16,16 @@
 
 package io.inkstand.scribble.net;
 
-import io.inkstand.scribble.net.matchers.EndpointMatcher;
-import io.inkstand.scribble.net.matchers.ListenPortMatcher;
-
 /**
  * Created by Gerald M&uuml;cke on 11.03.2015.
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class NetworkMatchers {
+public final class NetworkMatchers {
+
+    private NetworkMatchers() {
+
+    }
 
     /**
      * Matcher to verify if a {@link io.inkstand.scribble.net.TcpPort} is available to be used as server port.

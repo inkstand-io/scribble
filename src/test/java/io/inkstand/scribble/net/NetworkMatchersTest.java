@@ -16,7 +16,6 @@
 
 package io.inkstand.scribble.net;
 
-import io.inkstand.scribble.net.matchers.ListenPortMatcher;
 import org.junit.Test;
 
 import static io.inkstand.scribble.net.NetworkMatchers.isAvailable;
