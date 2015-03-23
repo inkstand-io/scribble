@@ -123,7 +123,7 @@ public final class Scribble {
     /**
      * Helper method to create an {@link Injection} support instance for the value.
      *
-     * @param target
+     * @param value
      *            the value to be injected
      * @return an {@link Injection} support for injecting the value into a target
      */

@@ -22,7 +22,7 @@ import io.inkstand.scribble.rules.jcr.ContentRepository;
 /**
  * A builder for a {@link ActiveSession}. The {@link ActiveSession} rule requires {@link ContentRepository} as outer rule.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class JCRSessionBuilder extends Builder<ActiveSession> {
 

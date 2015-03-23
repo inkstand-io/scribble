@@ -29,7 +29,7 @@ import java.net.URL;
  * A rule for creating an external file in a temporary folder with a specific content. If no content is defined an empty
  * file will be created
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class TemporaryFile extends ExternalResource<TemporaryFolder> {
 

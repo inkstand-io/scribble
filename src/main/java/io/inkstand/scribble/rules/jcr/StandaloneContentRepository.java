@@ -31,7 +31,7 @@ import java.net.URL;
  * repository is a pure in memory persistence. If actual persistence is required, an according configuration has to be
  * configured.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class StandaloneContentRepository extends ConfigurableContentRepository {
 

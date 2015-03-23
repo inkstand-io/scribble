@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
  *
  * The MockContentRepository can be initialized per test or per class.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class MockContentRepository extends ContentRepository {
 

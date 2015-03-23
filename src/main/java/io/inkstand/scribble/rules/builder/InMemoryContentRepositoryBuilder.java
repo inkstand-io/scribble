@@ -23,7 +23,7 @@ import org.junit.rules.TemporaryFolder;
  * A Builder for an {@link InMemoryContentRepository}. The {@link InMemoryContentRepository} requires a
  * {@link TemporaryFolder} as outer rule.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class InMemoryContentRepositoryBuilder extends ContentRepositoryBuilder<InMemoryContentRepository> {
 

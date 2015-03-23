@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
 /**
  * Assertion for writing unit tests against a JCR repository.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public final class JCRAssert {
 

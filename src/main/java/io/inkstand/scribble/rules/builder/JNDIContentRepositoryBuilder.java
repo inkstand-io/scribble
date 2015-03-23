@@ -31,7 +31,7 @@ import java.util.Properties;
  * name as well setting a {@link Context} or configuring the context to create. If no context property is specified the
  * default {@link Context} will be used.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class JNDIContentRepositoryBuilder extends ContentRepositoryBuilder<JNDIContentRepository> {
 

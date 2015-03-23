@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
  * A {@link ContentRepository} implementation for providing a repository using a JNDI lookup. The repsitory is searched
  * used the configured Context.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class JNDIContentRepository extends ContentRepository {
 

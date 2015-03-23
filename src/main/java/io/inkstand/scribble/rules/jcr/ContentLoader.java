@@ -29,6 +29,12 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.net.URL;
 
+/**
+ * The ContentLoader is a testRule to prefill a {@link ContentRepository} with a node structure before the test.
+ * <p>Experimental!</p>
+ *
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
+ */
 public class ContentLoader extends BaseRule<ContentRepository> {
 
     // TODO add proper content loading and refactor class

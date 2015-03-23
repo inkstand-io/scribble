@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * A {@link TestRule} for creating an active JCR session for a test.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class ActiveSession extends ExternalResource<ContentRepository> {
 

@@ -25,7 +25,7 @@ import org.junit.runners.model.Statement;
  * Base {@link TestRule} that allows to define an outer rule that is evaluated around this rule. This is an alternative
  * to {@link RuleChain} that is helpful if rules depend on each other.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public abstract class BaseRule<T extends TestRule> implements TestRule {
 

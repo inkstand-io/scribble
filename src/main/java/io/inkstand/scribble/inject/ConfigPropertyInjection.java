@@ -25,7 +25,7 @@ import java.lang.reflect.Field;
  * type and has a name. If the property annotation defines a default value, it is injected if the inject value is
  * <code>null</code>.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald Muecke</a>
  */
 public class ConfigPropertyInjection extends Injection {
 

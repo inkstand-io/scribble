@@ -21,6 +21,12 @@ import io.inkstand.scribble.rules.jcr.ContentRepository;
 
 import java.net.URL;
 
+/**
+ * Builder for creating {@link io.inkstand.scribble.rules.jcr.ContentLoader} TestRules. A content loader can be used to
+ * prefill a JCR Content Repository.
+ *
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
+ */
 public class ContentLoaderBuilder extends Builder<ContentLoader> {
 
     private final ContentLoader contentLoader;

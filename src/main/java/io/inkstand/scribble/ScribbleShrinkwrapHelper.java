@@ -30,6 +30,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 
+/**
+ * Helper class for creating archives for Arquillian based tests.
+ *
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
+ */
 public class ScribbleShrinkwrapHelper {
 
     /**

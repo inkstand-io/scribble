@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
  * Abstract {@link TestRule} for providing a JCR {@link Repository} that requires a configuration an a working
  * directory.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public abstract class ConfigurableContentRepository extends ContentRepository {
 

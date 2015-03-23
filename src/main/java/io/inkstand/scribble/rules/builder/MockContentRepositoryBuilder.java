@@ -20,8 +20,8 @@ import io.inkstand.scribble.rules.jcr.MockContentRepository;
 
 /**
  * A builder for a {@link MockContentRepository}
- * 
- * @author Gerald Muecke, gerald@moskito.li
+ *
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class MockContentRepositoryBuilder extends Builder<MockContentRepository> {
 

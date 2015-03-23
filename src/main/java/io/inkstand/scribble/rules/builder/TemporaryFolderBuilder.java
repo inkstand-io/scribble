@@ -24,7 +24,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * Builder for the Temporary Folder.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class TemporaryFolderBuilder extends Builder<TemporaryFolder> {
 

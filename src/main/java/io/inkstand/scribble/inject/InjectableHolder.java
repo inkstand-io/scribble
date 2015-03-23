@@ -25,7 +25,7 @@ import org.junit.rules.TestRule;
  * Interface to be used by Testing objects such as {@link TestRule}s to provide an object to be injected into a test
  * subject.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  * @param <T>
  *            the type of the injected value
  */

@@ -24,7 +24,7 @@ import org.junit.runners.model.Statement;
  * Alternative for {@link org.junit.rules.ExternalResource} that supports class-level before and after statements and
  * {@link TestRule} chaining.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public abstract class ExternalResource<T extends TestRule> extends BaseRule<T> {
 

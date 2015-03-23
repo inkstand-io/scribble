@@ -23,8 +23,8 @@ import java.net.URL;
 
 /**
  * Builder for creating a temporary file in a temporary folder.
- * 
- * @author Gerald Muecke, gerald@moskito.li
+ *
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class TemporaryFileBuilder extends Builder<TemporaryFile> {
 

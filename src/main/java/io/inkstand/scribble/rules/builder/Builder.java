@@ -18,6 +18,14 @@ package io.inkstand.scribble.rules.builder;
 
 import org.junit.rules.TestRule;
 
+/**
+ * Base class for {@link org.junit.rules.TestRule} builders.
+ *
+ * @param <T>
+ *         the type of the {@link org.junit.rules.TestRule} the build can be used to build
+ *
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
+ */
 public abstract class Builder<T extends TestRule> {
 
     public abstract T build();

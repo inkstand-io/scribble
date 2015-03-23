@@ -21,7 +21,7 @@ import io.inkstand.scribble.rules.BaseRule;
 /**
  * Generic builder implementation that is configurable and dynamically instantiates the rule and nested rules.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public abstract class GenericBuilder<T extends BaseRule<?>> extends Builder<T> {
 

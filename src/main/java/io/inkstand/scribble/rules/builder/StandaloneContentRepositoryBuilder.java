@@ -25,7 +25,7 @@ import java.net.URL;
  * A Builder for an {@link StandaloneContentRepository}. The {@link StandaloneContentRepository} requires a
  * {@link TemporaryFolder} as outer rule.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class StandaloneContentRepositoryBuilder extends ContentRepositoryBuilder<StandaloneContentRepository> {
 

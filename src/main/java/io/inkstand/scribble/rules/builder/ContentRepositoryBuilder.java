@@ -23,7 +23,7 @@ import io.inkstand.scribble.rules.jcr.ContentRepository;
 /**
  * Abstract Builder for {@link ContentRepository} rules.
  *
- * @author Gerald Muecke, gerald@moskito.li
+ * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  * @param <T>
  *            the Type of the {@link ContentRepository}
  */
