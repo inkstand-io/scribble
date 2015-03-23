@@ -19,16 +19,30 @@
  */
 package io.inkstand.scribble.inject;
 
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.deltaspike.core.api.config.ConfigProperty;
+
 /**
- * Provides means to inject a value into an arbitrary object's fields. The default
+ *
+ * Provides means to inject a value into an arbitrary object's fields.
+ * <br/>
+ * Example:
+ * <pre><code>
+ *     class Target {
+ *         {@literal @}Resource(name=&quot;resourceName&quot;)
+ *         private Object myResource
+ *         //...
+ *     };
+ *     //...
+ *     Target target = ...;
+ *     Object anyValue = ...;
+ *     new Injection(anyValue).asResource().byName("resourceName").into(target);
+ * </code></pre>
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
