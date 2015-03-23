@@ -53,13 +53,23 @@ public final class NetworkMatchers {
      * @param port
      *         the tcp port number to be wrapped
      *
-     * @return a TcpPort instance describing the tcp port
+     * @return a {@link TcpPort} instance describing the tcp port
      */
     public static TcpPort port(int port) {
 
         return new TcpPort(port);
     }
 
+    /**
+     * Creates a type-safe tcp port pointing ot a remote host and port.
+     *
+     * @param hostname
+     *         the hostname of the remote host
+     * @param port
+     *         the port of the remote host
+     *
+     * @return a {@link TcpPort} instance describing the tcp port
+     */
     public static TcpPort remotePort(String hostname, int port){
         return new RemoteTcpPort(hostname, port);
     }
