@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+  ~ Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<templates>
+    <template autoinsert="true" context="java" deleted="false" description="Mockito Argument Captor" enabled="true"
+              name="capture">final ArgumentCaptor&lt;${type}&gt; captor = ArgumentCaptor.forClass(${type}.class);&#13;
+Mockito.verify(${mock}).${method}(captor.capture());&#13;
+final ${type} passedParam = captor.getValue();</template><template autoinsert="true" context="java" deleted="false" description="disables autoformatter" enabled="true" name="foff">//@formatter:off</template><template autoinsert="true" context="java" deleted="false" description="Enables Autoformatter" enabled="true" name="fon">//@formatter:on</template><template autoinsert="true" context="java" deleted="false" description="creates a logger construct" enabled="true" name="llc">/**&#13;
+ * SLF4J Logger for this class&#13;
+ */&#13;
+ private static final Logger LOG = LoggerFactory.getLogger(${enclosing_type}.class);</template><template autoinsert="true" context="java" deleted="false" description="creates a debug statement" enabled="true" name="lld">LOG.debug("${cursor}", ${parameter});&#13;
+</template><template autoinsert="true" context="java" deleted="false" description="creates a log error statement" enabled="true" name="lle">LOG.error("${cursor}", ${exception_variable_name});</template><template autoinsert="true" context="java" deleted="false" description="Creates an entry trace log statement" enabled="true" name="llenter">LOG.trace("ENTER ${enclosing_method}", ${enclosing_method_arguments});&#13;
+&#13;
+</template><template autoinsert="true" context="java" deleted="false" description="Creates a trace exit statement" enabled="true" name="llexit">LOG.trace("EXIT ${enclosing_method}", ${return_value});&#13;
+</template><template autoinsert="true" context="java" deleted="false" description="creates an info log statement" enabled="true" name="lli">LOG.info("${cursor}");</template><template autoinsert="true" context="java" deleted="false" description="Creates a warning loggin statement" enabled="true" name="llw">LOG.warn("${cursor}");</template><template autoinsert="true" context="java" deleted="false" description="" enabled="true" name="mock">@Mock&#13;
+private ${mockType} ${mockName};</template><template autoinsert="true" context="java" deleted="false" description="Creates the prepare, act, assert structure" enabled="true" name="paa">//prepare&#13;
+${cursor}&#13;
+//act&#13;
+&#13;
+//assert</template><template autoinsert="true" context="java" deleted="false" description="RunWith MockitoJUnitRunner" enabled="true" name="rwmockito">@RunWith(MockitoJUnitRunner.class)</template><template autoinsert="true" context="java" deleted="false" description="" enabled="true" name="setup">@Before&#13;
+public void setUp() throws Exception {&#13;
+        &#13;
+}</template><template autoinsert="true" context="java" deleted="false" description="" enabled="true" name="teardown">@After&#13;
+public void tearDown() throws Exception {&#13;
+        &#13;
+}</template></templates>
