@@ -16,9 +16,9 @@
 
 package io.inkstand.scribble.inject;
 
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-
 import java.lang.reflect.Field;
+import javax.inject.Inject;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 /**
  * Injection support for injecting DeltaSpike {@link ConfigProperty} annotated properties. The property can be of any
@@ -60,15 +60,18 @@ public class ConfigPropertyInjection extends Injection {
      */
     @Override
     protected boolean isMatching(final Field field) {
+
         final boolean matches = super.isMatching(field);
-        final ConfigProperty configProperty = field.getAnnotation(ConfigProperty.class);
-        if (matches && configProperty != null && configPropertyName.equals(configProperty.name())) {
-
-            defaultValue = configProperty.defaultValue();
-
-            return true;
+        final boolean isInject = field.getAnnotation(Inject.class) != null;
+        if (!matches || !isInject) {
+            return false;
         }
 
+        final ConfigProperty configProperty = field.getAnnotation(ConfigProperty.class);
+        if (configProperty != null && configPropertyName.equals(configProperty.name())) {
+            defaultValue = configProperty.defaultValue();
+            return true;
+        }
         return false;
     }
 

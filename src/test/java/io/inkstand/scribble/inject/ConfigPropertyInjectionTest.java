@@ -16,14 +16,14 @@
 
 package io.inkstand.scribble.inject;
 
+import static org.junit.Assert.*;
+
+import java.lang.reflect.Field;
+import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.reflect.Field;
-
-import static org.junit.Assert.*;
 
 public class ConfigPropertyInjectionTest {
 
@@ -50,7 +50,7 @@ public class ConfigPropertyInjectionTest {
         final ConfigPropertyInjection subject = new ConfigPropertyInjection("config.property.default", null);
         assertNull(subject.getValue());
         // get the field of the config property that has a default value and matches the injection name
-        final Field field = SimpleInjectionTarget.class.getDeclaredField("congfigPropertyWithDefault");
+        final Field field = SimpleInjectionTarget.class.getDeclaredField("configPropertyWithDefault");
         // trigger a successful match
         subject.isMatching(field);
 
@@ -64,18 +64,28 @@ public class ConfigPropertyInjectionTest {
 
     @Test
     public void testIsMatching_configPropertyNameMatch_True() throws Exception {
-        final Field field = SimpleInjectionTarget.class.getDeclaredField("congfigProperty");
+
+        final Field field = SimpleInjectionTarget.class.getDeclaredField("configProperty");
         assertTrue(subject.isMatching(field));
     }
 
     @Test
     public void testIsMatching_configPropertyNameMismatch_false() throws Exception {
-        final Field field = SimpleInjectionTarget.class.getDeclaredField("congfigPropertyWithDefault");
+
+        final Field field = SimpleInjectionTarget.class.getDeclaredField("configPropertyWithDefault");
+        assertFalse(subject.isMatching(field));
+    }
+
+    @Test
+    public void testIsMatching_noInjectConfigProperty_false() throws Exception {
+
+        final Field field = SimpleInjectionTarget.class.getDeclaredField("noInjectConfigProperty");
         assertFalse(subject.isMatching(field));
     }
 
     @Test
     public void testIsMatching_noConfigProperty_false() throws Exception {
+
         final Field field = SimpleInjectionTarget.class.getDeclaredField("noConfigProperty");
         assertFalse(subject.isMatching(field));
     }
@@ -83,10 +93,15 @@ public class ConfigPropertyInjectionTest {
     static class SimpleInjectionTarget {
 
         @ConfigProperty(name = "config.property")
-        String congfigProperty;
+        String noInjectConfigProperty;
 
+        @Inject
+        @ConfigProperty(name = "config.property")
+        String configProperty;
+
+        @Inject
         @ConfigProperty(name = "config.property.default", defaultValue = "defaultValue")
-        String congfigPropertyWithDefault;
+        String configPropertyWithDefault;
 
         String noConfigProperty;
     }
