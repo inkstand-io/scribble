@@ -162,7 +162,7 @@ public class Injection {
      *
      * @return the corresponding primitive type
      */
-    private Class<?> primitiveTypeFor(final Class<?> valueType) {
+    private Class primitiveTypeFor(final Class<?> valueType) {
 
         return PRIMITIVE_TYPE_MAP.get(valueType);
 
