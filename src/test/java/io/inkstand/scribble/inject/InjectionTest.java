@@ -16,16 +16,17 @@
 
 package io.inkstand.scribble.inject;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
+
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.lang.reflect.Field;
-
-import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InjectionTest {
