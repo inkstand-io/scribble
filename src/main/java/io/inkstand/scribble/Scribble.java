@@ -16,17 +16,20 @@
 
 package io.inkstand.scribble;
 
+import org.junit.rules.RuleChain;
+import org.junit.rules.TemporaryFolder;
+
 import io.inkstand.scribble.inject.Injection;
 import io.inkstand.scribble.rules.BaseRule;
 import io.inkstand.scribble.rules.builder.Builder;
 import io.inkstand.scribble.rules.builder.GenericBuilder;
+import io.inkstand.scribble.rules.builder.InMemoryContentRepositoryBuilder;
 import io.inkstand.scribble.rules.builder.JNDIContentRepositoryBuilder;
 import io.inkstand.scribble.rules.builder.MockContentRepositoryBuilder;
+import io.inkstand.scribble.rules.builder.StandaloneContentRepositoryBuilder;
 import io.inkstand.scribble.rules.builder.TemporaryFolderBuilder;
 import io.inkstand.scribble.rules.jcr.JNDIContentRepository;
 import io.inkstand.scribble.rules.jcr.MockContentRepository;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TemporaryFolder;
 
 /**
  * Main utility class for the Inkstand test framework Scribble. <h2>Injection support</h2> Scribble allows injecting
@@ -183,8 +186,16 @@ public final class Scribble {
      *
      * @return a {@link JNDIContentRepositoryBuilder}
      */
-    public static JNDIContentRepositoryBuilder newJNDIContextRepository() {
+    public static JNDIContentRepositoryBuilder newJNDIContentRepository() {
         return new JNDIContentRepositoryBuilder();
+    }
+
+    public static InMemoryContentRepositoryBuilder newInMemoryContentRepository() {
+        return newTempFolder().aroundInMemoryContentRepository();
+    }
+
+    public static StandaloneContentRepositoryBuilder newStandaloneContentRepository() {
+        return newTempFolder().aroundStandaloneContentRepository();
     }
 
 }
