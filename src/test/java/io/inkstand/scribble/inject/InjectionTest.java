@@ -16,15 +16,17 @@
 
 package io.inkstand.scribble.inject;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
+
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.lang.reflect.Field;
-
-import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InjectionTest {
@@ -33,11 +35,39 @@ public class InjectionTest {
     private String injectionValue;
     private Injection subject;
 
+    @Mock
+    private InjectableHolder injectableHolder;
+
     @Before
     public void setUp() throws Exception {
         injectionTarget = new SimpleInjectionTarget();
         injectionValue = "testValue";
         subject = new Injection(injectionValue);
+    }
+
+    @Test
+    public void testInjection_InjectableHolder() throws Exception {
+        //prepare
+        String value = "123";
+        when(injectableHolder.getInjectionValue()).thenReturn(value);
+
+        //act
+        Injection injection = new Injection(injectableHolder);
+
+        //assert
+        assertEquals(value, injection.getValue());
+    }
+
+    @Test
+    public void testInjection_AnyObject() throws Exception {
+        //prepare
+        Integer value = 123;
+
+        //act
+        Injection injection = new Injection(value);
+
+        //assert
+        assertEquals(value, injection.getValue());
     }
 
     @Test

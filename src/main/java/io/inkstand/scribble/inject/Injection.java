@@ -58,7 +58,11 @@ public class Injection {
      */
     public Injection(final Object injectedValue) {
 
-        value = injectedValue;
+        if(injectedValue instanceof InjectableHolder){
+            value  = ((InjectableHolder) injectedValue).getInjectionValue();
+        } else {
+            value = injectedValue;
+        }
     }
 
     /**
