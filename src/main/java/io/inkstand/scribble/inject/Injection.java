@@ -19,13 +19,13 @@
  */
 package io.inkstand.scribble.inject;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Resource;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 /**
@@ -95,13 +95,23 @@ public class Injection {
     }
 
     /**
-     * Prepares an injection of a {@link ConfigProperty} annotated field
+     * Prepares an injection of a {@link ConfigProperty} qualified injection point field.
      *
      * @return a {@link ConfigPropertyInjection} handle
      */
     public ConfigPropertyInjection asConfigProperty(final String propertyName) {
 
         return new ConfigPropertyInjection(propertyName, this.getValue());
+    }
+
+    /**
+     * Prepares an injection of {@link javax.inject.Inject} annotated field. The default injection only checks
+     * for type compatibility, using this method mandates the presence of the {@code @Inject} annotation.
+     @return a {@link CdiInjection} handle
+     */
+    public CdiInjection asQualifyingInstance(){
+
+        return new CdiInjection(this.getValue());
     }
 
     /**

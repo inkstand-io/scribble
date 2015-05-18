@@ -17,7 +17,6 @@
 package io.inkstand.scribble.inject;
 
 import java.lang.reflect.Field;
-import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 /**
@@ -27,7 +26,7 @@ import org.apache.deltaspike.core.api.config.ConfigProperty;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald Muecke</a>
  */
-public class ConfigPropertyInjection extends Injection {
+public class ConfigPropertyInjection extends CdiInjection {
 
     /**
      * The name of the {@link ConfigProperty} into which the value should be injected
@@ -61,12 +60,9 @@ public class ConfigPropertyInjection extends Injection {
     @Override
     protected boolean isMatching(final Field field) {
 
-        final boolean matches = super.isMatching(field);
-        final boolean isInject = field.getAnnotation(Inject.class) != null;
-        if (!matches || !isInject) {
+        if(!super.isMatching(field)){
             return false;
         }
-
         final ConfigProperty configProperty = field.getAnnotation(ConfigProperty.class);
         if (configProperty != null && configPropertyName.equals(configProperty.name())) {
             defaultValue = configProperty.defaultValue();
