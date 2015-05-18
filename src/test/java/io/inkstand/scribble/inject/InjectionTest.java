@@ -16,17 +16,16 @@
 
 package io.inkstand.scribble.inject;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Field;
-
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.lang.reflect.Field;
+
+import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InjectionTest {
@@ -131,9 +130,63 @@ public class InjectionTest {
     }
 
     @Test
-    public void testIsMatching_compatibleField_false() throws Exception {
+    public void testIsMatching_compatibleField_true() throws Exception {
         final Field field = SimpleInjectionTarget.class.getDeclaredField("injectionTarget1");
         assertTrue(subject.isMatching(field));
+    }
+
+    @Test
+    public void testIsMatching_primitiveBooleanField_true() throws Exception {
+
+        test_primitiveField("primitiveBoolean", true);
+    }
+
+    @Test
+    public void testIsMatching_primitiveByteField_true() throws Exception {
+
+        test_primitiveField("primitiveByte", (byte) 79);
+    }
+
+    @Test
+    public void testIsMatching_primitiveShortField_true() throws Exception {
+
+        test_primitiveField("primitiveShort", (short) 123);
+    }
+
+    @Test
+    public void testIsMatching_primitiveIntField_true() throws Exception {
+
+        test_primitiveField("primitiveInt", 123);
+    }
+
+    @Test
+    public void testIsMatching_primitiveLongField_true() throws Exception {
+
+        test_primitiveField("primitiveLong", (long) 123);
+    }
+
+    @Test
+    public void testIsMatching_primitiveFloatField_true() throws Exception {
+
+        test_primitiveField("primitiveFloat", (float) 123);
+    }
+
+    @Test
+    public void testIsMatching_primitiveDoubleField_true() throws Exception {
+
+        test_primitiveField("primitiveDouble", (double) 123);
+    }
+
+    @Test
+    public void testIsMatching_primitiveCharField_true() throws Exception {
+
+        test_primitiveField("primitiveChar", (char) 123);
+    }
+
+    private void test_primitiveField(String fieldname, Object primitiveValue) throws NoSuchFieldException {
+
+        final Field field = SimpleInjectionTarget.class.getDeclaredField(fieldname);
+        assertTrue(new Injection(primitiveValue).isMatching(field));
     }
 
     @Test
@@ -147,5 +200,14 @@ public class InjectionTest {
         String injectionTarget1;
         String injectionTarget2;
         Integer injectionTarget3;
+
+        boolean primitiveBoolean;
+        byte primitiveByte;
+        short primitiveShort;
+        int primitiveInt;
+        long primitiveLong;
+        float primitiveFloat;
+        double primitiveDouble;
+        char primitiveChar;
     }
 }

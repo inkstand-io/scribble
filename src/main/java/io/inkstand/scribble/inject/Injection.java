@@ -19,12 +19,13 @@
  */
 package io.inkstand.scribble.inject;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import javax.annotation.Resource;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 /**
@@ -47,6 +48,24 @@ import org.apache.deltaspike.core.api.config.ConfigProperty;
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class Injection {
+
+    /**
+     * Map of primitive wrapper types to the corresponding primitive type
+     */
+    private static final Map<Class<?>, Class<?>> PRIMITIVE_TYPE_MAP;
+
+    static {
+        final Map<Class<?>, Class<?>> map = new HashMap<>();
+        map.put(Boolean.class, boolean.class);
+        map.put(Byte.class, byte.class);
+        map.put(Short.class, short.class);
+        map.put(Integer.class, int.class);
+        map.put(Long.class, long.class);
+        map.put(Float.class, float.class);
+        map.put(Double.class, double.class);
+        map.put(Character.class, char.class);
+        PRIMITIVE_TYPE_MAP = Collections.unmodifiableMap(map);
+    }
 
     private final Object value;
 
@@ -130,7 +149,27 @@ public class Injection {
             return true;
         }
 
-        return field.getType().isAssignableFrom(value.getClass());
+        final Class<?> fieldType = field.getType();
+        final Class<?> valueType = value.getClass();
+
+        if (fieldType.isPrimitive()) {
+            return fieldType == primitiveTypeFor(valueType);
+        }
+        return fieldType.isAssignableFrom(valueType);
+    }
+
+    /**
+     * Returns the primitive type class for the given value type
+     *
+     * @param valueType
+     *         a primitive wrapper type
+     *
+     * @return the corresponding primitive type
+     */
+    private Class primitiveTypeFor(final Class<?> valueType) {
+
+        return PRIMITIVE_TYPE_MAP.get(valueType);
+
     }
 
     /**
