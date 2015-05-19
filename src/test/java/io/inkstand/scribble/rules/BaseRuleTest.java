@@ -16,6 +16,13 @@
 
 package io.inkstand.scribble.rules;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -24,11 +31,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BaseRuleTest {
@@ -46,7 +48,9 @@ public class BaseRuleTest {
 
     @Before
     public void setUp() throws Exception {
+
         subject = new BaseRule<TestRule>() {
+
         };
     }
 
@@ -57,6 +61,7 @@ public class BaseRuleTest {
         when(outer.apply(base, description)).thenReturn(statement);
         // act
         final BaseRule<TestRule> subject = new BaseRule<TestRule>(outer) {
+
         };
         final Statement stmt = subject.apply(base, description);
 
@@ -68,39 +73,230 @@ public class BaseRuleTest {
 
     @Test
     public void testApply() throws Exception {
+
         final Statement stmt = subject.apply(base, description);
         assertNotNull(stmt);
         assertEquals(base, stmt);
     }
 
     @Test
-    public void testAssertNotInitialized_notInitialized_ok() throws Exception {
-        subject.assertNotInitialized();
-    }
-
-    @Test(expected = AssertionError.class)
-    public void testAssertNotInitialized_initialized_fail() throws Exception {
-        subject.setInitialized();
-        subject.assertNotInitialized();
-    }
-
-    @Test(expected = AssertionError.class)
-    public void testAssertInitialized_notInitialized_fail() throws Exception {
-        subject.assertInitialized();
-    }
-
-    @Test
-    public void testAssertInitialized_initialized_ok() throws Exception {
-        subject.setInitialized();
-        subject.assertInitialized();
-    }
-
-    @Test
     public void testGetOuterRule() throws Exception {
+
         final BaseRule<TestRule> subject = new BaseRule<TestRule>(outer) {
+
         };
 
         assertEquals(outer, subject.getOuterRule());
+    }
+
+    @Test
+    public void testIsInState_currentStateBefore_false() throws Exception {
+        //prepare
+
+        subject.doStateTransition(BaseRule.State.CREATED);
+
+        //act
+        boolean result = subject.isInState(BaseRule.State.INITIALIZED);
+
+        //assert
+        assertFalse(result);
+
+    }
+
+    @Test
+    public void testIsInState_currentStateEqual_ok() throws Exception {
+        //prepare
+
+        subject.doStateTransition(BaseRule.State.INITIALIZED);
+
+        //act
+        boolean result = subject.isInState(BaseRule.State.INITIALIZED);
+
+        //assert
+        assertTrue(result);
+
+    }
+
+    @Test
+    public void testIsInState_currentStateAfter_false() throws Exception {
+        //prepare
+
+        subject.doStateTransition(BaseRule.State.INITIALIZED);
+
+        //act
+        boolean result = subject.isInState(BaseRule.State.CREATED);
+
+        //assert
+        assertFalse(result);
+
+    }
+
+    @Test
+    public void testIsAfterState_currentStateBefore_false() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.CREATED);
+
+        //act
+        boolean result = subject.isAfterState(BaseRule.State.INITIALIZED);
+
+        //assert
+        assertFalse(result);
+
+    }
+
+    @Test
+    public void testIsAfterState_currentStateEquals_false() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.INITIALIZED);
+
+        //act
+        boolean result = subject.isAfterState(BaseRule.State.INITIALIZED);
+
+        //assert
+        assertFalse(result);
+
+    }
+
+    @Test
+    public void testIsAfterState_currentStateAfter_true() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.INITIALIZED);
+
+        //act
+        boolean result = subject.isAfterState(BaseRule.State.CREATED);
+
+        //assert
+        assertTrue(result);
+
+    }
+
+    @Test
+    public void testIsBeforeState_currentStateBefore_true() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.CREATED);
+
+        //act
+        boolean result = subject.isBeforeState(BaseRule.State.INITIALIZED);
+
+        //assert
+        assertTrue(result);
+
+    }
+
+    @Test
+    public void testIsBeforeState_currentStateAfter_false() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.INITIALIZED);
+
+        //act
+        boolean result = subject.isBeforeState(BaseRule.State.CREATED);
+
+        //assert
+        assertFalse(result);
+
+    }
+
+    @Test
+    public void testIsBeforeState_currentStateEquals_false() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.INITIALIZED);
+
+        //act
+        boolean result = subject.isBeforeState(BaseRule.State.INITIALIZED);
+
+        //assert
+        assertFalse(result);
+
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testAssertStateEquals_beforeState_fail() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.CREATED);
+
+        //act
+        subject.assertStateEquals(BaseRule.State.NEW);
+    }
+
+    @Test
+    public void testAssertStateEquals_equalState_ok() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.CREATED);
+
+        //act
+        subject.assertStateEquals(BaseRule.State.CREATED);
+
+        //assert
+
+        //no assertionError should happen, so no need to put any assertion here
+
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testAssertStateEquals_afterState_fail() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.NEW);
+
+        //act
+        subject.assertStateEquals(BaseRule.State.CREATED);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testAssertStateAfterOrEquals_beforeState_fail() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.NEW);
+
+        //act
+        subject.assertStateAfterOrEqual(BaseRule.State.CREATED);
+    }
+
+    @Test
+    public void testAssertStateAfterOrEquals_equalState_ok() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.CREATED);
+
+        //act
+        subject.assertStateAfterOrEqual(BaseRule.State.CREATED);
+        //assert
+        //no assertionError should happen, so no need to put any assertion here
+    }
+
+    @Test
+    public void testAssertStateAfterOrEquals_afterState_ok() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.INITIALIZED);
+
+        //act
+        subject.assertStateAfterOrEqual(BaseRule.State.CREATED);
+        //assert
+        //no assertionError should happen, so no need to put any assertion here
+    }
+
+    @Test
+    public void testAssertStateBefore_beforeState_ok() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.NEW);
+
+        //act
+        subject.assertStateBefore(BaseRule.State.CREATED);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testAssertStateBefore_equalState_fail() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.CREATED);
+
+        //act
+        subject.assertStateBefore(BaseRule.State.CREATED);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testAssertStateBefore_afterState_fail() throws Exception {
+        //prepare
+        subject.doStateTransition(BaseRule.State.INITIALIZED);
+
+        //act
+        subject.assertStateBefore(BaseRule.State.CREATED);
     }
 
 }

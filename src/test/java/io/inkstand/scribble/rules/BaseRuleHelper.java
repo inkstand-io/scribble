@@ -24,16 +24,27 @@ package io.inkstand.scribble.rules;
 public final class BaseRuleHelper {
 
     private BaseRuleHelper() {
+
     }
 
     /**
-     * Invokes the setInitialize method using reflection. It is required to do it this way as the method is protected
-     * and inside another package and without invoking it, the subject would remain uninitialized
+     * The method sets the state of the rule subject, which can only be done by subclasses or classes in the same
+     * package.
+     *
+     * @param subject
+     *         the BaseRule or a subclass of it whose state should be changed
+     * @param newState
+     *         the new state the rule should be transitioned to
      *
      * @throws Throwable
      */
-    public static <T extends BaseRule<?>> void setInitialized(final T subject) {
-        subject.setInitialized();
+    public static <T extends BaseRule<?>> void setState(final T subject, BaseRule.State newState) {
+
+        subject.doStateTransition(newState);
+    }
+
+    public static <T extends BaseRule<?>> BaseRule.State getState(final T subject) {
+        return subject.getCurrentState();
     }
 
 }

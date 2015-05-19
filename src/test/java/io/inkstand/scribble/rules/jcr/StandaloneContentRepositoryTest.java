@@ -16,19 +16,21 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import io.inkstand.scribble.rules.BaseRuleHelper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+import javax.jcr.Repository;
+import java.net.URL;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import javax.jcr.Repository;
-import java.net.URL;
-
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 public class StandaloneContentRepositoryTest {
 
@@ -77,13 +79,42 @@ public class StandaloneContentRepositoryTest {
     public void testDestroyRepository() throws Throwable {
         // prepare
         subject.before();
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // act
         subject.destroyRepository();
         // assert
         assertNotNull(repositorySpy);
         verify(repositorySpy).shutdown();
+    }
+
+    @Test
+    public void testSetGetConfigUrl() throws Exception {
+        //prepare
+
+        URL someUrl = new URL("http://localhost");
+
+        //act
+        subject.setConfigUrl(someUrl);
+        URL actualUrl = subject.getConfigUrl();
+
+        //assert
+        assertEquals(someUrl, actualUrl);
 
     }
+
+    @Test
+    public void testSetGetNodeTypeDefinitions() throws Exception {
+        //prepare
+        URL someUrl = new URL("http://localhost");
+
+        //act
+        subject.setCndUrl(someUrl);
+        URL actualUrl = subject.getCndUrl();
+
+        //assert
+        assertEquals(someUrl, actualUrl);
+
+    }
+
 
 }

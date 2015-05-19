@@ -60,11 +60,12 @@ public abstract class ExternalResource<T extends TestRule> extends BaseRule<T> {
             @Override
             public void evaluate() throws Throwable {
                 before();
-                setInitialized();
+                doStateTransition(State.BEFORE_EXECUTED);
                 try {
                     base.evaluate();
                 } finally {
                     after();
+                    doStateTransition(State.AFTER_EXECUTED);
                 }
             }
         };
@@ -84,11 +85,12 @@ public abstract class ExternalResource<T extends TestRule> extends BaseRule<T> {
             @Override
             public void evaluate() throws Throwable {
                 beforeClass();
-                setInitialized();
+                doStateTransition(State.BEFORE_EXECUTED);
                 try {
                     base.evaluate();
                 } finally {
                     afterClass();
+                    doStateTransition(State.AFTER_EXECUTED);
                 }
             }
         };

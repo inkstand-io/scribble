@@ -166,6 +166,7 @@
                                 <param>XML</param>
                                 <param>HTML</param>
                             </outputFormats>
+							<timeoutConstant>15000</timeoutConstant>
                         </configuration>
                         <executions>
                             <execution>

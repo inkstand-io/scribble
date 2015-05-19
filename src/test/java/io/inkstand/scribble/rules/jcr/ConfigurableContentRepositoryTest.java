@@ -16,7 +16,20 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import io.inkstand.scribble.rules.BaseRuleHelper;
+import static io.inkstand.scribble.JCRAssert.assertNodeTypeExists;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import javax.jcr.Credentials;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.net.URL;
+import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.After;
 import org.junit.Before;
@@ -27,11 +40,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.jcr.Repository;
-import java.net.URL;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurableContentRepositoryTest {
@@ -47,28 +57,36 @@ public class ConfigurableContentRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
+
         subject = new ConfigurableContentRepository(folder) {
 
             @Override
             protected void destroyRepository() {
+
             }
 
             @Override
             protected Repository createRepository() throws Exception {
+
                 return repository;
             }
+
         };
     }
 
     @After
     public void tearDown() throws Exception {
+
+        if (repository instanceof RepositoryImpl) {
+            ((RepositoryImpl) repository).shutdown();
+        }
     }
 
     @Test
     public void testCreateRepositoryConfiguration() throws Throwable {
         // prepare
         subject.setConfigUrl(configUrl);
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
 
         // act
         final RepositoryConfig config = subject.createRepositoryConfiguration();
@@ -78,10 +96,118 @@ public class ConfigurableContentRepositoryTest {
         assertEquals(folder.getRoot().getAbsolutePath(), config.getHomeDir());
     }
 
+    @Test(expected = AssertionError.class)
+    public void testCreateRepositoryConfiguration_noConfiguration_fail() throws Throwable {
+        // prepare
+        subject.setConfigUrl(null);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+
+        // act
+        subject.createRepositoryConfiguration();
+    }
+
     @Test
-    public void testSetGetConfigUrl() throws Exception {
+    public void testSetGetConfigUrl_beforeStateInitialized_ok() throws Exception {
+
         subject.setConfigUrl(configUrl);
         assertEquals(configUrl, subject.getConfigUrl());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testSetGetConfigUrl_afterStateInitialized_fail() throws Exception {
+
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+
+        //act
+        subject.setConfigUrl(configUrl);
+    }
+
+    @Test
+    public void testSetGetCndUrl_beforeStateInitialized_ok() throws Exception {
+
+        //prepare
+        URL cndUrl = new URL("http://localhost");
+
+        //act
+        subject.setCndUrl(cndUrl);
+
+        //assert
+        assertEquals(cndUrl, subject.getCndUrl());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testSetGetCndUrl_afterStateInitialized_fail() throws Exception {
+
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+
+        //act
+        subject.setCndUrl(configUrl);
+    }
+
+    @Test
+    public void testInitialized() throws Throwable {
+        //prepare
+        final URL cndResource = getClass().getResource("ConfigurableContentRepositoryTest_testModel.cnd");
+        subject.setConfigUrl(configUrl);
+        subject.setCndUrl(cndResource);
+        //create real repository for this test and override the mock instance
+        repository = RepositoryImpl.create(subject.createRepositoryConfiguration());
+
+        ConfigurableContentRepository spy = spy(subject);
+
+        //act
+        //invoke beforeClass which _should_ invoke initialize, we'll verify later
+        spy.beforeClass();
+
+        //assert
+        verify(spy).initialize();
+        final Session session = repository.login();
+        assertNodeTypeExists(session, "test:testType");
+        session.logout();
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testInitialized_invalidCndUrl_fail() throws Throwable {
+        //prepare
+        URL cndResource = new URL("file:///notexisting");
+        subject.setConfigUrl(configUrl);
+        subject.setCndUrl(cndResource);
+        //create real repository for this test and override the mock instance
+        repository = RepositoryImpl.create(subject.createRepositoryConfiguration());
+
+        //act
+        //invoke beforeClass which _should_ invoke initialize, we'll verify later
+        subject.beforeClass();
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testInitialized_repositoryError_fail() throws Throwable {
+        //prepare
+        final URL cndResource = getClass().getResource("ConfigurableContentRepositoryTest_testModel.cnd");
+        subject.setConfigUrl(configUrl);
+        subject.setCndUrl(cndResource);
+        //force an error on loggin in to the repository
+        when(repository.login(any(Credentials.class))).thenThrow(RepositoryException.class);
+
+        //act
+        //invoke beforeClass which _should_ invoke initialize, we'll verify later
+        subject.beforeClass();
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testInitialized_invalidCnd_fail() throws Throwable {
+        //prepare
+        final URL cndResource = getClass().getResource("ConfigurableContentRepositoryTest_invalidTestModel.cnd");
+        subject.setConfigUrl(configUrl);
+        subject.setCndUrl(cndResource);
+        //force an error on loggin in to the repository
+        repository = RepositoryImpl.create(subject.createRepositoryConfiguration());
+
+        //act
+        //invoke beforeClass which _should_ invoke initialize, we'll verify later
+        subject.beforeClass();
     }
 
 }

@@ -16,8 +16,9 @@
 
 package io.inkstand.scribble.rules.builder;
 
-import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 import org.junit.rules.TemporaryFolder;
+
+import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 
 /**
  * A Builder for an {@link InMemoryContentRepository}. The {@link InMemoryContentRepository} requires a
@@ -27,15 +28,18 @@ import org.junit.rules.TemporaryFolder;
  */
 public class InMemoryContentRepositoryBuilder extends ContentRepositoryBuilder<InMemoryContentRepository> {
 
-    private final InMemoryContentRepository contentRepository;
+    private final TemporaryFolder temporaryFolder;
 
     public InMemoryContentRepositoryBuilder(final TemporaryFolder temporaryFolder) {
-        contentRepository = new InMemoryContentRepository(temporaryFolder);
+        this.temporaryFolder = temporaryFolder;
     }
 
     @Override
     public InMemoryContentRepository build() {
-        return contentRepository;
+
+        InMemoryContentRepository repository = new InMemoryContentRepository(temporaryFolder);
+        repository.setCndUrl(getCndModelResource());
+        return repository;
     }
 
 }

@@ -16,17 +16,18 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import io.inkstand.scribble.rules.BaseRuleHelper;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import javax.jcr.Repository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.MockUtil;
 
-import javax.jcr.Repository;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 public class MockContentRepositoryTest {
 
@@ -51,7 +52,7 @@ public class MockContentRepositoryTest {
     @Test
     public void testMockContentRepository_noWorkingDirectory() throws Throwable {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // act
         assertNull(subject.getWorkingDirectory());
     }

@@ -16,6 +16,9 @@
 
 package io.inkstand.scribble.rules;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -33,7 +36,8 @@ public abstract class BaseRule<T extends TestRule> implements TestRule {
      * Test Rule that should be evaluated around this {@link TestRule}
      */
     private final T outerRule;
-    private boolean initialized;
+
+    private State currentState = State.NEW;
 
     /**
      * Creates a rule without an outer rule
@@ -63,43 +67,72 @@ public abstract class BaseRule<T extends TestRule> implements TestRule {
     }
 
     /**
-     * Invoke this method to verify, it is not completely initialized. As soon as the rule is applied, it is set to
-     * initialized and no further configurations should be done any more. This method may be invoked by method that are
-     * also annotated with {@link RuleSetup}.
-     */
-    protected void assertNotInitialized() {
-        if (isInitialized()) {
-            throw new AssertionError("Rule is already initialized");
-        }
-    }
-
-    /**
-     * Returns whether the rule is initialized. The base rule itself is initialized as soon as it is applied. If an
-     * implementing class determines the initialization state on other condition, this method should be overriden so
-     * that the both initialization assertion methods can be used properly
+     * Returns whether the rule is in the specified state. Unlike the assertion method, this method
+     * only checks if the current state is the same as the expected. Note that in some cases it might be more suitable
+     * to check if a specific state has been passed, i.e. the State.BEFORE_EXECUTED state implicitly includes the
+     * INITIALIZED and CREATED state.
      *
-     * @return <code>true</code> when the rule is initialized, <code>false</code> if not
+     * @return <code>true</code> when the rule is in the expected, <code>false</code> if not
      */
-    protected boolean isInitialized() {
-        return initialized;
+    protected boolean isInState(State expectedState) {
+        return currentState.equals(expectedState);
     }
 
     /**
-     * Invoke this method to indicate, the initialization is complete. The method has to be invoked by the implementing
-     * class as the {@link BaseRule} itself won't invoked it.
+     * Checks if the current state of the rule is past the specified state. For example, the state
+     * INITIALIZED is past the the state CREATED. If the Rule is in state INITIALIZED, this method would return
+     * <code>true</code> for NEW and CREATED and <code>false</code> for INITIALIZED, BEFORE_EXECUTED, AFTER_EXECUTED
+     * and DESTROYED.
+     * @param passedState
+     *  the state the rule should already have passed or be in
+     * @return
+     *  <code>true</code> if the current state is past or equal the passedState
      */
-    protected void setInitialized() {
-        initialized = true;
+    protected boolean isAfterState(State passedState) {
+        return currentState.compareTo(passedState) > 0;
     }
 
     /**
-     * Invoke this method to verify, it is completely initialized. As soon as the rule is applied, it is set to
-     * initialized and methods that are intended for being used by tests should be possible to be performed.
+     * Checks if the current state of the rule is before the specified state. For example, the state
+     * CREATED is before the the state INITIALIZED. If the Rule is in state CREATED, this method would return
+     * <code>true</code> for INITIALIZED, BEFORE_EXECUTED, AFTER_EXECUTED
+     * and DESTROYED and <code>false</code> for NEW and CREATED.
+     * @param futureState
+     * @return
      */
-    protected void assertInitialized() {
-        if (!isInitialized()) {
-            throw new AssertionError("Rule is not initialized");
-        }
+    protected boolean isBeforeState(State futureState){
+        return currentState.compareTo(futureState) < 0;
+    }
+
+    /**
+     * Performs a state transition to the new state. There is no check in place, if the transition is valid or not.
+     * @param newState
+     *  the new state of the rule
+     */
+    protected void doStateTransition(State newState) {
+        this.currentState = newState;
+    }
+
+    /**
+     * Invoke this method to verify, the rule is exactly in the current state.
+     */
+    protected void assertStateEquals(State state) {
+        assertEquals("Rule is not in the expected state", state, currentState);
+    }
+
+
+    /**
+     * Invoke this method to verify, the rule has passed or is in the specified state
+     */
+    protected void assertStateAfterOrEqual(State state) {
+        assertTrue("Rule has not passed the state", isAfterState(state) || isInState(state));
+    }
+
+    /**
+     * Invoke this method to verify, the rule is before the specified state
+     */
+    protected void assertStateBefore(State state) {
+        assertTrue("Rule has passed the state", isBeforeState(state));
     }
 
     /**
@@ -109,5 +142,52 @@ public abstract class BaseRule<T extends TestRule> implements TestRule {
      */
     protected T getOuterRule() {
         return this.outerRule;
+    }
+
+    /**
+     * @return
+     *  the current state of the rule
+     */
+    protected State getCurrentState() {
+
+        return currentState;
+    }
+
+    /**
+     * States of the rule. The lifecycle of the BaseRule consists of various states.
+     */
+    public enum State {
+        /**
+         * State for a newly instantiated rule
+         */
+        NEW,
+        /**
+         * State to be used, when the internals of the rules have been created. In most cases this is sufficient to
+         * start testing.
+         */
+        CREATED,
+        /**
+         * State to be used, when the internals of the rule have been initialized. In some cases it might be required
+         * to initialize the internals after they have been created. After this state, the rule should be ready.
+         */
+        INITIALIZED,
+        /**
+         * State to indicate the before method has been executed. This state should only be used when the rule
+         * is used as instance rule and not as classrule. Reaching this state indicates the instance rule has been
+         * set up and is ready for a single test.
+         */
+        BEFORE_EXECUTED,
+        /**
+         * State to indicate the after method has been executed. This state should only be used when the rule is
+         * used as instance rule and not as classrule. Reaching this state indicates the instance rule has been torn
+         * down and has to be re-initialized before reuse. In instance rules, this is the final state.
+         */
+        AFTER_EXECUTED,
+        /**
+         * State to indicate the internals of the rule have been destroyed and may not be used unless being
+         * re-initialized. In class rules, this is the final state.
+         */
+        DESTROYED,
+        ;
     }
 }

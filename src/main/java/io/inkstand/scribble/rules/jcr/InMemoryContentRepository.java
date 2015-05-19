@@ -16,15 +16,16 @@
 
 package io.inkstand.scribble.rules.jcr;
 
+import javax.jcr.RepositoryException;
+import java.io.IOException;
+import java.net.URL;
+import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.config.ConfigurationException;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * The {@link InMemoryContentRepository} rule is intended for self-sufficient unit tests. It is based on the
@@ -57,12 +58,15 @@ public class InMemoryContentRepository extends ConfigurableContentRepository {
      * @throws ConfigurationException
      */
     @Override
-    protected TransientRepository createRepository() throws IOException {
+    protected RepositoryImpl createRepository() throws IOException {
         try {
             final RepositoryConfig config = createRepositoryConfiguration();
-            return new TransientRepository(config);
+            return RepositoryImpl.create(config);
         } catch (final ConfigurationException e) {
             LOG.error("Configuration invalid", e);
+            throw new AssertionError(e.getMessage(), e);
+        } catch (RepositoryException e) {
+            LOG.error("Could not create repository", e);
             throw new AssertionError(e.getMessage(), e);
         }
     }
@@ -75,8 +79,19 @@ public class InMemoryContentRepository extends ConfigurableContentRepository {
      */
     @Override
     protected void destroyRepository() {
-        final TransientRepository repository = (TransientRepository) getRepository();
+        final RepositoryImpl repository = (RepositoryImpl) getRepository();
         repository.shutdown();
-        LOG.info("Destroyed repository at {}", repository.getHomeDir());
+        LOG.info("Destroyed repository at {}", repository.getConfig().getHomeDir());
+    }
+
+    /**
+     * Sets the URL pointing to the node type definition to be loaded upon initialization.
+     * @param nodeTypeDefinitions
+     *  resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
+     */
+    @Override
+    public void setCndUrl(final URL nodeTypeDefinitions) {
+
+        super.setCndUrl(nodeTypeDefinitions);
     }
 }

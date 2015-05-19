@@ -16,10 +16,10 @@
 
 package io.inkstand.scribble.rules.builder;
 
-import io.inkstand.scribble.rules.jcr.StandaloneContentRepository;
+import java.net.URL;
 import org.junit.rules.TemporaryFolder;
 
-import java.net.URL;
+import io.inkstand.scribble.rules.jcr.StandaloneContentRepository;
 
 /**
  * A Builder for an {@link StandaloneContentRepository}. The {@link StandaloneContentRepository} requires a
@@ -29,19 +29,31 @@ import java.net.URL;
  */
 public class StandaloneContentRepositoryBuilder extends ContentRepositoryBuilder<StandaloneContentRepository> {
 
-    private final StandaloneContentRepository repository;
+    private final TemporaryFolder workingDirectory;
+
+    private URL configUrl;
 
     public StandaloneContentRepositoryBuilder(final TemporaryFolder workingDirectory) {
-        repository = new StandaloneContentRepository(workingDirectory);
+        this.workingDirectory = workingDirectory;
     }
 
     public StandaloneContentRepositoryBuilder withConfiguration(final URL configUrl) {
-        repository.setConfigUrl(configUrl);
+        this.configUrl = configUrl;
         return this;
+    }
+
+    protected URL getConfigUrl() {
+        return configUrl;
     }
 
     @Override
     public StandaloneContentRepository build() {
+
+        StandaloneContentRepository repository = new StandaloneContentRepository(workingDirectory);
+        if(configUrl != null) {
+            repository.setConfigUrl(configUrl);
+        }
+        repository.setCndUrl(getCndModelResource());
         return repository;
     }
 

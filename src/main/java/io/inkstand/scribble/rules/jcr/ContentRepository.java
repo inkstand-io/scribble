@@ -16,14 +16,14 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import io.inkstand.scribble.inject.InjectableHolder;
-import io.inkstand.scribble.rules.ExternalResource;
-import org.junit.rules.TemporaryFolder;
-
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import org.junit.rules.TemporaryFolder;
+
+import io.inkstand.scribble.inject.InjectableHolder;
+import io.inkstand.scribble.rules.ExternalResource;
 
 /**
  * Rule for testing with java content repositories (JCR). The rule implementations rely on the reference implementation
@@ -41,8 +41,6 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
 
     private final TemporaryFolder workingDirectory;
 
-    private boolean beforeExecuted;
-
     /**
      * Creates the content repository in the working directory
      *
@@ -53,53 +51,85 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
         this.workingDirectory = workingDirectory;
     }
 
-    /**
-     * Initializes the repository
-     */
+
     @Override
     protected void beforeClass() throws Throwable {
-        super.before();
-        repository = createRepository();
+
+        doBefore();
 
     }
 
-    /**
-     * Destroys the repository
-     */
+
     @Override
     protected void afterClass() {
-        super.after();
-        destroyRepository();
+
+        doAfter();
 
     }
 
     @Override
     protected void before() throws Throwable {
-        if (!isInitialized()) {
-            beforeClass();
-            beforeExecuted = true;
+        //call the before method if the repository is not yet created.
+        // this check is required if the rule is used as class rule, where the repository
+        // is initialized before the before method, to avoid initializing the repository twice
+        if (isBeforeState(State.CREATED)) {
+            doBefore();
+            doStateTransition(State.BEFORE_EXECUTED);
         }
     }
 
     @Override
     protected void after() {
-        if (beforeExecuted) {
-            afterClass();
+        //only tear down the repository in the after method, if the before method has been executed, indicating
+        //this rule is used a an instance and no class rule. For class rules the doAfter() is executed on
+        //tearing down the classrule using afterClass()
+        if (isInState(State.BEFORE_EXECUTED)) {
+            doAfter();
+            doStateTransition(State.AFTER_EXECUTED);
         }
+    }
 
+    /**
+     * Creates and initializes the repository. At first the repository is created, transitioning the state
+     * to CREATED. Afterwards the repository is initialized and transitioned to INITIALIZED.
+     */
+    private void doBefore() throws Throwable {
+
+        super.before();
+        repository = createRepository();
+        doStateTransition(State.CREATED);
+        initialize();
+        doStateTransition(State.INITIALIZED);
+    }
+
+    /**
+     * Destroys the repository
+     */
+    private void doAfter() {
+
+        super.after();
+        destroyRepository();
+        doStateTransition(State.DESTROYED);
+    }
+
+    /**
+     * Method that is invoked after creation to initialize the repository. Subclasses may override this
+     * method to perform specific initialization logic.
+     */
+    protected void initialize() {
     }
 
     /**
      * @return the repository
      */
     public Repository getRepository() {
-        assertInitialized();
+        assertStateAfterOrEqual(State.CREATED);
         return repository;
     }
 
     @Override
     public Repository getInjectionValue() {
-        assertInitialized();
+        assertStateAfterOrEqual(State.CREATED);
         return repository;
     }
 
@@ -109,7 +139,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      *         may be <code>null</code>
      */
     public TemporaryFolder getWorkingDirectory() {
-        assertInitialized();
+        assertStateAfterOrEqual(State.CREATED);
         return workingDirectory;
     }
 
@@ -125,7 +155,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * @throws RepositoryException
      */
     public Session login(final String userId, final String password) throws RepositoryException {
-        assertInitialized();
+        assertStateAfterOrEqual(State.CREATED);
         return repository.login(new SimpleCredentials(userId, password.toCharArray()));
     }
 
@@ -143,5 +173,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * properly.
      */
     protected abstract void destroyRepository();
+
+
 
 }

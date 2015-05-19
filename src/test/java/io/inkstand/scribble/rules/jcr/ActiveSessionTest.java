@@ -16,7 +16,17 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import io.inkstand.scribble.rules.BaseRuleHelper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import javax.jcr.Credentials;
+import javax.jcr.Repository;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,17 +35,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.jcr.Credentials;
-import javax.jcr.Repository;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ActiveSessionTest {
@@ -69,7 +70,7 @@ public class ActiveSessionTest {
     @Test
     public void testAfter_withActiveAnonAndUserAndAdminSession() throws Exception {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         when(repository.login()).thenReturn(anonSession);
         when(repository.login(any(Credentials.class))).thenReturn(userSession, adminSession);
         subject.login();
@@ -87,7 +88,7 @@ public class ActiveSessionTest {
     @Test
     public void testAfter_withActiveAdminSession() throws Exception {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         when(repository.login(any(Credentials.class))).thenReturn(adminSession);
         subject.getAdminSession();
         // act
@@ -99,7 +100,7 @@ public class ActiveSessionTest {
     @Test
     public void testAfter_withActiveUserSession() throws Exception {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         when(repository.login(any(Credentials.class))).thenReturn(userSession);
         subject.login("user", "password");
         // act
@@ -111,7 +112,7 @@ public class ActiveSessionTest {
     @Test
     public void testAfter_withActiveAnonSession() throws Exception {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         when(repository.login()).thenReturn(anonSession);
         subject.login();
         // act
@@ -123,7 +124,7 @@ public class ActiveSessionTest {
     @Test
     public void testGetRepository_initialized() throws Throwable {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // act
         assertEquals(repository, subject.getRepository());
     }
@@ -136,7 +137,7 @@ public class ActiveSessionTest {
     @Test
     public void testLogin_initialized_noUserName() throws Throwable {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         when(repository.login()).thenReturn(anonSession);
         // act
         final Session session = subject.login();
@@ -148,7 +149,7 @@ public class ActiveSessionTest {
     @Test
     public void testLogin_initialized_repeatedLogin() throws Throwable {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // invoked twice on the second call will create a new session
         when(repository.login()).thenReturn(anonSession, mock(Session.class));
         // act
@@ -168,7 +169,7 @@ public class ActiveSessionTest {
 
         // prepare
         final ActiveSession subject = new ActiveSession(repositoryRule, "user", "password");
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         when(repository.login(any(Credentials.class))).thenReturn(userSession);
 
         // act
@@ -193,7 +194,7 @@ public class ActiveSessionTest {
     @Test
     public void testLoginStringString() throws Throwable {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         when(repository.login(any(Credentials.class))).thenReturn(userSession);
 
         // act
@@ -218,7 +219,7 @@ public class ActiveSessionTest {
     @Test
     public void testGetAdminSession_initialized() throws Throwable {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         when(repository.login(any(Credentials.class))).thenReturn(adminSession);
 
         // act
