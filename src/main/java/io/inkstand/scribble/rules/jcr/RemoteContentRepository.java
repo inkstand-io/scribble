@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 /**
@@ -19,6 +19,16 @@
  */
 package io.inkstand.scribble.rules.jcr;
 
+import javax.jcr.Repository;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathVariableResolver;
+import java.io.IOException;
+import java.net.URL;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,15 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
-import javax.jcr.Repository;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * A test rule for accessing a JCR repository remotely. The precondition for this rule is, that the Jackrabbit WebApp is
@@ -49,39 +50,36 @@ import java.net.URL;
  */
 public class RemoteContentRepository extends ContentRepository {
 
-    public RemoteContentRepository() {
-        super(null);
-    }
-
     /**
      * SLF4J Logger for this class
      */
     private static final Logger LOG = LoggerFactory.getLogger(RemoteContentRepository.class);
-
     /**
      * The name of the host on which the jackrabbit web app is installed
      */
     private String remoteHost = "localhost";
-
     /**
      * The port of the web container that hosts the jackrabbit web app
      */
     private int remotePort = 8080;
-
     /**
      * The context root that points to the jackrabbit webapp
      */
     private String contextRoot = "/jackrabbit-webapp-2.8.0/server";
-
     private boolean manualSetup;
-
     private URL arquillianXml;
+
+    public RemoteContentRepository() {
+
+        super(null);
+    }
 
     /**
      * Overrides the default host name for the remote content repository. The default is 'localhost'
      *
      * @param hostname
-     *            the new hostname to use
+     *         the new hostname to use
+     *
      * @return this test rule
      */
     public RemoteContentRepository onHost(final String hostname) {
@@ -94,7 +92,8 @@ public class RemoteContentRepository extends ContentRepository {
      * Overrides the default host port of the remote content repository. The default is '8080'
      *
      * @param port
-     *            the new port to use
+     *         the new port to use
+     *
      * @return this test rule
      */
     public RemoteContentRepository onPort(final int port) {
@@ -107,7 +106,8 @@ public class RemoteContentRepository extends ContentRepository {
      * Overrides the default context root of the jackrabbit web app. The default is '/jackrabbit-webapp-2.8.0/server'.
      *
      * @param contextRoot
-     *            the new context root to use
+     *         the new context root to use
+     *
      * @return this test rule
      */
     public RemoteContentRepository atContextRoot(final String contextRoot) {
@@ -134,7 +134,8 @@ public class RemoteContentRepository extends ContentRepository {
      * <code>null</code> the default of the rule is used (localhost)
      *
      * @param arquillianXml
-     *            the URL to the arquillian.xml file containing the arquillian profiles
+     *         the URL to the arquillian.xml file containing the arquillian profiles
+     *
      * @return this test rule
      */
     public RemoteContentRepository onArquillianHost(final URL arquillianXml) {
@@ -160,7 +161,7 @@ public class RemoteContentRepository extends ContentRepository {
      * <code>arquillian.launch</code> system property. If it is not set, the default will be used.
      *
      * @param arquillianXml
-     *            the URL to the arquillian xml file
+     *         the URL to the arquillian xml file
      */
     private void setupHostFromArquillianConfig(final URL arquillianXml) {
 
@@ -184,19 +185,25 @@ public class RemoteContentRepository extends ContentRepository {
      * is no host defined, <code>null</code> is returned indicating to use the default configuration.
      *
      * @param arquillianXml
-     *            the URL of the arquillian.xml file
+     *         the URL of the arquillian.xml file
      * @param arquillianLaunch
-     *            the launch container qualifier
+     *         the launch container qualifier. The qualifier may consist of alphanumeric characters only.
+     *
      * @return the name of the remote host or <code>null</code> if none is defined
      */
     private String getActiveArquillianHost(final URL arquillianXml, final String arquillianLaunch) {
 
-        final String xpExpr = "//container[@qualifier='" + arquillianLaunch + "']/protocol/property[@name='host']";
         final XPath xp = XPathFactory.newInstance().newXPath();
+        final String xpExpr = "//container[@qualifier=$containerQualifier]/protocol/property[@name='host']";
         try {
-            final Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                    .parse(arquillianXml.openStream());
-            return xp.evaluate(xpExpr, document);
+            final Document document = parseDocument(arquillianXml);
+
+            //SCRIB-23 adding a variable resolver that returns only sanitized input values
+            xp.setXPathVariableResolver(new ArquillianLaunchVariableResolver(arquillianLaunch));
+            // with the sanity check the already unlikely chance of maliciously injecting statements into
+            // the xpath expression becomes impossible. As the sonar rule still indicating this as
+            // an error, the NOSONAR marker is set
+            return xp.evaluate(xpExpr, document);//NOSONAR
         } catch (SAXException | IOException | ParserConfigurationException e) {
             LOG.error("Could not parse arquilian.xml", e);
             throw new AssertionError("Could not parse arquilian.xml:" + e.getMessage(), e);
@@ -204,6 +211,18 @@ public class RemoteContentRepository extends ContentRepository {
             LOG.error("Could evaluate {}", xpExpr, e);
             throw new AssertionError("Could evaluate " + xpExpr + ":" + e.getMessage(), e);
         }
+    }
+
+    private Document parseDocument(final URL documentLocation)
+            throws SAXException, IOException, ParserConfigurationException {
+
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        // SCRIB-24 adding secure parsing to prevent XEE attacks
+        //but as the arquillian.xml files are bound to a xsd schema we don't need doctype declaration and can
+        //safely disable this feature
+        //for more info see https://www.owasp.org/index.php/XML_External_Entity_%28XXE%29_Processing
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        return factory.newDocumentBuilder().parse(documentLocation.openStream());
     }
 
     @Override
@@ -228,4 +247,40 @@ public class RemoteContentRepository extends ContentRepository {
 
     }
 
+    protected String getRemoteHost() {
+
+        return remoteHost;
+    }
+
+    protected int getRemotePort() {
+
+        return remotePort;
+    }
+
+    protected String getContextRoot() {
+
+        return contextRoot;
+    }
+
+    private class ArquillianLaunchVariableResolver implements XPathVariableResolver {
+
+        private final String qualifier;
+
+        public ArquillianLaunchVariableResolver(String arquillianLaunchParameter) {
+            //SCRIB-23 doing parameter sanity check
+            if (!arquillianLaunchParameter.matches("[a-zA-Z0-9]+")) {
+                throw new AssertionError(arquillianLaunchParameter + " is no allowed qualifier");
+            }
+            qualifier = arquillianLaunchParameter;
+        }
+
+        @Override
+        public Object resolveVariable(final QName variableName) {
+
+            if ("containerQualifier".equals(variableName.getLocalPart())) {
+                return qualifier;
+            }
+            return "";
+        }
+    }
 }

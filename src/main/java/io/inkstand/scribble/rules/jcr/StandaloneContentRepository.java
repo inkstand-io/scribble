@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 /**
@@ -19,12 +19,10 @@
  */
 package io.inkstand.scribble.rules.jcr;
 
+import java.net.URL;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.rules.TemporaryFolder;
-
-import javax.jcr.Repository;
-import java.net.URL;
 
 /**
  * Repository that supports a fully functional repository including persistence. The default configuration used by the
@@ -36,6 +34,7 @@ import java.net.URL;
 public class StandaloneContentRepository extends ConfigurableContentRepository {
 
     public StandaloneContentRepository(final TemporaryFolder workingDirectory) {
+
         super(workingDirectory);
         // set the default configuration
         setConfigUrl(getClass().getResource("inMemoryRepository.xml"));
@@ -43,16 +42,30 @@ public class StandaloneContentRepository extends ConfigurableContentRepository {
 
     /**
      * Sets the URL pointing to the configuration to use. The configuration has to be a valid Jackrabbit configuration.
-     *
-     * @see {@link http://jackrabbit.apache.org/jackrabbit-configuration.html}
+     * <p/>
+     * {@see http://jackrabbit.apache.org/jackrabbit-configuration.html}
      */
     @Override
     public void setConfigUrl(final URL configUrl) {
+
         super.setConfigUrl(configUrl);
     }
 
+    /**
+     * Sets the URL pointing to the node type definition to be loaded upon initialization.
+     *
+     * @param nodeTypeDefinitions
+     *         resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
+     */
     @Override
-    protected Repository createRepository() throws Exception {
+    public void setCndUrl(final URL nodeTypeDefinitions) {
+
+        super.setCndUrl(nodeTypeDefinitions);
+    }
+
+    @Override
+    protected RepositoryImpl createRepository() throws Exception {
+
         final RepositoryConfig config = createRepositoryConfiguration();
         final RepositoryImpl repository = RepositoryImpl.create(config);
         return repository;
@@ -60,6 +73,7 @@ public class StandaloneContentRepository extends ConfigurableContentRepository {
 
     @Override
     protected void destroyRepository() {
+
         ((RepositoryImpl) getRepository()).shutdown();
 
     }

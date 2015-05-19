@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 /**
@@ -19,13 +19,13 @@
  */
 package io.inkstand.scribble.inject;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Resource;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 /**
@@ -77,7 +77,11 @@ public class Injection {
      */
     public Injection(final Object injectedValue) {
 
-        value = injectedValue;
+        if(injectedValue instanceof InjectableHolder){
+            value  = ((InjectableHolder) injectedValue).getInjectionValue();
+        } else {
+            value = injectedValue;
+        }
     }
 
     /**
@@ -91,13 +95,23 @@ public class Injection {
     }
 
     /**
-     * Prepares an injection of a {@link ConfigProperty} annotated field
+     * Prepares an injection of a {@link ConfigProperty} qualified injection point field.
      *
      * @return a {@link ConfigPropertyInjection} handle
      */
     public ConfigPropertyInjection asConfigProperty(final String propertyName) {
 
         return new ConfigPropertyInjection(propertyName, this.getValue());
+    }
+
+    /**
+     * Prepares an injection of {@link javax.inject.Inject} annotated field. The default injection only checks
+     * for type compatibility, using this method mandates the presence of the {@code @Inject} annotation.
+     @return a {@link CdiInjection} handle
+     */
+    public CdiInjection asQualifyingInstance(){
+
+        return new CdiInjection(this.getValue());
     }
 
     /**

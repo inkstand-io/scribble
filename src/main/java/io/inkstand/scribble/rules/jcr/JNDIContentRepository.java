@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 /**
@@ -19,13 +19,13 @@
  */
 package io.inkstand.scribble.rules.jcr;
 
-import io.inkstand.scribble.rules.RuleSetup;
-import io.inkstand.scribble.rules.RuleSetup.RequirementLevel;
+import static org.junit.Assert.assertNotNull;
 
 import javax.jcr.Repository;
 import javax.naming.Context;
 
-import static org.junit.Assert.assertNotNull;
+import io.inkstand.scribble.rules.RuleSetup;
+import io.inkstand.scribble.rules.RuleSetup.RequirementLevel;
 
 /**
  * A {@link ContentRepository} implementation for providing a repository using a JNDI lookup. The repsitory is searched
@@ -34,6 +34,7 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class JNDIContentRepository extends ContentRepository {
+
 
     public JNDIContentRepository() {
         super(null);
@@ -52,7 +53,7 @@ public class JNDIContentRepository extends ContentRepository {
 
     @RuleSetup(RequirementLevel.REQUIRED)
     public void setContext(final Context context) {
-        assertNotInitialized();
+        assertStateBefore(State.CREATED);
         this.context = context;
 
     }
@@ -66,7 +67,7 @@ public class JNDIContentRepository extends ContentRepository {
      */
     @RuleSetup(RequirementLevel.OPTIONAL)
     public void setLookupName(final String lookupName) {
-        assertNotInitialized();
+        assertStateBefore(State.CREATED);
         this.lookupName = lookupName;
     }
 

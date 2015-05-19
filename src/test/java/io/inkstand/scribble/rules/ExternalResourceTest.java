@@ -11,11 +11,20 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package io.inkstand.scribble.rules;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,16 +35,6 @@ import org.junit.runners.model.Statement;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExternalResourceTest {
@@ -75,7 +74,8 @@ public class ExternalResourceTest {
         stmt.evaluate();
 
         // assert
-        assertTrue(spy.isInitialized());
+        assertTrue(spy.isAfterState(BaseRule.State.BEFORE_EXECUTED));
+        assertTrue(spy.isInState(BaseRule.State.AFTER_EXECUTED));
         verify(spy).before();
         verify(spy).after();
         verify(base).evaluate();
@@ -94,7 +94,8 @@ public class ExternalResourceTest {
         final Statement stmt = spy.apply(base, description);
         stmt.evaluate();
 
-        assertTrue(spy.isInitialized());
+        assertTrue(spy.isAfterState(BaseRule.State.BEFORE_EXECUTED));
+        assertTrue(spy.isInState(BaseRule.State.AFTER_EXECUTED));
         // assert
         verify(spy, times(0)).before();
         verify(spy, times(0)).after();

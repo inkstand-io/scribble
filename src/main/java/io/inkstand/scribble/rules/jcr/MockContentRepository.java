@@ -11,18 +11,17 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package io.inkstand.scribble.rules.jcr;
 
-import org.mockito.Mockito;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
 
 import javax.jcr.Repository;
 import java.io.IOException;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
+import org.mockito.Mockito;
 
 /**
  * A ContentRepository implementation that creates a deep-stubbed mock using Mockito. Mock behavior can be defined by
@@ -42,6 +41,7 @@ import static org.mockito.Mockito.mock;
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class MockContentRepository extends ContentRepository {
+
 
     public MockContentRepository() {
         super(null);

@@ -11,13 +11,22 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package io.inkstand.scribble.rules.jcr;
 
-import io.inkstand.scribble.rules.BaseRuleHelper;
-import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import javax.jcr.Repository;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
+import java.net.URL;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,17 +36,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.jcr.Repository;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ContentRepositoryTest {
@@ -56,6 +56,13 @@ public class ContentRepositoryTest {
     public void setUp() throws Exception {
         subject = new ContentRepository(folder) {
 
+            private URL nodeTypeDefinitions;
+
+            public void setNodeTypeDefinitions(final URL nodeTypeDefinitions) {
+
+                this.nodeTypeDefinitions = nodeTypeDefinitions;
+            }
+
             @Override
             protected Repository createRepository() throws Exception {
                 return repository;
@@ -68,61 +75,74 @@ public class ContentRepositoryTest {
         };
     }
 
-    @After
-    public void tearDown() throws Exception {
-    }
-
     @Test
     public void testBeforeClass() throws Throwable {
         // act
         subject.beforeClass();
-        BaseRuleHelper.setInitialized(subject);
+
         // assert
-        // now, the repositor is created
         assertNotNull(subject.getRepository());
+        assertEquals(BaseRule.State.INITIALIZED, BaseRuleHelper.getState(subject));
     }
 
     @Test
-    public void testAfterClass() throws Exception {
+    public void testAfterClass() throws Throwable {
         // prepare
         final ContentRepository spy = spy(subject);
+        spy.beforeClass();
         // act
         spy.afterClass();
         // assert
         verify(spy).destroyRepository();
+        assertEquals(BaseRule.State.DESTROYED, BaseRuleHelper.getState(spy));
     }
 
     @Test
-    public void testBefore() throws Throwable {
-        // act
+    public void testBefore_alreadyCreated_noSetup() throws Throwable {
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.CREATED);
+
+        //act
         subject.before();
-        BaseRuleHelper.setInitialized(subject);
 
-        // assert
-        // now, the repositor is created
-        assertNotNull(subject.getRepository());
+        //assert
+        assertEquals(BaseRule.State.CREATED, BaseRuleHelper.getState(subject));
     }
 
     @Test
-    public void testAfter_beforeExecuted() throws Throwable {
-        // prepare
-        final ContentRepository spy = spy(subject);
-        // before has to be executed before after can be executed
-        spy.before();
-        // act
-        spy.after();
-        // assert
-        verify(spy).destroyRepository();
+    public void testBefore_new_setup() throws Throwable {
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.NEW);
+
+        //act
+        subject.before();
+
+        //assert
+        assertEquals(BaseRule.State.BEFORE_EXECUTED, BaseRuleHelper.getState(subject));
     }
 
     @Test
-    public void testAfter_beforeNotExecuted() throws Throwable {
-        // prepare
-        final ContentRepository spy = spy(subject);
-        // act
-        spy.after();
-        // assert
-        verify(spy, times(0)).destroyRepository();
+    public void testAfter_notBeforeExecuted_noTeardown() throws Exception {
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.CREATED);
+
+        //act
+        subject.after();
+
+        //assert
+        assertEquals(BaseRule.State.CREATED, BaseRuleHelper.getState(subject));
+    }
+
+    @Test
+    public void testAfter_beforeExecuted_teardown() throws Exception {
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.BEFORE_EXECUTED);
+
+        //act
+        subject.after();
+
+        //assert
+        assertEquals(BaseRule.State.AFTER_EXECUTED, BaseRuleHelper.getState(subject));
     }
 
     @Test(expected = AssertionError.class)
@@ -134,7 +154,7 @@ public class ContentRepositoryTest {
     public void testGetRepository_initialized_ok() throws Throwable {
         // prepare
         subject.before();
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // act
         final Repository repo = subject.getRepository();
         // assert
@@ -150,7 +170,7 @@ public class ContentRepositoryTest {
     public void testGetInjectionValue_initialized_ok() throws Throwable {
         // prepare
         subject.before();
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // act
         final Repository repo = subject.getInjectionValue();
         // assert
@@ -160,7 +180,7 @@ public class ContentRepositoryTest {
     @Test
     public void testGetWorkingDirectory_initialized_ok() throws Throwable {
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // act
         final TemporaryFolder workingDirectory = subject.getWorkingDirectory();
         // aasert
@@ -182,7 +202,7 @@ public class ContentRepositoryTest {
         // prepare
         when(repository.login(any(SimpleCredentials.class))).thenReturn(session);
         subject.before();
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // act
         final Session userSession = subject.login("aUser", "aPassword");
         // assert

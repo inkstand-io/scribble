@@ -11,17 +11,18 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package io.inkstand.scribble.net;
 
-import java.net.ServerSocket;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+
+import java.net.ServerSocket;
+import java.security.SecureRandom;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Gerald M&uuml;cke on 11.03.2015.
@@ -29,12 +30,6 @@ import static org.junit.Assume.assumeTrue;
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public final class NetworkUtils {
-
-    private NetworkUtils() {
-
-    }
-
-    private static final Random RANDOM = new Random();
 
     /**
      * The port offset may be configured at system level using the system property {@code scribble.net.portOffset}. The
@@ -46,7 +41,6 @@ public final class NetworkUtils {
     public static final AtomicInteger PORT_OFFSET = new AtomicInteger(Integer.parseInt(System.getProperty(
             "scribble.net.portOffset",
             "0")));
-
     /**
      * The default retry count specifies how many times the findAvailablePort method should try to find an
      * available port of no number of retries was specified. The default value can be configured using the
@@ -56,6 +50,13 @@ public final class NetworkUtils {
     public static final AtomicInteger DEFAULT_RETRY_COUNT = new AtomicInteger(Integer.parseInt(System.getProperty(
             "scribble.net.maxRetries",
             "3")));
+    //SCRIB-25 although it has no relevance regarding security using the secure random number generator will less
+    //likely produce the same numbers in the same sequence of random numbers
+    private static final Random RANDOM = new SecureRandom();
+
+    private NetworkUtils() {
+
+    }
 
     /**
      * Finds an available port. Maximum number of retries is 3 before an {@link org.junit.internal
@@ -93,6 +94,17 @@ public final class NetworkUtils {
     }
 
     /**
+     * Creates a random port number above 1024
+     *
+     * @return
+     */
+    public static int randomPort() {
+
+        final int offset = getPortOffset();
+        return RANDOM.nextInt(65536 - offset) + offset;
+    }
+
+    /**
      * Checks if the specified is available as listen port
      *
      * @param port
@@ -109,17 +121,6 @@ public final class NetworkUtils {
         } catch (Exception e) { //NOSONAR
             return false;
         }
-    }
-
-    /**
-     * Creates a random port number above 1024
-     *
-     * @return
-     */
-    public static int randomPort() {
-
-        final int offset = getPortOffset();
-        return RANDOM.nextInt(65536 - offset) + offset;
     }
 
     /**

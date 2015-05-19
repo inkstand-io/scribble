@@ -11,12 +11,17 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package io.inkstand.scribble.rules.jcr;
 
-import io.inkstand.scribble.rules.BaseRuleHelper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import javax.jcr.Repository;
+import java.net.URL;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.VersioningConfig;
 import org.apache.jackrabbit.core.config.WorkspaceConfig;
@@ -30,12 +35,8 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.jcr.Repository;
-import java.net.URL;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InMemoryContentRepositoryTest {
@@ -57,7 +58,7 @@ public class InMemoryContentRepositoryTest {
     public void testDestroyRepository() throws Throwable {
         // prepare
         subject.before();
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
 
         // act
         subject.destroyRepository();
@@ -81,7 +82,7 @@ public class InMemoryContentRepositoryTest {
      */
     @Test
     public void testInMemoryConfiguraton() throws Throwable {
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
 
         final RepositoryConfig config = subject.createRepositoryConfiguration();
 
@@ -103,7 +104,7 @@ public class InMemoryContentRepositoryTest {
     public void testCreateRepository() throws Throwable {
 
         // prepare
-        BaseRuleHelper.setInitialized(subject);
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
         // act
         final Repository repository = subject.createRepository();
 
@@ -112,4 +113,18 @@ public class InMemoryContentRepositoryTest {
 
     }
 
+
+    @Test
+    public void testSetGetNodeTypeDefinitions() throws Exception {
+        //prepare
+        URL someUrl = new URL("http://localhost");
+
+        //act
+        subject.setCndUrl(someUrl);
+        URL actualUrl = subject.getCndUrl();
+
+        //assert
+        assertEquals(someUrl, actualUrl);
+
+    }
 }

@@ -11,13 +11,14 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package io.inkstand.scribble.rules.builder;
 
-import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 import org.junit.rules.TemporaryFolder;
+
+import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 
 /**
  * A Builder for an {@link InMemoryContentRepository}. The {@link InMemoryContentRepository} requires a
@@ -27,15 +28,18 @@ import org.junit.rules.TemporaryFolder;
  */
 public class InMemoryContentRepositoryBuilder extends ContentRepositoryBuilder<InMemoryContentRepository> {
 
-    private final InMemoryContentRepository contentRepository;
+    private final TemporaryFolder temporaryFolder;
 
     public InMemoryContentRepositoryBuilder(final TemporaryFolder temporaryFolder) {
-        contentRepository = new InMemoryContentRepository(temporaryFolder);
+        this.temporaryFolder = temporaryFolder;
     }
 
     @Override
     public InMemoryContentRepository build() {
-        return contentRepository;
+
+        InMemoryContentRepository repository = new InMemoryContentRepository(temporaryFolder);
+        repository.setCndUrl(getCndModelResource());
+        return repository;
     }
 
 }

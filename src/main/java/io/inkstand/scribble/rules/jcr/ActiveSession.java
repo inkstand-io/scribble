@@ -11,15 +11,10 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package io.inkstand.scribble.rules.jcr;
-
-import io.inkstand.scribble.rules.ExternalResource;
-import org.junit.rules.TestRule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jcr.LoginException;
 import javax.jcr.Repository;
@@ -28,6 +23,11 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.rules.TestRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.inkstand.scribble.rules.ExternalResource;
 
 /**
  * A {@link TestRule} for creating an active JCR session for a test.
@@ -88,7 +88,7 @@ public class ActiveSession extends ExternalResource<ContentRepository> {
      * @return the repository
      */
     public Repository getRepository() {
-        assertInitialized();
+        assertStateAfterOrEqual(State.CREATED);
         return repositoryRule.getRepository();
     }
 
@@ -101,7 +101,7 @@ public class ActiveSession extends ExternalResource<ContentRepository> {
      * @throws LoginException
      */
     public Session login() throws RepositoryException {
-        assertInitialized();
+        assertStateAfterOrEqual(State.CREATED);
         final Session session;
         if (username != null && password != null) {
             session = getRepository().login(new SimpleCredentials(username, password.toCharArray()));
@@ -126,7 +126,7 @@ public class ActiveSession extends ExternalResource<ContentRepository> {
      * @throws RepositoryException
      */
     public Session login(final String username, final String password) throws RepositoryException {
-        assertInitialized();
+        assertStateAfterOrEqual(State.CREATED);
         if (!userSessions.containsKey(username)) {
             userSessions.put(username, getRepository().login(new SimpleCredentials(username, password.toCharArray())));
         }
@@ -138,7 +138,7 @@ public class ActiveSession extends ExternalResource<ContentRepository> {
      * @throws RepositoryException
      */
     public Session getAdminSession() throws RepositoryException {
-        assertInitialized();
+        assertStateAfterOrEqual(State.CREATED);
         if (adminSession == null) {
             adminSession = getRepository().login(new SimpleCredentials("admin", "admin".toCharArray()));
         }

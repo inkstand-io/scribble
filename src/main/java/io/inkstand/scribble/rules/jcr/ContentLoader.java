@@ -11,23 +11,23 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package io.inkstand.scribble.rules.jcr;
-
-import io.inkstand.scribble.rules.BaseRule;
-import io.inkstand.scribble.rules.RuleSetup;
-import io.inkstand.scribble.rules.RuleSetup.RequirementLevel;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.net.URL;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.RuleSetup;
+import io.inkstand.scribble.rules.RuleSetup.RequirementLevel;
 
 /**
  * The ContentLoader is a testRule to prefill a {@link ContentRepository} with a node structure before the test.
@@ -59,7 +59,7 @@ public class ContentLoader extends BaseRule<ContentRepository> {
      */
     @RuleSetup(RequirementLevel.REQUIRED)
     public void setContentDescriptorUrl(final URL contentDescriptorUrl) {
-        assertNotInitialized();
+        assertStateBefore(State.INITIALIZED);
         this.contentDescriptorUrl = contentDescriptorUrl;
     }
 
