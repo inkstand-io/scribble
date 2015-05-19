@@ -47,8 +47,8 @@
 		<apache.commons.io.version>2.4</apache.commons.io.version>
 		<apache.deltaspike.version>1.1.0</apache.deltaspike.version>
 		<apache.jackrabbit.version>2.8.0</apache.jackrabbit.version>
-		<apache.ds.server.version>2.0.0-M19</apache.ds.server.version>
-		<apache.ds.ldap.api.version>1.0.0-M27</apache.ds.ldap.api.version>
+		<apache.ds.server.version>2.0.0-M20</apache.ds.server.version>
+		<apache.ds.ldap.api.version>1.0.0-M30</apache.ds.ldap.api.version>
 
 		<!-- Properties for Jacoco and Sonar -->
 		<sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
