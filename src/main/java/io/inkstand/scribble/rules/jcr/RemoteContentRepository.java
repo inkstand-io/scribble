@@ -216,7 +216,13 @@ public class RemoteContentRepository extends ContentRepository {
     private Document parseDocument(final URL documentLocation)
             throws SAXException, IOException, ParserConfigurationException {
 
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(documentLocation.openStream());
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        // SCRIB-24 adding secure parsing to prevent XEE attacks
+        //but as the arquillian.xml files are bound to a xsd schema we don't need doctype declaration and can
+        //safely disable this feature
+        //for more info see https://www.owasp.org/index.php/XML_External_Entity_%28XXE%29_Processing
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        return factory.newDocumentBuilder().parse(documentLocation.openStream());
     }
 
     @Override
