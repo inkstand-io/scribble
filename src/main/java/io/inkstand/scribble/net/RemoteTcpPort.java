@@ -35,6 +35,12 @@ public class RemoteTcpPort extends TcpPort {
 
     }
 
+    @Override
+    public SocketAddress getSocketAddress() {
+
+        return new InetSocketAddress(getHostname(), getPortNumber());
+    }
+
     /**
      * The hostname for the remote port
      * @return
@@ -45,7 +51,8 @@ public class RemoteTcpPort extends TcpPort {
     }
 
     @Override
-    public SocketAddress getSocketAddress() {
-        return new InetSocketAddress(getHostname(), getPortNumber());
+    public String toString() {
+
+        return "tcp:" + getHostname() + ":" + getPortNumber();
     }
 }

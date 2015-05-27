@@ -16,14 +16,13 @@
 
 package io.inkstand.scribble.net;
 
-import org.junit.Test;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import org.junit.Test;
 
 public class TcpPortTest {
 
@@ -54,6 +53,19 @@ public class TcpPortTest {
         assertNotNull(addr);
         assumeTrue(addr instanceof InetSocketAddress);
         assertEquals(portNumber, ((InetSocketAddress)addr).getPort());
+
+    }
+
+    @Test
+    public void testToString() throws Exception {
+        //prepare
+        TcpPort port = new TcpPort(123);
+
+        //act
+        String toString = port.toString();
+
+        //assert
+        assertEquals("tcp:123", toString);
 
     }
 }
