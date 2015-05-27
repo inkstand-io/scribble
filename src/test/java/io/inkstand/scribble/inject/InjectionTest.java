@@ -109,18 +109,6 @@ public class InjectionTest {
         assertNull(injectionTarget.injectionTarget3);
     }
 
-    @Test
-    public void testInto_nullValue() throws Exception {
-        final Injection subject = new Injection(null);
-        // act
-        subject.into(injectionTarget);
-        // assert
-        // all fields should remain null while no exception occured
-        assertNull(injectionTarget.injectionTarget1);
-        assertNull(injectionTarget.injectionTarget2);
-        assertNull(injectionTarget.injectionTarget3);
-    }
-
     @Test(expected = AssertionError.class)
     public void testInto_nullTarget() throws Exception {
         //prepare
