@@ -19,6 +19,9 @@
  */
 package io.inkstand.scribble.inject;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -95,6 +98,14 @@ public class Injection {
     }
 
     /**
+     * @return the injection value
+     */
+    protected Object getValue() {
+
+        return value;
+    }
+
+    /**
      * Prepares an injection of a {@link ConfigProperty} qualified injection point field.
      *
      * @return a {@link ConfigPropertyInjection} handle
@@ -126,22 +137,48 @@ public class Injection {
     }
 
     /**
-     * Injects the value of the injection operation into the first matching field of the target object.
+     * Injects the value of the Injection into the target.
      *
      * @param target
-     *            the object into which the injection value is injected
+     *            the target for the injection operation
+     * @param returnOnFirstMatch
+     *            if set to true, the method returns after one injection operation has been performed. If set to
+     *            <code>false</code> the injection value is injected into all matching fields.
+     * @throws AssertionError
      */
-    public void into(final Object target) {
+    private void injectInto(final Object target, final boolean returnOnFirstMatch) throws AssertionError {
 
-        injectInto(target, true);
+        boolean injectionSuccessful = false;
+
+        for (final Field field : collectFieldCandidates(target)) {
+            if (isMatching(field)) {
+                field.setAccessible(true);
+                try {
+                    field.set(target, getValue());
+                    injectionSuccessful = true;
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                    throw new AssertionError("Injection of " + getValue() + " into " + target + " failed", e);
+                }
+                if (returnOnFirstMatch) {
+                    return;
+                }
+            }
+        }
+        assertTrue("No matching field for injection found", injectionSuccessful);
     }
 
     /**
-     * @return the injection value
+     * Determines all fields that are candidates for the injection as their type is compatible with the injected object.
+     * The method checks the target objects type and supertypes for declared fields.
+     *
+     * @param target
+     *            the target object for which the candidate fields should be determined
+     * @return an array of all fields into which the injection object can be injected.
      */
-    protected Object getValue() {
+    private List<Field> collectFieldCandidates(final Object target) {
 
-        return value;
+        final Class<?> targetClass = target.getClass();
+        return collectFieldCandidates(value, targetClass);
     }
 
     /**
@@ -169,6 +206,27 @@ public class Injection {
     }
 
     /**
+     * Collects all matching declared fields of the target class and returns the result as a list.
+     *
+     * @param injectedValue
+     *            the value that should be injected
+     * @param targetClass
+     *            the class of the target of the injection whose declared fields should be collected
+     * @return a list of fields that are type-compatible with the injected class.
+     */
+    private List<Field> collectFieldCandidates(final Object injectedValue, final Class<?> targetClass) {
+
+        final List<Field> fieldCandidates = new ArrayList<>();
+        Class<?> currentTargetClass = targetClass;
+        while (currentTargetClass != Object.class) {
+
+            fieldCandidates.addAll(collectionDeclaredFieldCandidates(injectedValue, currentTargetClass));
+            currentTargetClass = currentTargetClass.getSuperclass();
+        }
+        return fieldCandidates;
+    }
+
+    /**
      * Returns the primitive type class for the given value type
      *
      * @param valueType
@@ -183,92 +241,50 @@ public class Injection {
     }
 
     /**
-     * Injects the value of the Injection into the target.
+     * Collects all declared fields from the targetClass that are type-compatible with the class of the
+     * injected value into the fieldCandidates list.
      *
-     * @param target
-     *            the target for the injection operation
-     * @param returnOnFirstMatch
-     *            if set to true, the method returns after one injection operation has been performed. If set to
-     *            <code>false</code> the injection value is injected into all matching fields.
-     * @throws AssertionError
-     */
-    private void injectInto(final Object target, final boolean returnOnFirstMatch) throws AssertionError {
-
-        for (final Field field : collectFieldCandidates(target)) {
-            if (isMatching(field)) {
-                field.setAccessible(true);
-                try {
-                    field.set(target, value);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new AssertionError("Injection of " + value + " into " + target + " failed", e);
-                }
-                if (returnOnFirstMatch) {
-                    return;
-                }
-            }
-        }
-    }
-
-    /**
-     * Determines all fields that are candidates for the injection as their type is compatible with the injected object.
-     * The method checks the target objects type and supertypes for declared fields.
-     *
-     * @param target
-     *            the target object for which the candidate fields should be determined
-     * @return an array of all fields into which the injection object can be injected.
-     */
-    private List<Field> collectFieldCandidates(final Object target) {
-
-        final List<Field> fieldCandidates;
-        if (value != null) {
-            final Class<?> injectedClass = value.getClass();
-            final Class<?> targetClass = target.getClass();
-            fieldCandidates = collectFieldCandidates(injectedClass, targetClass);
-        } else {
-            fieldCandidates = Collections.emptyList();
-        }
-
-        return fieldCandidates;
-    }
-
-    /**
-     * Collects all matching declared fields of the target class and returns the result as a list.
-     *
-     * @param injectedClass
-     *            the class of the value that should be injected
-     * @param targetClass
-     *            the class of the target of the injection whose declared fields should be collected
-     * @return a list of fields that are type-compatible with the injected class.
-     */
-    private List<Field> collectFieldCandidates(final Class<?> injectedClass, final Class<?> targetClass) {
-        final List<Field> fieldCandidates = new ArrayList<>();
-        Class<?> currentTargetClass = targetClass;
-        while (currentTargetClass != Object.class) {
-
-            fieldCandidates.addAll(collectionDeclaredFieldCandidates(injectedClass, currentTargetClass));
-            currentTargetClass = currentTargetClass.getSuperclass();
-        }
-        return fieldCandidates;
-    }
-
-    /**
-     * Collects all declared fields from the targetClass that are type-compatible with the injectedClass into the
-     * fieldCandidates list.
-     *
-     * @param injectedClass
-     *            the class of the injection value
+     * @param injectedValue
+     *            the value that should be injected
      * @param targetClass
      *            the class or any of its superclasses of the injection target
      * @return list of declared {@link Field}s that are type-compatible with the injected class
      */
-    private List<Field> collectionDeclaredFieldCandidates(final Class<?> injectedClass, final Class<?> targetClass) {
+    private List<Field> collectionDeclaredFieldCandidates(final Object injectedValue, final Class<?> targetClass) {
         final List<Field> fieldCandidates = new ArrayList<>();
         for (final Field field : targetClass.getDeclaredFields()) {
-            if (field.getType().isAssignableFrom(injectedClass)) {
+            if (isFieldCandidate(field, injectedValue)) {
                 fieldCandidates.add(field);
             }
         }
         return fieldCandidates;
+    }
+
+    /**
+     * Checks if a field is an injection candidate for the given injected value
+     * @param field
+     *  the field that is a potential candidate
+     * @param injectedValue
+     *  the value that should be injected. May be null.
+     * @return
+     *  <code>true</code> if the field is a candidate. This does not mean, that the injection will actually
+     *  be performed into that field.
+     */
+    protected boolean isFieldCandidate(final Field field, final Object injectedValue) {
+
+        return injectedValue != null && field.getType().isAssignableFrom(injectedValue.getClass());
+    }
+
+    /**
+     * Injects the value of the injection operation into the first matching field of the target object.
+     *
+     * @param target
+     *            the object into which the injection value is injected
+     */
+    public void into(final Object target) {
+
+        assertNotNull("Injection target must not be null", target);
+        injectInto(target, true);
     }
 
 }

@@ -16,16 +16,15 @@
 
 package io.inkstand.scribble.net;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RemoteTcpPortTest {
@@ -61,6 +60,19 @@ public class RemoteTcpPortTest {
         assumeTrue(addr instanceof InetSocketAddress);
         assertEquals(hostname, ((InetSocketAddress)addr).getHostName());
         assertEquals(portNumber, ((InetSocketAddress)addr).getPort());
+
+    }
+
+    @Test
+    public void testToString() throws Exception {
+        //prepare
+        RemoteTcpPort port = new RemoteTcpPort("localhost", 123);
+
+        //act
+        String toString = port.toString();
+
+        //assert
+        assertEquals("tcp:localhost:123", toString);
 
     }
 }

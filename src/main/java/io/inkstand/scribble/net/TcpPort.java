@@ -36,12 +36,19 @@ public class TcpPort {
         this.portNumber = portNumber;
     }
 
+    public SocketAddress getSocketAddress() {
+
+        return new InetSocketAddress(portNumber);
+    }
+
+    @Override
+    public String toString() {
+
+        return "tcp:" + getPortNumber();
+    }
+
     public int getPortNumber() {
 
         return portNumber;
-    }
-
-    public SocketAddress getSocketAddress() {
-        return new InetSocketAddress(portNumber);
     }
 }

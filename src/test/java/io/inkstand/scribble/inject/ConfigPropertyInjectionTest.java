@@ -16,14 +16,20 @@
 
 package io.inkstand.scribble.inject;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Field;
 import javax.inject.Inject;
+import java.lang.reflect.Field;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import io.inkstand.scribble.Scribble;
 
 public class ConfigPropertyInjectionTest {
 
@@ -39,7 +45,34 @@ public class ConfigPropertyInjectionTest {
     }
 
     @Test
+    public void testInjectInto_NullValue_defaultInjected() throws Exception {
+        //prepare
+        // create an injection with no value (null) for a config property with a default value
+        final SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        // act
+        Scribble.inject(null).asConfigProperty("config.property.default").into(target);
+
+        // assert
+        assertEquals("defaultValue", target.configPropertyWithDefault);
+    }
+
+    @Test
+    public void testInjectInto_ValidValue_valueInjected() throws Exception {
+        //prepare
+        // create an injection with no value (null) for a config property with a default value
+        final SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        // act
+        Scribble.inject("testString").asConfigProperty("config.property.default").into(target);
+
+        // assert
+        assertEquals("testString", target.configPropertyWithDefault);
+    }
+
+    @Test
     public void testGetValue() throws Exception {
+
         assertEquals("testValue", subject.getValue());
     }
 
