@@ -19,6 +19,8 @@
  */
 package io.inkstand.scribble.inject;
 
+import static org.junit.Assert.assertNotNull;
+
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -276,6 +278,7 @@ public class Injection {
      */
     public void into(final Object target) {
 
+        assertNotNull("Injection target must not be null", target);
         injectInto(target, true);
     }
 

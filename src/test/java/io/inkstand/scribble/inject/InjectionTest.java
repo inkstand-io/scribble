@@ -16,11 +16,14 @@
 
 package io.inkstand.scribble.inject;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
-
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,6 +121,15 @@ public class InjectionTest {
         assertNull(injectionTarget.injectionTarget3);
     }
 
+    @Test(expected = AssertionError.class)
+    public void testInto_nullTarget() throws Exception {
+        //prepare
+        final Injection subject = new Injection(null);
+        // act
+        subject.into(null);
+
+    }
+
     @Test
     public void testGetValue() throws Exception {
         assertEquals(injectionValue, subject.getValue());
@@ -140,6 +152,12 @@ public class InjectionTest {
     public void testIsMatching_primitiveBooleanField_true() throws Exception {
 
         test_primitiveField("primitiveBoolean", true);
+    }
+
+    private void test_primitiveField(String fieldname, Object primitiveValue) throws NoSuchFieldException {
+
+        final Field field = SimpleInjectionTarget.class.getDeclaredField(fieldname);
+        assertTrue(new Injection(primitiveValue).isMatching(field));
     }
 
     @Test
@@ -182,12 +200,6 @@ public class InjectionTest {
     public void testIsMatching_primitiveCharField_true() throws Exception {
 
         test_primitiveField("primitiveChar", (char) 123);
-    }
-
-    private void test_primitiveField(String fieldname, Object primitiveValue) throws NoSuchFieldException {
-
-        final Field field = SimpleInjectionTarget.class.getDeclaredField(fieldname);
-        assertTrue(new Injection(primitiveValue).isMatching(field));
     }
 
     @Test
