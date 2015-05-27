@@ -20,6 +20,7 @@
 package io.inkstand.scribble.inject;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
@@ -147,11 +148,14 @@ public class Injection {
      */
     private void injectInto(final Object target, final boolean returnOnFirstMatch) throws AssertionError {
 
+        boolean injectionSuccessful = false;
+
         for (final Field field : collectFieldCandidates(target)) {
             if (isMatching(field)) {
                 field.setAccessible(true);
                 try {
                     field.set(target, getValue());
+                    injectionSuccessful = true;
                 } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new AssertionError("Injection of " + getValue() + " into " + target + " failed", e);
                 }
@@ -160,6 +164,7 @@ public class Injection {
                 }
             }
         }
+        assertTrue("No matching field for injection found", injectionSuccessful);
     }
 
     /**

@@ -127,6 +127,17 @@ public class InjectionTest {
         final Injection subject = new Injection(null);
         // act
         subject.into(null);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testInto_noMatchingTarget_fail() throws Exception {
+        //prepare
+        final Injection subject = new Injection(new Short((short) 123));
+        final SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        //act
+        // SCRIB-29 this should fail as there is no matching field
+        subject.into(target);
 
     }
 
