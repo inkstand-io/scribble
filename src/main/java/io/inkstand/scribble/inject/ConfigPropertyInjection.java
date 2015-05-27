@@ -39,12 +39,14 @@ public class ConfigPropertyInjection extends CdiInjection {
     private Object defaultValue;
 
     public ConfigPropertyInjection(final String configPropertyName, final Object injectedValue) {
+
         super(injectedValue);
         this.configPropertyName = configPropertyName;
     }
 
     @Override
     protected Object getValue() {
+
         Object value = super.getValue();
         if (value == null) {
             value = defaultValue;
@@ -52,15 +54,25 @@ public class ConfigPropertyInjection extends CdiInjection {
         return value;
     }
 
+    @Override
+    protected boolean isFieldCandidate(final Field field, final Object injectedValue) {
+
+        //@formatter:off
+        return field.getAnnotation(ConfigProperty.class) != null
+                && (injectedValue == null
+                || field.getType().isAssignableFrom(injectedValue.getClass()));
+        //@formatter:on
+    }
+
     /**
-     * Verfifies the name of the {@link ConfigProperty}. If the field type matches and the {@link ConfigProperty}'s name
+     * Verifies the name of the {@link ConfigProperty}. If the field type matches and the {@link ConfigProperty}'s name
      * matches, the method returns <code>true</code>. If the {@link ConfigProperty} has a default value set, the value
      * will be used in case the injection value is <code>null</code>.
      */
     @Override
     protected boolean isMatching(final Field field) {
 
-        if(!super.isMatching(field)){
+        if (!super.isMatching(field)) {
             return false;
         }
         final ConfigProperty configProperty = field.getAnnotation(ConfigProperty.class);
