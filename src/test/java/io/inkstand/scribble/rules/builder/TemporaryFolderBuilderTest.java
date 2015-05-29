@@ -16,7 +16,11 @@
 
 package io.inkstand.scribble.rules.builder;
 
-import io.inkstand.scribble.rules.TemporaryFile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,10 +31,7 @@ import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import io.inkstand.scribble.rules.TemporaryFile;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TemporaryFolderBuilderTest {
@@ -86,6 +87,17 @@ public class TemporaryFolderBuilderTest {
         });
         tempFile.apply(stmt, description).evaluate();
         verify(stmt).evaluate();
+    }
+
+    @Test
+    public void testAroundDirectory() throws Exception {
+        //prepare
+
+        //act
+        DirectoryBuilder builder = subject.aroundDirectory();
+        //assert
+        assertNotNull(builder);
+
     }
 
     @Test
