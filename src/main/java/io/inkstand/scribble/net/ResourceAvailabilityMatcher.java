@@ -28,12 +28,8 @@ import org.hamcrest.Description;
 import org.slf4j.Logger;
 
 /**
- * Matcher for verifying a a resource is available. Supported resources are
- * <ul>
- *     <li>local TCP ports</li>
- *     <li>URLs</li>
+ * Matcher for verifying a a resource is available. Supported resources are <ul> <li>local TCP ports</li> <li>URLs</li>
  * </ul>
- *
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
@@ -48,16 +44,28 @@ public class ResourceAvailabilityMatcher extends BaseMatcher<TcpPort> {
             return false;
         }
 
+        final boolean result;
+
         if (item instanceof TcpPort) {
-            return matches((TcpPort) item);
+            result = this.isAvailable((TcpPort) item);
         } else if (item instanceof URL) {
-            return matches((URL) item);
+            result = this.isAvailable((URL) item);
+        } else {
+            result = false;
         }
-        return false;
+        return result;
 
     }
 
-    private boolean matches(final TcpPort port) {
+    /**
+     * Checks the availability of a tcpPort by checking if a {@link ServerSocket} is already bound.
+     *
+     * @param port
+     *         the port to check
+     *
+     * @return <code>true</code> if the port is available
+     */
+    protected boolean isAvailable(final TcpPort port) {
 
         int portNumber = port.getPortNumber();
 
@@ -70,9 +78,17 @@ public class ResourceAvailabilityMatcher extends BaseMatcher<TcpPort> {
         return true;
     }
 
-    private boolean matches(URL url) {
+    /**
+     * Checks the availability of a URL by openening a reading stream on it.
+     *
+     * @param url
+     *         the url to check
+     *
+     * @return <code>true</code> if the URL can be read
+     */
+    protected boolean isAvailable(URL url) {
 
-        try (InputStream is = url.openStream()) {
+        try (InputStream inputStream = url.openStream()) {
             return true;
         } catch (IOException e) { //NOSONAR
             LOG.debug("URL {} not available", url, e);

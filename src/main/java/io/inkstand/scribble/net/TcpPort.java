@@ -29,7 +29,7 @@ import java.net.SocketAddress;
  */
 public class TcpPort {
 
-    private int portNumber;
+    private final int portNumber;
 
     public TcpPort(final int portNumber) {
 
@@ -38,17 +38,22 @@ public class TcpPort {
 
     public SocketAddress getSocketAddress() {
 
-        return new InetSocketAddress(portNumber);
+        return new InetSocketAddress(this.getPortNumber());
+    }
+
+    /**
+     * An integer value between 0 and 65536 (both excluding) representing the tcp port number.
+     *
+     * @return the tcp port number
+     */
+    public int getPortNumber() {
+
+        return this.portNumber;
     }
 
     @Override
     public String toString() {
 
-        return "tcp:" + getPortNumber();
-    }
-
-    public int getPortNumber() {
-
-        return portNumber;
+        return "tcp:" + this.getPortNumber();
     }
 }
