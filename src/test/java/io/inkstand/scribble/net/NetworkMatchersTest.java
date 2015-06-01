@@ -16,12 +16,14 @@
 
 package io.inkstand.scribble.net;
 
-import org.junit.Test;
-
 import static io.inkstand.scribble.net.NetworkMatchers.isAvailable;
+import static io.inkstand.scribble.net.NetworkMatchers.isReachable;
 import static io.inkstand.scribble.net.NetworkMatchers.port;
+import static io.inkstand.scribble.net.NetworkMatchers.remotePort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
 
 
 public class NetworkMatchersTest {
@@ -31,10 +33,22 @@ public class NetworkMatchersTest {
         //prepare
 
         //act
-        ListenPortMatcher matcher = isAvailable();
+        ResourceAvailabilityMatcher matcher = isAvailable();
 
         //assert
         assertNotNull(matcher);
+    }
+
+    @Test
+    public void testIsReachable() throws Exception {
+        //prepare
+
+        //act
+        EndpointMatcher matcher = isReachable();
+
+        //assert
+        assertNotNull(matcher);
+
     }
 
     @Test
@@ -51,4 +65,21 @@ public class NetworkMatchersTest {
         assertNotNull(port);
         assertEquals(expected, port.getPortNumber());
     }
+
+    @Test
+    public void testRemotePort() throws Exception {
+        //prepare
+        String host = "localhost";
+        int expectedPort = 123;
+
+        //act
+        TcpPort port = remotePort(host, expectedPort);
+
+        //assert
+        assertNotNull(port);
+        assertEquals(expectedPort, port.getPortNumber());
+        assertEquals(host + "/127.0.0.1:" + expectedPort, port.getSocketAddress().toString());
+
+    }
+
 }

@@ -32,9 +32,9 @@ public final class NetworkMatchers {
      *
      * @return a matcher to verify the avilability of a port
      */
-    public static ListenPortMatcher isAvailable() {
+    public static ResourceAvailabilityMatcher isAvailable() {
 
-        return new ListenPortMatcher();
+        return new ResourceAvailabilityMatcher();
     }
 
     /**
