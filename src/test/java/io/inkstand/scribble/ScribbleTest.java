@@ -36,6 +36,7 @@ import io.inkstand.scribble.rules.builder.StandaloneContentRepositoryBuilder;
 import io.inkstand.scribble.rules.builder.TemporaryFolderBuilder;
 import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 import io.inkstand.scribble.rules.jcr.StandaloneContentRepository;
+import io.inkstand.scribble.rules.ldap.Directory;
 import io.inkstand.scribble.rules.ldap.DirectoryServer;
 
 /**
@@ -154,6 +155,18 @@ public class ScribbleTest {
                 assertNodeTypeExists(session, "test:testType");
             }
         }, description).evaluate();
+    }
+
+    @Test
+    public void testNewDirectory() throws Exception {
+        //prepare
+
+        //act
+        final Directory dir = Scribble.newDirectory().build();
+
+        //assert
+        assertNotNull(dir);
+
     }
 
     @Test

@@ -22,6 +22,7 @@ import org.junit.rules.TemporaryFolder;
 import io.inkstand.scribble.inject.Injection;
 import io.inkstand.scribble.rules.BaseRule;
 import io.inkstand.scribble.rules.builder.Builder;
+import io.inkstand.scribble.rules.builder.DirectoryBuilder;
 import io.inkstand.scribble.rules.builder.DirectoryServerBuilder;
 import io.inkstand.scribble.rules.builder.GenericBuilder;
 import io.inkstand.scribble.rules.builder.InMemoryContentRepositoryBuilder;
@@ -219,6 +220,17 @@ public final class Scribble {
     }
 
     /**
+     * Convenient method for {@code newTempFolder().aroundDirectory()}.
+     *
+     * @return a builder for an ldap service
+     */
+    public static DirectoryBuilder newDirectory() {
+
+        return newTempFolder().aroundDirectory();
+    }
+
+
+    /**
      * Convenient method for
      * {@code newTempFolder().aroundDirectory().aroundDirectoryServer()}.
      * @return
@@ -228,5 +240,4 @@ public final class Scribble {
 
         return newTempFolder().aroundDirectory().aroundDirectoryServer();
     }
-
 }
