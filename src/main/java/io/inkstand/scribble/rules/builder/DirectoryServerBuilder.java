@@ -20,11 +20,31 @@ import io.inkstand.scribble.rules.ldap.Directory;
 import io.inkstand.scribble.rules.ldap.DirectoryServer;
 
 /**
+ * Builder for creating a {@link DirectoryServer} rule. The rule allows to start and stop an embedded ldap server
+ * for test.
  * Created by Gerald on 29.05.2015.
  */
 public class DirectoryServerBuilder extends Builder<DirectoryServer> {
 
+    /**
+     * The {@link Directory} rule that provides the ldap content for the ldap server
+     */
     private final Directory directory;
+
+    /**
+     * The port the server should accept incoming connections
+     */
+    private int port = -1;
+
+    /**
+     * The listen address for the ldap server
+     */
+    private String listenAddress;
+
+    /**
+     * Flag to indicate the rule should find an available port on each rule application
+     */
+    private boolean findAvailablePortMode;
 
     public DirectoryServerBuilder(final Directory directory) {
 
@@ -35,6 +55,58 @@ public class DirectoryServerBuilder extends Builder<DirectoryServer> {
     @Override
     public DirectoryServer build() {
 
-        return new DirectoryServer(directory);
+        final DirectoryServer ds = new DirectoryServer(directory);
+        if (port != -1) {
+            ds.setTcpPort(port);
+        }
+        if (listenAddress != null) {
+            ds.setListenAddress(listenAddress);
+        }
+        ds.setAutoBind(this.findAvailablePortMode);
+        return ds;
+    }
+
+    /**
+     * Specifies a specific TCP port the ldap server created by the rule should accept incoming connections. If not
+     * specified, the default port is 10389.
+     *
+     * @param port
+     *         the port to use for servicing ldap request
+     *
+     * @return this builder
+     */
+    public DirectoryServerBuilder onPort(final int port) {
+
+        this.port = port;
+
+        return this;
+    }
+
+    /**
+     * Specifies the listen address for the ldap server created by the rule. If not specified, localhost is the
+     * default.
+     *
+     * @param address
+     *         the listen address for the ldap server
+     *
+     * @return this builder
+     */
+    public DirectoryServerBuilder onListenAddress(final String address) {
+
+        this.listenAddress = address;
+
+        return this;
+    }
+
+    /**
+     * Specifies that the rule should find an available port automatically on each application of the rule.
+     *
+     * @return this builder
+     */
+    public DirectoryServerBuilder onAvailablePort() {
+
+        this.findAvailablePortMode = true;
+
+        return this;
     }
 }

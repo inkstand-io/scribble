@@ -23,12 +23,34 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import io.inkstand.scribble.net.NetworkUtils;
+import io.inkstand.scribble.rules.RuleSetup;
+
+/**
+ * The directory server provides an LDAP service as a {@link TestRule}. It requires a {@link Directory} test rule that
+ * contains the LDAP service's content. The server may be configured regarding port and listen address. If neither is
+ * configured, it listens on localhost:10389
+ */
 public class DirectoryServer implements TestRule {
 
+    /**
+     * the test rule that provides the {@link DirectoryService} providing the content
+     */
     private final Directory directory;
-
-    private int tcpPort = 10389;
+    /**
+     * The server instance managed by this rule
+     */
     private LdapServer ldapServer;
+    /**
+     * the tcp port the server will accept connections
+     */
+    private int tcpPort = 10389;
+
+    /**
+     * the listen address of the server
+     */
+    private String listenAddress = null;
+    private boolean autoBind;
 
     public DirectoryServer(final Directory directory) {
         this.directory = directory;
@@ -52,7 +74,17 @@ public class DirectoryServer implements TestRule {
         };
     }
 
+    /**
+     * Starts the server on the configured listen address and tcp port (default localhost:10389) and assigns the {@link
+     * DirectoryService} provided by the {@link Directory} rule to it
+     *
+     * @throws Exception
+     */
     protected void startServer() throws Exception { // NOSONAR
+
+        if (this.autoBind) {
+            setTcpPort(NetworkUtils.findAvailablePort());
+        }
 
         ldapServer = new LdapServer();
         ldapServer.setDirectoryService(directory.getDirectoryService());
@@ -61,11 +93,21 @@ public class DirectoryServer implements TestRule {
     }
 
     /**
+     * Shuts down the ldap server. This method is invoked by the apply statement. Override to add additional
+     * shutdown behavior.
+     */
+    protected void shutdownServer() {
+
+        ldapServer.stop();
+
+    }
+
+    /**
      * The tcp port the ldap server listens for incoming connections
      * @return
      *  the tcp port number
      */
-    protected int getTcpPort() {
+    public int getTcpPort() {
 
         return tcpPort;
     }
@@ -76,7 +118,8 @@ public class DirectoryServer implements TestRule {
      * @param tcpPort
      *  the tcp port number
      */
-    protected void setTcpPort(final int tcpPort) {
+    @RuleSetup
+    public void setTcpPort(final int tcpPort) {
 
         this.tcpPort = tcpPort;
     }
@@ -93,10 +136,28 @@ public class DirectoryServer implements TestRule {
     }
 
     /**
-     * The directory service manages the entries provided
-     * by the LdapServer
-     * @return
-     *  the DirectoryService to access the entries of the LDAP server directly
+     * @return the listen address of the ldap server
+     */
+    public String getListenAddress() {
+
+        return listenAddress;
+    }
+
+    /**
+     * Sets the listen address of the server. If none is set, localhost (null) is used.
+     * @param listenAddress
+     *  the new listen address of the server
+     */
+    @RuleSetup
+    public void setListenAddress(final String listenAddress) {
+
+        this.listenAddress = listenAddress;
+    }
+
+    /**
+     * The directory service manages the entries provided by the LdapServer
+     *
+     * @return the DirectoryService to access the entries of the LDAP server directly
      */
     public DirectoryService getDirectoryService() {
 
@@ -104,11 +165,13 @@ public class DirectoryServer implements TestRule {
     }
 
     /**
-     * Shuts down the ldap server. This method is invoked by the apply statement. Override to add additional
-     * shutdown behavior.
+     * Sets the rule to auto-bind, that will find an available port on each application. The port may be
+     * access using the {@code getTcpPort()} method.
+     * @param autoBind
+     *  <code>true</code> to activate the auto-bind mode
      */
-    protected void shutdownServer() {
-        ldapServer.stop();
+    public void setAutoBind(final boolean autoBind) {
 
+        this.autoBind = autoBind;
     }
 }

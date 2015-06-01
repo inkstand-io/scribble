@@ -16,15 +16,27 @@
 
 package io.inkstand.scribble.rules.builder;
 
+import static io.inkstand.scribble.net.NetworkMatchers.isReachable;
+import static io.inkstand.scribble.net.NetworkMatchers.remotePort;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import io.inkstand.scribble.net.NetworkUtils;
 import io.inkstand.scribble.rules.ldap.Directory;
 import io.inkstand.scribble.rules.ldap.DirectoryServer;
 
@@ -34,15 +46,22 @@ import io.inkstand.scribble.rules.ldap.DirectoryServer;
 @RunWith(MockitoJUnitRunner.class)
 public class DirectoryServerBuilderTest {
 
-    @Rule
     public TemporaryFolder folder = new TemporaryFolder();
+
+    public Directory dir = new Directory(folder);
+
+    @Rule
+    public RuleChain chain = RuleChain.outerRule(folder).around(dir);
+
+    @Mock
+    private Description description;
+
 
     private DirectoryServerBuilder subject;
 
     @Before
     public void setUp() throws Exception {
 
-        Directory dir = new Directory(folder);
         subject = new DirectoryServerBuilder(dir);
     }
 
@@ -54,6 +73,100 @@ public class DirectoryServerBuilderTest {
         DirectoryServer ds = subject.build();
         //assert
         assertNotNull(ds);
+    }
+
+    @Test
+    public void onAvailablePort() throws Throwable {
+        //prepare
+
+        //act
+        DirectoryServerBuilder builder = subject.onAvailablePort();
+
+        //assert
+        assertSame(builder, subject);
+        final DirectoryServer ds = subject.build();
+
+        final AtomicInteger port1 = new AtomicInteger();
+        final AtomicInteger port2 = new AtomicInteger();
+
+        //apply the rule twice
+        ds.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                port1.set(ds.getTcpPort());
+                assertThat(remotePort("localhost", port1.get()), isReachable());
+
+            }
+        }, description).evaluate();
+
+        ds.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                port2.set(ds.getTcpPort());
+                assertThat(remotePort("localhost", port2.get()), isReachable());
+
+            }
+        }, description).evaluate();
+
+        //on each application a new port should have been used
+        assertNotNull(port1.get());
+        assertNotNull(port2.get());
+        assertNotEquals(port1.get(), port2.get());
+    }
+
+    @Test
+    public void testOnPort() throws Throwable {
+        //prepare
+
+        final int port = NetworkUtils.findAvailablePort();
+
+        //act
+        DirectoryServerBuilder builder = subject.onPort(port);
+
+        //assert
+        assertSame(builder, subject);
+        DirectoryServer ds = subject.build();
+        assertEquals(port, ds.getTcpPort());
+        ds.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                assertThat(remotePort("localhost", port), isReachable());
+
+            }
+        }, description).evaluate();
+
+    }
+
+    @Test
+    public void testOnListenAddress() throws Throwable {
+        //prepare
+        String address = "myhost";
+        final int port = NetworkUtils.findAvailablePort();
+        subject.onPort(port);
+
+        //act
+        DirectoryServerBuilder builder = subject.onListenAddress(address);
+
+        //assert
+        assertSame(builder, subject);
+        DirectoryServer ds = subject.build();
+        assertEquals("myhost", ds.getListenAddress());
+
+        ds.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                assertThat(remotePort("localhost", port), isReachable());
+
+            }
+        }, description).evaluate();
     }
 
 }

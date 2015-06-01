@@ -16,6 +16,19 @@
 
 package io.inkstand.scribble.rules.ldap;
 
+import static io.inkstand.scribble.net.NetworkMatchers.isReachable;
+import static io.inkstand.scribble.net.NetworkMatchers.remotePort;
+import static io.inkstand.scribble.net.NetworkUtils.findAvailablePort;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
@@ -31,17 +44,6 @@ import org.junit.runners.model.Statement;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.net.InetSocketAddress;
-import java.net.Socket;
-
-import static io.inkstand.scribble.net.NetworkUtils.findAvailablePort;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DirectoryServerTest {
@@ -95,6 +97,7 @@ public class DirectoryServerTest {
             @Override
             public void evaluate() throws Throwable {
 
+                assertThat(remotePort("localhost", port), isReachable());
                 try(Socket socket = new Socket()) {
                     socket.connect(new InetSocketAddress(port));
                 } catch (Exception e) {
@@ -139,7 +142,7 @@ public class DirectoryServerTest {
     }
 
     @Test
-    public void testSubjectGetTcpPort() throws Exception {
+    public void testSetGetTcpPort() throws Exception {
         //prepare
         int expected = 12345;
 
@@ -149,6 +152,31 @@ public class DirectoryServerTest {
 
         //assert
         assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetTcpPort_default() throws Exception {
+        //prepare
+
+        //act
+        int actual = subject.getTcpPort();
+
+        //assert
+        assertEquals(10389, actual);
+    }
+
+    @Test
+    public void testSetGetListenAddress() throws Exception {
+        //prepare
+        String listenAdress = "localhost";
+
+        //act
+        subject.setListenAddress(listenAdress);
+        String actual = subject.getListenAddress();
+
+        //assert
+        assertEquals(actual, listenAdress);
+
     }
 
 
