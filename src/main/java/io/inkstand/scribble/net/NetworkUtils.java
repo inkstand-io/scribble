@@ -16,7 +16,6 @@
 
 package io.inkstand.scribble.net;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import java.net.ServerSocket;
@@ -51,7 +50,7 @@ public final class NetworkUtils {
      * system property {@code scribble.net.maxRetries}. The default value is 3. It may be modified at runtime by
      * accessing the AtomicInteger directly.
      */
-    public static final AtomicInteger DEFAULT_RETRY_COUNT = new AtomicInteger(Integer.parseInt(System.getProperty(
+    public static final AtomicInteger RETRY_COUNT = new AtomicInteger(Integer.parseInt(System.getProperty(
             "scribble.net.maxRetries",
             "3")));
     //SCRIB-25 although it has no relevance regarding security using the secure random number generator will less
@@ -70,7 +69,7 @@ public final class NetworkUtils {
      */
     public static int findAvailablePort() {
 
-        return findAvailablePort(DEFAULT_RETRY_COUNT.get());
+        return findAvailablePort(RETRY_COUNT.get());
     }
 
     /**
@@ -91,9 +90,7 @@ public final class NetworkUtils {
             randomPort = randomPort();
             portAvailable = isPortAvailable(randomPort);
         } while (retries++ < maxRetries && !portAvailable);
-        if (retries > maxRetries) {
-            assumeTrue("no open port found", portAvailable);
-        }
+        assumeTrue("no open port found", portAvailable);
         return randomPort;
     }
 
@@ -119,9 +116,7 @@ public final class NetworkUtils {
     public static boolean isPortAvailable(final int port) {
 
         try (ServerSocket socket = new ServerSocket(port)) {
-
-            assertTrue(socket.isBound());
-            return true;
+            return socket.isBound();
         } catch (Exception e) { //NOSONAR
             return false;
         }
