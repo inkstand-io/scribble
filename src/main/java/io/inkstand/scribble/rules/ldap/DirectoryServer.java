@@ -34,23 +34,28 @@ import io.inkstand.scribble.rules.RuleSetup;
 public class DirectoryServer implements TestRule {
 
     /**
-     * the test rule that provides the {@link DirectoryService} providing the content
+     * The test rule that provides the {@link DirectoryService} providing the content.
      */
-    private final Directory directory;
+    private final transient Directory directory;
     /**
-     * The server instance managed by this rule
+     * The server instance managed by this rule.
      */
-    private LdapServer ldapServer;
+    private transient LdapServer ldapServer;
     /**
-     * the tcp port the server will accept connections
+     * the tcp port the server will accept connections.
      */
-    private int tcpPort = 10389;
+    private transient int tcpPort = 10389;
 
     /**
-     * the listen address of the server
+     * The listen address of the server.
      */
-    private String listenAddress = null;
-    private boolean autoBind;
+    private transient String listenAddress;
+
+    /**
+     * Flag indicating the rule is in auto-bind mode. In auto-bind mode, the rule automatically finds an available port
+     * on each rule application.
+     */
+    private transient boolean autoBind;
 
     public DirectoryServer(final Directory directory) {
         this.directory = directory;
@@ -76,20 +81,22 @@ public class DirectoryServer implements TestRule {
 
     /**
      * Starts the server on the configured listen address and tcp port (default localhost:10389) and assigns the {@link
-     * DirectoryService} provided by the {@link Directory} rule to it
+     * DirectoryService} provided by the {@link Directory} rule to it.
      *
      * @throws Exception
+     *  if the server could not be started for various reasons, i.e. the directory service is not initialized or
+     *  the port is already bound.
      */
     protected void startServer() throws Exception { // NOSONAR
 
         if (this.autoBind) {
-            setTcpPort(NetworkUtils.findAvailablePort());
+            this.setTcpPort(NetworkUtils.findAvailablePort());
         }
 
-        ldapServer = new LdapServer();
-        ldapServer.setDirectoryService(directory.getDirectoryService());
-        ldapServer.setTransports(new TcpTransport(getTcpPort()));
-        ldapServer.start();
+        this.ldapServer = new LdapServer();
+        this.ldapServer.setDirectoryService(this.directory.getDirectoryService());
+        this.ldapServer.setTransports(new TcpTransport(this.getTcpPort()));
+        this.ldapServer.start();
     }
 
     /**
@@ -98,23 +105,23 @@ public class DirectoryServer implements TestRule {
      */
     protected void shutdownServer() {
 
-        ldapServer.stop();
+        this.ldapServer.stop();
 
     }
 
     /**
-     * The tcp port the ldap server listens for incoming connections
+     * The tcp port the ldap server listens for incoming connections.
      * @return
      *  the tcp port number
      */
     public int getTcpPort() {
 
-        return tcpPort;
+        return this.tcpPort;
     }
 
     /**
      * Sets the TCP port the LDAP server will listen on for incoming connections. The port must be set before
-     * the rule is applied
+     * the rule is applied.
      * @param tcpPort
      *  the tcp port number
      */
@@ -125,22 +132,22 @@ public class DirectoryServer implements TestRule {
     }
 
     /**
-     * Provides access to the {@link org.apache.directory.server.ldap.LdapServer}
+     * Provides access to the {@link org.apache.directory.server.ldap.LdapServer}.
      *
      * @return
      *  the LdapServer used by this rule
      */
     public LdapServer getLdapServer() {
 
-        return ldapServer;
+        return this.ldapServer;
     }
 
     /**
-     * @return the listen address of the ldap server
+     * @return the listen address of the ldap server.
      */
     public String getListenAddress() {
 
-        return listenAddress;
+        return this.listenAddress;
     }
 
     /**
@@ -155,23 +162,24 @@ public class DirectoryServer implements TestRule {
     }
 
     /**
-     * The directory service manages the entries provided by the LdapServer
-     *
-     * @return the DirectoryService to access the entries of the LDAP server directly
-     */
-    public DirectoryService getDirectoryService() {
-
-        return directory.getDirectoryService();
-    }
-
-    /**
      * Sets the rule to auto-bind, that will find an available port on each application. The port may be
      * access using the {@code getTcpPort()} method.
      * @param autoBind
      *  <code>true</code> to activate the auto-bind mode
      */
+    @RuleSetup
     public void setAutoBind(final boolean autoBind) {
 
         this.autoBind = autoBind;
+    }
+
+    /**
+     * The directory service manages the entries provided by the LdapServer.
+     *
+     * @return the DirectoryService to access the entries of the LDAP server directly
+     */
+    public DirectoryService getDirectoryService() {
+
+        return this.directory.getDirectoryService();
     }
 }

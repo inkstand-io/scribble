@@ -179,5 +179,15 @@ public class DirectoryServerTest {
 
     }
 
+    @Test
+    public void testGetDirectoryService() throws Exception {
+        //prepare
+
+        //act
+        DirectoryService ds = subject.getDirectoryService();
+
+        //assert
+        assertNotNull(ds);
+    }
 
 }

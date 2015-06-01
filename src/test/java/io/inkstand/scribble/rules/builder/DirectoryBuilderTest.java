@@ -143,6 +143,7 @@ public class DirectoryBuilderTest {
         }, description).evaluate();
     }
 
+
     @Test
     public void testAccessControlEnabled() throws Throwable {
         //prepare
@@ -194,15 +195,35 @@ public class DirectoryBuilderTest {
     }
 
     @Test
-    public void testBuild() throws Exception {
+    public void testBuild() throws Throwable {
 
         //prepare
 
         //act
-        Directory dir = subject.build();
+        //need to create the partition, but we create no entries in it
+        this.dir = subject.withPartition("scribble", "dc=scribble").build();
 
         //assert
         assertNotNull(dir);
+
+        //validate default settings
+        dir.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                //access control is disabled
+                assertFalse(dir.getDirectoryService().isAccessControlEnabled());
+                //anonymous access is allowed
+                assertTrue(dir.getDirectoryService().isAllowAnonymousAccess());
+                dir.getDirectoryService().setAllowAnonymousAccess(true);
+                CoreSession session = dir.getDirectoryService().getSession();
+                //no ldif import of any users took place
+                assertFalse(session.exists("dc=scribble"));
+
+            }
+        }, description).evaluate();
+
 
     }
 }

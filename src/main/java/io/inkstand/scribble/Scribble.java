@@ -50,17 +50,17 @@ import io.inkstand.scribble.rules.jcr.MockContentRepository;
  * {@literal @}Rule
  * TemporaryFolder folder = new TemporaryFolder();
  * </pre>
- *
+ * <p>
  * If you need a chain of rules, that are nested, JUnit provides the {@link RuleChain}:
- *
+ * </p>
  * <pre>
  * {@literal @}Rule
  * TestRule chain = RuleChain.outerRouler(new OuterRule()).around(new InnerRule());
  * </pre>
- *
+ * <p>
  * This approach is perfectly alright but is a bit awkward when you have rules in the chain, that depend on each other.
  * In that case you have to instantiate the rules before creating the chain:
- *
+ * </p>
  * <pre>
  * OuterRule outer = new OuterRule();
  * InnerRule inner = new InnerRule(outer); //inner depends on outer
@@ -68,11 +68,15 @@ import io.inkstand.scribble.rules.jcr.MockContentRepository;
  * TestRule chain = RuleChain.outerRouler(outer).around(inner);
  * </pre>
  *
- * <h3>Test Rule Chains, Scribble way</h3> Scribble provides a set of rules that have dependencies on other rules. But
+ * <h3>Test Rule Chains, Scribble way</h3>
+ * <p>
+ * Scribble provides a set of rules that have dependencies on other rules. But
  * the rules may be created using a builder pattern that allows the creation and configuration of interdependent rule in
  * single line statements, that make the test setup more readable. The dependency mechanism is provided in the
  * {@link BaseRule} on which all the Scribble rules depend on. Furhter, the {@link Scribble} utility class provides
- * factory methods for creating specific rule builders.<br>
+ * factory methods for creating specific rule builders.
+ * </p>
+ * <br>
  * Examples:
  * <ul>
  * <li>Creating a temporary file with content from a classpath resource in a temporary folder:<br>
@@ -147,7 +151,7 @@ public final class Scribble {
     }
 
     /**
-     * Creates a new {@link Builder} for a {@link MockContentRepository}
+     * Creates a new {@link Builder} for a {@link MockContentRepository}.
      *
      * @return a {@link MockContentRepositoryBuilder}
      */
@@ -157,17 +161,17 @@ public final class Scribble {
     }
 
     /**
-     * Creates a new {@link Builder} for a {@link JNDIContentRepository}
+     * Creates a new {@link Builder} for a {@link JNDIContentRepository}.
      *
      * @return a {@link JNDIContentRepositoryBuilder}
      */
-    public static JNDIContentRepositoryBuilder newJNDIContentRepository() {
+    public static JNDIContentRepositoryBuilder newJndiContentRepository() {
 
         return new JNDIContentRepositoryBuilder();
     }
 
     /**
-     * Convenient method for {@code newTempFolder().aroundInMemoryContentRepository()}
+     * Convenient method for {@code newTempFolder().aroundInMemoryContentRepository()}.
      *
      * @return a builder for an in-memory content repository
      */
@@ -205,7 +209,7 @@ public final class Scribble {
 
     /**
      * Convenient method for
-     * {@code newTempFolder().aroundStandaloneContentRepository()}
+     * {@code newTempFolder().aroundStandaloneContentRepository()}.
      * @return
      *  a builder for a standalone content repository
      */
@@ -216,7 +220,7 @@ public final class Scribble {
 
     /**
      * Convenient method for
-     * {@code newTempFolder().aroundDirectory().aroundDirectoryServer()}
+     * {@code newTempFolder().aroundDirectory().aroundDirectoryServer()}.
      * @return
      *  a builder for a ldap directory server
      */

@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 public class DirectoryTest {
 
     private static final Logger LOG = getLogger(DirectoryTest.class);
+
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
     /**
@@ -97,7 +98,6 @@ public class DirectoryTest {
         verify(base).evaluate();
         //verify, the service is stopped after evaluate
         assertFalse(subject.getDirectoryService().isStarted());
-
     }
 
     @Test
@@ -107,7 +107,7 @@ public class DirectoryTest {
 
         //prepare
         this.subject.setAcEnabled(true);
-        this.subject.setAnonymousAccessEnabled(false);
+        this.subject.setAnonymousAccess(false);
         //act
         subject.setupService();
 
@@ -126,7 +126,7 @@ public class DirectoryTest {
         LOG.info("ENTER testSetupService_withAnonymousAccesss ()");
         //prepare
         this.subject.setAcEnabled(false);
-        this.subject.setAnonymousAccessEnabled(true);
+        this.subject.setAnonymousAccess(true);
         //act
         subject.setupService();
 

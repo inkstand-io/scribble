@@ -37,12 +37,12 @@ public class DirectoryBuilder extends Builder<Directory> {
     private transient URL ldif;
 
     /**
-     * Flag to indicate that access control should be enabled in the directory service
+     * Flag that indicates that access control should be enabled in the directory service.
      */
     private transient boolean acEnabled;
 
     /**
-     * Flag to indicate that anonymous access should be allowed
+     * Flag that indicates that anonymous access should be allowed.
      */
     private transient boolean anonymousAllowed = true;
 
@@ -64,7 +64,7 @@ public class DirectoryBuilder extends Builder<Directory> {
      * protocol via TCP connection.
      *
      * @return a {@link DirectoryServerBuilder} that can be used to create a server using the service as content
-     * provider
+     *      provider
      */
     public DirectoryServerBuilder aroundDirectoryServer() {
 
@@ -90,7 +90,7 @@ public class DirectoryBuilder extends Builder<Directory> {
             dir.setInitialContentLdif(this.ldif);
         }
         dir.setAcEnabled(this.acEnabled);
-        dir.setAnonymousAccessEnabled(this.anonymousAllowed);
+        dir.setAnonymousAccess(this.anonymousAllowed);
 
         return dir;
     }

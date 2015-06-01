@@ -84,7 +84,7 @@ public class ScribbleTest {
     public void testNewJNDIContextRepository() throws Exception {
 
         //act
-        JNDIContentRepositoryBuilder result = Scribble.newJNDIContentRepository();
+        JNDIContentRepositoryBuilder result = Scribble.newJndiContentRepository();
 
         //assert
         assertNotNull(result);

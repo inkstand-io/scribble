@@ -27,24 +27,24 @@ import io.inkstand.scribble.rules.ldap.DirectoryServer;
 public class DirectoryServerBuilder extends Builder<DirectoryServer> {
 
     /**
-     * The {@link Directory} rule that provides the ldap content for the ldap server
+     * The {@link Directory} rule that provides the ldap content for the ldap server.
      */
-    private final Directory directory;
+    private final transient Directory directory;
 
     /**
-     * The port the server should accept incoming connections
+     * The port the server should accept incoming connections.
      */
-    private int port = -1;
+    private transient int port = -1;
 
     /**
-     * The listen address for the ldap server
+     * The listen address for the ldap server.
      */
-    private String listenAddress;
+    private transient String listenAddress;
 
     /**
-     * Flag to indicate the rule should find an available port on each rule application
+     * Flag to indicate the rule should find an available port on each rule application.
      */
-    private boolean findAvailablePortMode;
+    private transient boolean autoBindMode;
 
     public DirectoryServerBuilder(final Directory directory) {
 
@@ -55,15 +55,13 @@ public class DirectoryServerBuilder extends Builder<DirectoryServer> {
     @Override
     public DirectoryServer build() {
 
-        final DirectoryServer ds = new DirectoryServer(directory);
-        if (port != -1) {
-            ds.setTcpPort(port);
+        final DirectoryServer directoryServer = new DirectoryServer(this.directory);
+        if (this.port != -1) {
+            directoryServer.setTcpPort(this.port);
         }
-        if (listenAddress != null) {
-            ds.setListenAddress(listenAddress);
-        }
-        ds.setAutoBind(this.findAvailablePortMode);
-        return ds;
+        directoryServer.setListenAddress(this.listenAddress);
+        directoryServer.setAutoBind(this.autoBindMode);
+        return directoryServer;
     }
 
     /**
@@ -105,7 +103,7 @@ public class DirectoryServerBuilder extends Builder<DirectoryServer> {
      */
     public DirectoryServerBuilder onAvailablePort() {
 
-        this.findAvailablePortMode = true;
+        this.autoBindMode = true;
 
         return this;
     }

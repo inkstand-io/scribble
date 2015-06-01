@@ -60,8 +60,22 @@ import io.inkstand.scribble.rules.RuleSetup;
 public class Directory implements TestRule {
 
     private static final Logger LOG = getLogger(Directory.class);
+
+    /**
+     * Rule providing the working directory for the ldap directory as temporary folder.
+     */
     private transient final TemporaryFolder folder;
+
+    /**
+     * Map of partitions that should be created on directory initialization.
+     */
+    private transient final Map<String, String> partitions;
+
+    /**
+     * The directory services provided and managed by this rule.
+     */
     private transient DirectoryService directoryService;
+
     /**
      * Access Control Enabled flag.
      */
@@ -78,12 +92,7 @@ public class Directory implements TestRule {
     private transient File workDir;
 
     /**
-     * Map of partitions that should be created on directory initialization.
-     */
-    private transient Map<String, String> partitions;
-
-    /**
-     * URL of the ldif file that should be imported on initialization of the directory
+     * URL of the ldif file that should be imported on initialization of the directory.
      */
     private transient URL initialLdif;
 
@@ -124,7 +133,7 @@ public class Directory implements TestRule {
      */
     protected void setupService() throws Exception { // NOSONAR
 
-        final DirectoryService service = getDirectoryService();
+        final DirectoryService service = this.getDirectoryService();
         service.getChangeLog().setEnabled(false);
 
         this.workDir = this.folder.newFolder("dsworkdir");
@@ -137,8 +146,8 @@ public class Directory implements TestRule {
         service.setAccessControlEnabled(this.acEnabled);
         service.setAllowAnonymousAccess(this.anonymousAllowed);
 
-        createPartitions();
-        importInitialLdif();
+        this.createPartitions();
+        this.importInitialLdif();
     }
 
     /**
@@ -169,6 +178,7 @@ public class Directory implements TestRule {
      * the root of the ldif file.
      *
      * @throws IOException
+     *         if the resource pointing to the ldif file to be imported can not be accessed
      */
     private void importInitialLdif() throws IOException {
 
@@ -182,12 +192,15 @@ public class Directory implements TestRule {
     /**
      * Creates all paritions that are added on rule setup.
      *
-     * @throws Exception
      */
-    private void createPartitions() throws Exception {
+    private void createPartitions() {
 
         for (Map.Entry<String, String> partitionEntry : this.partitions.entrySet()) {
-            this.addPartitionInternal(partitionEntry.getKey(), partitionEntry.getValue());
+            try {
+                this.addPartitionInternal(partitionEntry.getKey(), partitionEntry.getValue());
+            } catch (Exception e) { //NOSONAR
+                throw new AssertionError("Could not create partitions " + this.partitions, e);
+            }
         }
     }
 
@@ -219,7 +232,7 @@ public class Directory implements TestRule {
      */
     protected void addPartitionInternal(final String partitionId, final String suffix) throws Exception { //NOSONAR
 
-        final DirectoryService service = getDirectoryService();
+        final DirectoryService service = this.getDirectoryService();
 
         final CacheService cacheService = service.getCacheService();
         final SchemaManager schemaManager = service.getSchemaManager();
@@ -241,8 +254,8 @@ public class Directory implements TestRule {
 
     /**
      * Adds a partition to the rule. Partitions can only be added before the rule is applied and the service is started
-     * up. So this method is intended to be invoked by a builder but may be used by a test as well. The test
-     * have to create the partition instance itself allowing to use different partition implementations.
+     * up. So this method is intended to be invoked by a builder but may be used by a test as well. The test have to
+     * create the partition instance itself allowing to use different partition implementations.
      *
      * @param partition
      *         the partition to be added to the service
@@ -263,7 +276,7 @@ public class Directory implements TestRule {
     public DirectoryService getDirectoryService() {
 
         if (this.directoryService == null) {
-            this.directoryService = createDirectoryService();
+            this.directoryService = this.createDirectoryService();
         }
 
         return this.directoryService;
@@ -271,7 +284,7 @@ public class Directory implements TestRule {
 
     /**
      * Creates a new DirectoryService instance for the test rule. Initialization of the service is done in the
-     * appyStatement phase by invoking the setupService method.
+     * apply Statement phase by invoking the setupService method.
      */
     private DirectoryService createDirectoryService() {
 
@@ -315,7 +328,7 @@ public class Directory implements TestRule {
             IOUtils.copy(ldifData, writer);
         }
         final String pathToLdifFile = ldifFile.getAbsolutePath();
-        final CoreSession session = getDirectoryService().getAdminSession();
+        final CoreSession session = this.getDirectoryService().getAdminSession();
         final LdifFileLoader loader = new LdifFileLoader(session, pathToLdifFile);
         loader.execute();
 
@@ -336,27 +349,28 @@ public class Directory implements TestRule {
     /**
      * Enables anonymous access on the directory service. Default is true.
      *
-     * @param anonymousAccessEnabled
-     *         flag to indicate, if anonymous access is allowed
+     * @param anonymousAccess
+     *         <code>true</code> to enable anoynmous access (default) and <code>false</code> to disable anonymous
+     *         access
      */
     @RuleSetup
-    public void setAnonymousAccessEnabled(final boolean anonymousAccessEnabled) {
+    public void setAnonymousAccess(final boolean anonymousAccess) {
 
-        this.anonymousAllowed = anonymousAccessEnabled;
+        this.anonymousAllowed = anonymousAccess;
     }
 
     /**
      * Adds a partition to the rule. The actual parititon is created when the rule is applied.
      *
-     * @param id
+     * @param partitionId
      *         the id of the partition
      * @param suffix
      *         the suffix of the partition
      */
     @RuleSetup
-    public void addPartition(String id, String suffix) {
+    public void addPartition(String partitionId, String suffix) {
 
-        this.partitions.put(id, suffix);
+        this.partitions.put(partitionId, suffix);
     }
 
 }

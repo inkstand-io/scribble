@@ -21,6 +21,7 @@ import static io.inkstand.scribble.net.NetworkMatchers.remotePort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
@@ -73,6 +74,9 @@ public class DirectoryServerBuilderTest {
         DirectoryServer ds = subject.build();
         //assert
         assertNotNull(ds);
+        //default values
+        assertEquals(10389, ds.getTcpPort());
+        assertNull(ds.getListenAddress());
     }
 
     @Test
