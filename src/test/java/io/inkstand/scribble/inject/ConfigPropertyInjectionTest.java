@@ -49,7 +49,6 @@ public class ConfigPropertyInjectionTest {
     @Test
     public void testInjectInto_NullValue_defaultInjected() throws Exception {
         //prepare
-        // create an injection with no value (null) for a config property with a default value
         final SimpleInjectionTarget target = new SimpleInjectionTarget();
 
         // act
@@ -57,6 +56,19 @@ public class ConfigPropertyInjectionTest {
 
         // assert
         assertEquals("defaultValue", target.configPropertyWithDefault);
+    }
+
+    @Test
+    public void testInjectInto_nonConvertibleType_valueInjected() throws Exception {
+        //prepare
+        final SimpleInjectionTarget target = new SimpleInjectionTarget();
+        Object object = new Object();
+
+        // act
+        Scribble.inject(object).asConfigProperty("config.property").into(target);
+
+        // assert
+        assertEquals(object, target.nonMatchingNonAutoConvertible);
     }
 
     @Test
