@@ -34,12 +34,11 @@ import io.inkstand.scribble.rules.ExternalResource;
 public abstract class ContentRepository extends ExternalResource<TemporaryFolder> implements
         InjectableHolder<Repository> {
 
+    private final TemporaryFolder workingDirectory;
     /**
      * The JCR Repository
      */
     private Repository repository;
-
-    private final TemporaryFolder workingDirectory;
 
     /**
      * Creates the content repository in the working directory
@@ -90,8 +89,24 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     }
 
     /**
-     * Creates and initializes the repository. At first the repository is created, transitioning the state
-     * to CREATED. Afterwards the repository is initialized and transitioned to INITIALIZED.
+     * Destroys the repository
+     */
+    private void doAfter() {
+
+        super.after();
+        destroyRepository();
+        doStateTransition(State.DESTROYED);
+    }
+
+    /**
+     * Is invoked after the test has been executed. Implementation may perform actions to shutdown the repository
+     * properly.
+     */
+    protected abstract void destroyRepository();
+
+    /**
+     * Creates and initializes the repository. At first the repository is created, transitioning the state to CREATED.
+     * Afterwards the repository is initialized and transitioned to INITIALIZED.
      */
     private void doBefore() throws Throwable {
 
@@ -103,14 +118,14 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     }
 
     /**
-     * Destroys the repository
+     * Creates a JCR {@link Repository}
+     *
+     * @return the created repository
+     *
+     * @throws Exception
+     *         if the creation of the repository failed.
      */
-    private void doAfter() {
-
-        super.after();
-        destroyRepository();
-        doStateTransition(State.DESTROYED);
-    }
+    protected abstract Repository createRepository() throws Exception; // NOSONAR
 
     /**
      * Method that is invoked after creation to initialize the repository. Subclasses may override this
@@ -155,25 +170,21 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * @throws RepositoryException
      */
     public Session login(final String userId, final String password) throws RepositoryException {
+
         assertStateAfterOrEqual(State.CREATED);
         return repository.login(new SimpleCredentials(userId, password.toCharArray()));
     }
 
     /**
-     * Creates a JCR {@link Repository}
+     * Logs into the repository as admin user.
      *
-     * @return the created repository
-     * @throws Exception
-     *             if the creation of the repository failed.
+     * @return a session with admin privileges
+     *
+     * @throws RepositoryException
+     *         if the login failed for any reason
      */
-    protected abstract Repository createRepository() throws Exception; // NOSONAR
+    public Session getAdminSession() throws RepositoryException {
 
-    /**
-     * Is invoked after the test has been executed. Implementation may perform actions to shutdown the repository
-     * properly.
-     */
-    protected abstract void destroyRepository();
-
-
-
+        return repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+    }
 }

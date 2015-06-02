@@ -64,13 +64,14 @@ public class ContentRepositoryTest {
             }
 
             @Override
-            protected Repository createRepository() throws Exception {
-                return repository;
+            protected void destroyRepository() {
+
             }
 
             @Override
-            protected void destroyRepository() {
+            protected Repository createRepository() throws Exception {
 
+                return repository;
             }
         };
     }
@@ -214,6 +215,29 @@ public class ContentRepositoryTest {
         final SimpleCredentials passedParam = captor.getValue();
         assertEquals("aUser", passedParam.getUserID());
         assertEquals("aPassword", String.valueOf(passedParam.getPassword()));
+    }
+
+    @Test
+    public void testGetAdminSession() throws Throwable {
+
+        when(repository.login(any(SimpleCredentials.class))).thenReturn(session);
+        subject.before();
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+
+        // act
+        final Session adminSession = subject.getAdminSession();
+
+        // assert
+        assertNotNull(adminSession);
+        assertEquals(session, adminSession);
+
+        //verify an admin login has been performed
+        final ArgumentCaptor<SimpleCredentials> captor = ArgumentCaptor.forClass(SimpleCredentials.class);
+        verify(repository).login(captor.capture());
+        final SimpleCredentials passedParam = captor.getValue();
+        assertEquals("admin", passedParam.getUserID());
+        assertEquals("admin", String.valueOf(passedParam.getPassword()));
+
     }
 
 }

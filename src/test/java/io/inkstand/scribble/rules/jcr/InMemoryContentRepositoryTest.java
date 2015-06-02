@@ -21,6 +21,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import javax.jcr.Repository;
+import javax.jcr.Session;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.Privilege;
 import java.net.URL;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.VersioningConfig;
@@ -125,6 +128,22 @@ public class InMemoryContentRepositoryTest {
 
         //assert
         assertEquals(someUrl, actualUrl);
+
+    }
+
+    @Test
+    public void testGetAdminSession() throws Throwable {
+        //prepare
+        subject.before();
+
+        //act
+        Session session = subject.getAdminSession();
+
+        //assert
+        assertNotNull(session);
+        assertEquals("admin", session.getUserID());
+        AccessControlManager acm = session.getAccessControlManager();
+        assertTrue(acm.hasPrivileges("/", new Privilege[] { acm.privilegeFromName(Privilege.JCR_ALL) }));
 
     }
 }
