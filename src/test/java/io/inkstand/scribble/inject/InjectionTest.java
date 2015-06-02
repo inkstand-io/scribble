@@ -80,6 +80,14 @@ public class InjectionTest {
     }
 
     @Test
+    public void testAsQualifyingInstace() throws Exception {
+
+        assertNotNull(subject.asQualifyingInstance());
+        //see CdiInjectionTest for more details
+
+    }
+
+    @Test
     public void testAsConfigProperty() throws Exception {
         final ConfigPropertyInjection cpi = subject.asConfigProperty("myProperty");
         assertNotNull(cpi);
@@ -276,6 +284,22 @@ public class InjectionTest {
     public void testIsMatching_incompatibleField_false() throws Exception {
         final Field field = SimpleInjectionTarget.class.getDeclaredField("injectionTarget3");
         assertFalse(subject.isMatching(field));
+    }
+
+    @Test
+    public void testInject() throws Exception {
+        //prepare
+        String value = "123";
+        SimpleInjectionTarget target = new SimpleInjectionTarget();
+        Field field = SimpleInjectionTarget.class.getDeclaredField("injectionTarget1");
+        field.setAccessible(true);
+
+        //act
+        subject.inject(target, field, value);
+
+        //assert
+        assertEquals(value, target.injectionTarget1);
+
     }
 
     static class NonMatchingType {
