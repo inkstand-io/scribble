@@ -17,10 +17,15 @@
 package io.inkstand.scribble;
 
 import static io.inkstand.scribble.JCRAssert.assertNodeTypeExists;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.jcr.Session;
 import java.net.URL;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -59,6 +64,81 @@ public class ScribbleTest {
 
         //assert
         assertNotNull(result);
+    }
+
+    @Test
+    public void testInjectIntoAll() throws Exception {
+        //prepare
+        String var = "123";
+        SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        //act
+        Scribble.inject(var).intoAll(target);
+
+        //assert
+        assertEquals(var, target.injectionTarget1);
+        assertEquals(var, target.injectionTarget2);
+        assertEquals(var, target.injectionTarget3);
+
+    }
+
+    @Test
+    public void testInjectInto() throws Exception {
+        //prepare
+        String var = "123";
+        SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        //act
+        Scribble.inject(var).into(target);
+
+        //assert
+        assertEquals(var, target.injectionTarget1);
+        assertNull(var, target.injectionTarget2);
+        assertNull(var, target.injectionTarget3);
+
+    }
+
+    @Test
+    public void testInjectAsConfigPropertyInto() throws Exception {
+        //prepare
+        String var = "123";
+        SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        //act
+        Scribble.inject(var).asConfigProperty("property1").into(target);
+
+        //assert
+        assertEquals(var, target.injectionTarget2);
+        assertNull(target.injectionTarget1);
+        assertNull(target.injectionTarget3);
+    }
+
+    @Test
+    public void testInjectAsResourceInto() throws Exception {
+        //prepare
+        String var = "123";
+        SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        //act
+        Scribble.inject(var).asResource().byLookup("java:/any/name").into(target);
+
+        //assert
+        assertEquals(var, target.injectionTarget3);
+        assertNull(target.injectionTarget1);
+        assertNull(target.injectionTarget2);
+    }
+
+    @Test
+    public void testInjectPrimitiveAsConfigPropertyInto() throws Exception {
+        //prepare
+        int var = 123;
+        SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        //act
+        Scribble.inject(var).asConfigProperty("property2").into(target);
+
+        //assert
+        assertEquals(var, target.primitiveInt);
     }
 
     @Test
@@ -109,8 +189,9 @@ public class ScribbleTest {
 
         //act
         //this is the actual line how the rule builder should be used in a test
-        final InMemoryContentRepository result = Scribble.newInMemoryContentRepository().withNodeTypes(cndModel)
-                                                    .build();
+        final InMemoryContentRepository result = Scribble.newInMemoryContentRepository()
+                                                         .withNodeTypes(cndModel)
+                                                         .build();
 
         //assert
         assertNotNull(result);
@@ -118,6 +199,7 @@ public class ScribbleTest {
 
             @Override
             public void evaluate() throws Throwable {
+
                 final Session session = result.login("admin", "admin");
                 assertNodeTypeExists(session, "test:testType");
             }
@@ -141,8 +223,9 @@ public class ScribbleTest {
 
         //act
         //this is the actual line how the rule builder should be used in a test
-        final StandaloneContentRepository result =
-                Scribble.newStandaloneContentRepository().withNodeTypes(cndModel).build();
+        final StandaloneContentRepository result = Scribble.newStandaloneContentRepository()
+                                                           .withNodeTypes(cndModel)
+                                                           .build();
 
         //assert
         assertNotNull(result);
@@ -151,7 +234,8 @@ public class ScribbleTest {
 
             @Override
             public void evaluate() throws Throwable {
-                final Session session = result.login("admin","admin");
+
+                final Session session = result.login("admin", "admin");
                 assertNodeTypeExists(session, "test:testType");
             }
         }, description).evaluate();
@@ -178,5 +262,21 @@ public class ScribbleTest {
 
         //assert
         assertNotNull(ds);
+    }
+
+    static class SimpleInjectionTarget {
+
+        String injectionTarget1;
+
+        @Inject
+        @ConfigProperty(name = "property1")
+        String injectionTarget2;
+
+        @Resource(lookup = "java:/any/name")
+        String injectionTarget3;
+
+        @Inject
+        @ConfigProperty(name = "property2")
+        int primitiveInt;
     }
 }

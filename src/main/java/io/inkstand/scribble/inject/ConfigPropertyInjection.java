@@ -60,7 +60,7 @@ public class ConfigPropertyInjection extends CdiInjection {
         //@formatter:off
         return field.getAnnotation(ConfigProperty.class) != null
                 && (injectedValue == null
-                || field.getType().isAssignableFrom(injectedValue.getClass()));
+                || super.isFieldCandidate(field, injectedValue));
         //@formatter:on
     }
 

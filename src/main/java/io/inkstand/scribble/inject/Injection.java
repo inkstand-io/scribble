@@ -272,7 +272,17 @@ public class Injection {
      */
     protected boolean isFieldCandidate(final Field field, final Object injectedValue) {
 
-        return injectedValue != null && field.getType().isAssignableFrom(injectedValue.getClass());
+        if (injectedValue == null) {
+            return true;
+        }
+
+        final Class<?> fieldType = field.getType();
+        final Class<?> valueType = injectedValue.getClass();
+
+        if (fieldType.isPrimitive()) {
+            return fieldType == primitiveTypeFor(valueType);
+        }
+        return fieldType.isAssignableFrom(valueType);
     }
 
     /**
