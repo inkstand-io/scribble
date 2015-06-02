@@ -176,7 +176,8 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     }
 
     /**
-     * Logs into the repository as admin user.
+     * Logs into the repository as admin user. The session should be logged out after each test if the repository is
+     * used as a {@link org.junit.ClassRule}.
      *
      * @return a session with admin privileges
      *
