@@ -19,6 +19,7 @@ package io.inkstand.scribble.rules.jcr;
 import static org.junit.Assert.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import javax.jcr.Credentials;
 import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -31,6 +32,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
+
+import io.inkstand.scribble.rules.RuleSetup;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.config.ConfigurationException;
@@ -85,6 +88,7 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      * @param configUrl
      *            the configuration to use for the repository
      */
+    @RuleSetup
     protected void setConfigUrl(final URL configUrl) {
         assertStateBefore(State.INITIALIZED);
         this.configUrl = configUrl;
@@ -105,7 +109,8 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      * @param cndUrl
      *  resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
      */
-    protected void setCndUrl(final URL cndUrl) {
+    @RuleSetup
+    public void setCndUrl(final URL cndUrl) {
         assertStateBefore(State.INITIALIZED);
         this.cndUrl = cndUrl;
     }
@@ -134,8 +139,7 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
             Session session = null;
             try(InputStream cndStream = this.cndUrl.openStream();
                 InputStreamReader cndReader = new InputStreamReader(cndStream, Charset.forName("UTF-8"))) {
-                //TODO SCRIB-14 replace with admin login method
-                session = login("admin", "admin");
+                session = getAdminSession();
                 this.logNodeTypes(CndImporter.registerNodeTypes(cndReader, session));
             } catch (IOException e) {
                 throw new AssertionError("Could not load CND resource", e);
@@ -175,4 +179,5 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
         }
     }
 
+    public abstract Credentials addUser(final String username, final String password);
 }
