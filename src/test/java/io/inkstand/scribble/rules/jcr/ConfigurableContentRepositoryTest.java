@@ -211,34 +211,6 @@ public class ConfigurableContentRepositoryTest {
         subject.beforeClass();
     }
 
-    @Test
-    public void testAddUser() throws Exception {
-        //prepare
-        String username = "testuser";
-        String password = "password";
 
-        //act
-        Credentials creds = subject.addUser(username, password);
-
-        //assert
-        Session session = subject.getRepository().login(creds);
-        assertEquals(username, session.getUserID());
-
-    }
-
-    @Test
-    public void testDeleteUser() throws Exception {
-        //prepare
-        String username = "testuser";
-        String password = "password";
-        Credentials creds = subject.addUser(username, password);
-
-        //act
-        boolean result = subject.deleteUser(username);
-
-        //assert
-        assertTrue(result);
-
-    }
 
 }

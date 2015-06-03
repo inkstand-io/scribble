@@ -16,13 +16,9 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import javax.jcr.RepositoryException;
-import java.io.IOException;
 import java.net.URL;
-import org.apache.jackrabbit.core.RepositoryImpl;
+
 import org.apache.jackrabbit.core.TransientRepository;
-import org.apache.jackrabbit.core.config.ConfigurationException;
-import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class InMemoryContentRepository extends ConfigurableContentRepository {
+public class InMemoryContentRepository extends JackrabbitContentRepository{
 
     /**
      * SLF4J Logger for this class
@@ -50,48 +46,9 @@ public class InMemoryContentRepository extends ConfigurableContentRepository {
         return getClass().getResource("inMemoryRepository.xml");
     }
 
-    /**
-     * Creates a transient repository with files in the local temp directory.
-     *
-     * @return the created repository
-     * @throws IOException
-     * @throws ConfigurationException
-     */
     @Override
-    protected RepositoryImpl createRepository() throws IOException {
-        try {
-            final RepositoryConfig config = createRepositoryConfiguration();
-            return RepositoryImpl.create(config);
-        } catch (final ConfigurationException e) {
-            LOG.error("Configuration invalid", e);
-            throw new AssertionError(e.getMessage(), e);
-        } catch (RepositoryException e) {
-            LOG.error("Could not create repository", e);
-            throw new AssertionError(e.getMessage(), e);
-        }
-    }
+    public void setCndUrl(final URL cndUrl) {
 
-    /**
-     * Closes the admin session, and in case of local transient respository for unit test, shuts down the repository and
-     * cleans all temporary files.
-     *
-     * @throws IOException
-     */
-    @Override
-    protected void destroyRepository() {
-        final RepositoryImpl repository = (RepositoryImpl) getRepository();
-        repository.shutdown();
-        LOG.info("Destroyed repository at {}", repository.getConfig().getHomeDir());
-    }
-
-    /**
-     * Sets the URL pointing to the node type definition to be loaded upon initialization.
-     * @param nodeTypeDefinitions
-     *  resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
-     */
-    @Override
-    public void setCndUrl(final URL nodeTypeDefinitions) {
-
-        super.setCndUrl(nodeTypeDefinitions);
+        super.setCndUrl(cndUrl);
     }
 }

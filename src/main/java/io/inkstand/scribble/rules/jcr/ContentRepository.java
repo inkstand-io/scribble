@@ -41,6 +41,11 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     private Repository repository;
 
     /**
+     * Session with administrator privileges
+     */
+    private Session adminSession;
+
+    /**
      * Creates the content repository in the working directory
      *
      * @param workingDirectory
@@ -94,8 +99,23 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     private void doAfter() {
 
         super.after();
+        if(isActive(this.adminSession)) {
+            this.adminSession.logout();
+        }
         destroyRepository();
         doStateTransition(State.DESTROYED);
+    }
+
+    /**
+     * Checks if the specified session is not null and is still alive.
+     * @param session
+     *  the session to be checked
+     * @return
+     *  <code>true</code> if the session is still active
+     */
+    private boolean isActive(final Session session) {
+
+        return session != null && session.isLive();
     }
 
     /**
@@ -186,6 +206,11 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      */
     public Session getAdminSession() throws RepositoryException {
 
-        return repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        if(!this.isActive(this.adminSession)){
+            this.adminSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        }
+        this.adminSession.refresh(false);
+
+        return this.adminSession;
     }
 }

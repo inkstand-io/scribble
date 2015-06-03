@@ -19,7 +19,6 @@ package io.inkstand.scribble.rules.jcr;
 import static org.junit.Assert.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import javax.jcr.Credentials;
 import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -110,7 +109,7 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      *  resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
      */
     @RuleSetup
-    public void setCndUrl(final URL cndUrl) {
+    protected void setCndUrl(final URL cndUrl) {
         assertStateBefore(State.INITIALIZED);
         this.cndUrl = cndUrl;
     }
@@ -179,5 +178,5 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
         }
     }
 
-    public abstract Credentials addUser(final String username, final String password);
+
 }
