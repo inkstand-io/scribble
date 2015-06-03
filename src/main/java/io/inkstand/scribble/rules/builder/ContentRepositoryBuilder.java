@@ -73,4 +73,6 @@ public abstract class ContentRepositoryBuilder<T extends ContentRepository> exte
     protected URL getCndModelResource() {
         return cndModelResource;
     }
+
+
 }

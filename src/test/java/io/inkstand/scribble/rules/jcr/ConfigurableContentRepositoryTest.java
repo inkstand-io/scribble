@@ -19,6 +19,7 @@ package io.inkstand.scribble.rules.jcr;
 import static io.inkstand.scribble.JCRAssert.assertNodeTypeExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -208,6 +209,36 @@ public class ConfigurableContentRepositoryTest {
         //act
         //invoke beforeClass which _should_ invoke initialize, we'll verify later
         subject.beforeClass();
+    }
+
+    @Test
+    public void testAddUser() throws Exception {
+        //prepare
+        String username = "testuser";
+        String password = "password";
+
+        //act
+        Credentials creds = subject.addUser(username, password);
+
+        //assert
+        Session session = subject.getRepository().login(creds);
+        assertEquals(username, session.getUserID());
+
+    }
+
+    @Test
+    public void testDeleteUser() throws Exception {
+        //prepare
+        String username = "testuser";
+        String password = "password";
+        Credentials creds = subject.addUser(username, password);
+
+        //act
+        boolean result = subject.deleteUser(username);
+
+        //assert
+        assertTrue(result);
+
     }
 
 }

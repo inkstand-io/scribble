@@ -42,4 +42,9 @@ public class InMemoryContentRepositoryBuilder extends ContentRepositoryBuilder<I
         return repository;
     }
 
+    public InMemoryContentRepositoryBuilder enableSecurity() {
+
+        return this;
+
+    }
 }
