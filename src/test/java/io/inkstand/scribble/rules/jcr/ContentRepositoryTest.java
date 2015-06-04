@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +45,7 @@ public class ContentRepositoryTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
+
     @Mock
     private Repository repository;
 
@@ -146,6 +148,40 @@ public class ContentRepositoryTest {
         assertEquals(BaseRule.State.AFTER_EXECUTED, BaseRuleHelper.getState(subject));
     }
 
+    @Test
+    public void testAfter_beforeExecuted_and_activeAdminSession_teardownAndLogout() throws Throwable {
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.NEW);
+        subject.before();
+        when(repository.login(any(SimpleCredentials.class))).thenReturn(session);
+        when(session.isLive()).thenReturn(true);
+        subject.getAdminSession();
+
+        //act
+        subject.after();
+
+        //assert
+        assertEquals(BaseRule.State.AFTER_EXECUTED, BaseRuleHelper.getState(subject));
+        verify(session).logout();
+    }
+
+    @Test
+    public void testAfter_beforeExecuted_and_activeAdminSession_teardownAndNoLogout() throws Throwable {
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.NEW);
+        subject.before();
+        when(repository.login(any(SimpleCredentials.class))).thenReturn(session);
+        when(session.isLive()).thenReturn(false);
+        subject.getAdminSession();
+
+        //act
+        subject.after();
+
+        //assert
+        assertEquals(BaseRule.State.AFTER_EXECUTED, BaseRuleHelper.getState(subject));
+        verify(session, times(0)).logout();
+    }
+
     @Test(expected = AssertionError.class)
     public void testGetRepository_uninitialized_fail() throws Exception {
         subject.getRepository();
@@ -218,8 +254,9 @@ public class ContentRepositoryTest {
     }
 
     @Test
-    public void testGetAdminSession() throws Throwable {
+    public void testGetAdminSession_firstLogin() throws Throwable {
 
+        //prepare
         when(repository.login(any(SimpleCredentials.class))).thenReturn(session);
         subject.before();
         BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
@@ -237,7 +274,58 @@ public class ContentRepositoryTest {
         final SimpleCredentials passedParam = captor.getValue();
         assertEquals("admin", passedParam.getUserID());
         assertEquals("admin", String.valueOf(passedParam.getPassword()));
-
     }
 
+    @Test
+    public void testGetAdminSession_consecutiveLogin() throws Throwable {
+
+        //prepare
+        when(repository.login(any(SimpleCredentials.class))).thenReturn(session);
+        when(session.isLive()).thenReturn(true);
+        subject.before();
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+        //the first login
+        subject.getAdminSession();
+
+        // act
+        //the second login
+        Session adminSession = subject.getAdminSession();
+
+        // assert
+        assertNotNull(adminSession);
+        assertEquals(session, adminSession);
+
+        //verify no new admin login has been performed, only 1 login from the prepare phase
+        verify(repository, times(1)).login(any(SimpleCredentials.class));
+        //and the session was refreshed
+        verify(session).refresh(false);
+    }
+
+    @Test
+    public void testGetAdminSession_inactiveSession() throws Throwable {
+
+        //prepare
+        when(repository.login(any(SimpleCredentials.class))).thenReturn(session);
+        when(session.isLive()).thenReturn(false);
+        subject.before();
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+        //the first login
+        subject.getAdminSession();
+
+        // act
+        //the second login
+        Session adminSession = subject.getAdminSession();
+
+        // assert
+        assertNotNull(adminSession);
+        assertEquals(session, adminSession);
+
+        //verify an new login has been performed
+        final ArgumentCaptor<SimpleCredentials> captor = ArgumentCaptor.forClass(SimpleCredentials.class);
+        //two logins are performed, 1 in prepare and 1 in act
+        verify(repository, times(2)).login(captor.capture());
+        final SimpleCredentials passedParam = captor.getValue();
+        assertEquals("admin", passedParam.getUserID());
+        assertEquals("admin", String.valueOf(passedParam.getPassword()));
+    }
 }

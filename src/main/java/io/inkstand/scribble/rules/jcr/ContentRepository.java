@@ -208,8 +208,10 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
 
         if(!this.isActive(this.adminSession)){
             this.adminSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        } else {
+            //perform a refresh to update the session to the latest repository version
+            this.adminSession.refresh(false);
         }
-        this.adminSession.refresh(false);
 
         return this.adminSession;
     }
