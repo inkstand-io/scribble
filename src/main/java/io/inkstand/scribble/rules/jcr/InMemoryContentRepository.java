@@ -21,8 +21,6 @@ import java.net.URL;
 import io.inkstand.scribble.rules.RuleSetup;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link InMemoryContentRepository} rule is intended for self-sufficient unit tests. It is based on the
@@ -33,16 +31,11 @@ import org.slf4j.LoggerFactory;
  */
 public class InMemoryContentRepository extends JackrabbitContentRepository{
 
-    /**
-     * SLF4J Logger for this class
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(InMemoryContentRepository.class);
-
     private static final String SIMPLE_SECURITY_INMEMORY_CONFIG = "inMemoryRepository.xml";
 
     private static final String SECURITY_ENABLED_INMEMORY_CONFIG = "securityEnabledInMemoryRepository.xml";
 
-    private boolean securityEnabled;
+    private transient boolean securityEnabled;
 
     public InMemoryContentRepository(final TemporaryFolder workingDirectory) {
         super(workingDirectory);
@@ -51,14 +44,14 @@ public class InMemoryContentRepository extends JackrabbitContentRepository{
     @Override
     public URL getConfigUrl() {
 
-        String configResourceName;
+        String cfgResName;
         if(securityEnabled){
-            configResourceName = SECURITY_ENABLED_INMEMORY_CONFIG;
+            cfgResName = SECURITY_ENABLED_INMEMORY_CONFIG;
         } else {
-            configResourceName = SIMPLE_SECURITY_INMEMORY_CONFIG;
+            cfgResName = SIMPLE_SECURITY_INMEMORY_CONFIG;
         }
 
-        return getClass().getResource(configResourceName);
+        return getClass().getResource(cfgResName);
     }
 
     @Override

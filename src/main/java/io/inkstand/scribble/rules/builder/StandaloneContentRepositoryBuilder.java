@@ -29,19 +29,36 @@ import io.inkstand.scribble.rules.jcr.StandaloneContentRepository;
  */
 public class StandaloneContentRepositoryBuilder extends ContentRepositoryBuilder<StandaloneContentRepository> {
 
-    private final TemporaryFolder workingDirectory;
+    /**
+     * The working directory for the standalone repository.
+     */
+    private transient final TemporaryFolder workingDirectory;
 
-    private URL configUrl;
+    private transient URL configUrl;
 
     public StandaloneContentRepositoryBuilder(final TemporaryFolder workingDirectory) {
         this.workingDirectory = workingDirectory;
     }
 
+    /**
+     * Defines a resource that provides the configuration for the standalone repository. Without specifying a
+     * configuration file, the repository will be configured using a default configuration using in-memory persistence
+     * and no security, which is similar to use an {@link InMemoryContentRepositoryBuilder} without security.
+     * @param configUrl
+     *  the url to the configuration file
+     * @return
+     *  this builder
+     */
     public StandaloneContentRepositoryBuilder withConfiguration(final URL configUrl) {
         this.configUrl = configUrl;
         return this;
     }
 
+    /**
+     * The resource that defines the configuration for the repository that should be created.
+     * @return
+     *  the url to the configuration file
+     */
     protected URL getConfigUrl() {
         return configUrl;
     }

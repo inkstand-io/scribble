@@ -16,6 +16,8 @@
 
 package io.inkstand.scribble.rules.jcr;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -33,6 +35,7 @@ import org.junit.rules.TemporaryFolder;
 import io.inkstand.scribble.inject.InjectableHolder;
 import io.inkstand.scribble.rules.ExternalResource;
 import io.inkstand.scribble.security.SecurityTestHelper;
+import org.slf4j.Logger;
 
 /**
  * Rule for testing with java content repositories (JCR). The rule implementations rely on the reference implementation
@@ -43,21 +46,26 @@ import io.inkstand.scribble.security.SecurityTestHelper;
 public abstract class ContentRepository extends ExternalResource<TemporaryFolder> implements
         InjectableHolder<Repository> {
 
+    private static final Logger LOG = getLogger(ContentRepository.class);
+
+    private static final String ANY_WILDCARD = "*";
+
     private final TemporaryFolder workingDirectory;
     /**
-     * The JCR Repository
+     * The JCR Repository.
      */
-    private Repository repository;
+    private transient Repository repository;
 
     /**
-     * Session with administrator privileges
+     * Session with administrator privileges.
      */
-    private Session adminSession;
+    private transient Session adminSession;
 
     /**
-     * Creates the content repository in the working directory
+     * Creates the content repository in the working directory.
      *
      * @param workingDirectory
+     *  the working directory for temporary files.
      */
     public ContentRepository(final TemporaryFolder workingDirectory) {
         super(workingDirectory);
@@ -103,9 +111,9 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     }
 
     /**
-     * Destroys the repository
+     * Destroys the repository.
      */
-    private void doAfter() {
+    private void doAfter() { //NOSONAR
 
         super.after();
         if(isActive(this.adminSession)) {
@@ -137,7 +145,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * Creates and initializes the repository. At first the repository is created, transitioning the state to CREATED.
      * Afterwards the repository is initialized and transitioned to INITIALIZED.
      */
-    private void doBefore() throws Throwable {
+    private void doBefore() throws Throwable { //NOSONAR
 
         super.before();
         repository = createRepository();
@@ -160,7 +168,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * Method that is invoked after creation to initialize the repository. Subclasses may override this
      * method to perform specific initialization logic.
      */
-    protected void initialize() {
+    protected void initialize() { //NOSONAR override is optional
     }
 
     /**
@@ -289,11 +297,11 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      */
     public Session getAdminSession() throws RepositoryException {
 
-        if(!this.isActive(this.adminSession)){
-            this.adminSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
-        } else {
+        if(this.isActive(this.adminSession)){
             //perform a refresh to update the session to the latest repository version
             this.adminSession.refresh(false);
+        } else {
+            this.adminSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         }
 
         return this.adminSession;
@@ -340,6 +348,8 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
             // get first applicable policy (for nodes w/o a policy)
             acl = (AccessControlList) acm.getApplicablePolicies(path).nextAccessControlPolicy();
         } catch (NoSuchElementException e) {
+            LOG.debug("no applicable policy found",e);
+
             // else node already has a policy, get that one
             acl = (AccessControlList) acm.getPolicies(path)[0];
         }
@@ -386,9 +396,11 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * @param path
      *         the absolute path to the node
      * @param principalNames
-     *         the user(s) whose ACL entries should be removed. If none is provided, all ACLs will be removed.
+     *         the user(s) whose ACL entries should be removed. If none is provided, all ACLs will be removed. A word
+     *         of warning, if you invoke this on the root node '/' all ACls including those for administrators
+     *         and everyone-principal will be removed, rendering the entire repository useless.
      */
-    public void clearACLs(String path, String... principalNames) throws RepositoryException {
+    public void clearACL(String path, String... principalNames) throws RepositoryException {
 
         final Session session = getAdminSession();
         final AccessControlManager acm = session.getAccessControlManager();
@@ -397,7 +409,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
         final String[] principals;
         if (principalNames.length == 0) {
             // remove all existing entries
-            principals = new String[] { "*" };
+            principals = new String[] { ANY_WILDCARD };
         } else {
             principals = principalNames;
         }
@@ -436,9 +448,9 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * Removes the specified access control entry if the given principal name matches the principal associated with the
      * entry.
      *
-     * @param acl
+     * @param acList
      *         the access control list to remove the entry from
-     * @param e
+     * @param acEntry
      *         the entry to be potentially removed
      * @param principalName
      *         the name of the principal to match. Use the '*' wildcard to match all principal.
@@ -446,12 +458,12 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * @throws RepositoryException
      *         if the entry removal failed
      */
-    private void removeAccessControlEntry(final AccessControlList acl,
-                                          final AccessControlEntry e,
+    private void removeAccessControlEntry(final AccessControlList acList,
+                                          final AccessControlEntry acEntry,
                                           final String principalName) throws RepositoryException {
 
-        if ("*".equals(principalName) || e.getPrincipal().getName().equals(principalName)) {
-            acl.removeAccessControlEntry(e);
+        if (ANY_WILDCARD.equals(principalName) || acEntry.getPrincipal().getName().equals(principalName)) {
+            acList.removeAccessControlEntry(acEntry);
         }
     }
 

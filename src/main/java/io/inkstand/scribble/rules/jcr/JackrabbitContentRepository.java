@@ -129,7 +129,7 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
             this.addedUsers.remove(username);
             return true;
         } catch (RepositoryException e) {
-            throw new AssertionError("Could not delete user");
+            throw new AssertionError("Could not delete user",e);
         }
     }
 
@@ -179,6 +179,7 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
      * @param privilege
      *         the privileges to deny.
      */
+    @Override
     public void deny(String principalId, String path, String... privilege) throws RepositoryException {
 
         final Session session = getAdminSession();
@@ -210,8 +211,8 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
     protected Authorizable resolveAuthorizable(final String authorizableId) throws RepositoryException {
 
         final Session session = getAdminSession();
-        final UserManager um = ((JackrabbitSession) session).getUserManager();
-        final Authorizable authorizable = um.getAuthorizable(authorizableId);
+        final UserManager userManager = ((JackrabbitSession) session).getUserManager();
+        final Authorizable authorizable = userManager.getAuthorizable(authorizableId);
         assertNotNull("Could not resolve " + authorizableId, authorizable);
         return authorizable;
     }

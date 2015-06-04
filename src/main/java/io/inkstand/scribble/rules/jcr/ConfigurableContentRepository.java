@@ -43,7 +43,10 @@ import io.inkstand.scribble.rules.RuleSetup;
 
 /**
  * Abstract {@link TestRule} for providing a JCR {@link Repository} that requires a configuration an a working
- * directory.
+ * directory. On top of the basic {@link ContentRepository} this configurable version allows to define a resource
+ * that contains a configuration file for the repository. The configuration may define security, persistence or
+ * cluster settings. Beyond that, the class allows to specify a resource containing node type definitions in the
+ * compact node type definition (CND) format that are loaded into the repository on startup.
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
@@ -105,10 +108,10 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
     protected RepositoryConfig createRepositoryConfiguration() throws ConfigurationException, IOException {
 
         final File jcrHome = getOuterRule().getRoot();
-        final URL configUrl = this.getConfigUrl();
-        assertNotNull("No Repository Configuration found", configUrl);
+        final URL cfgUrl = this.getConfigUrl();
+        assertNotNull("No Repository Configuration found", cfgUrl);
 
-        return RepositoryConfig.create(configUrl.openStream(), jcrHome.getAbsolutePath());
+        return RepositoryConfig.create(cfgUrl.openStream(), jcrHome.getAbsolutePath());
     }
 
     /**
@@ -158,6 +161,11 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
         }
     }
 
+    /**
+     * Helper method to logs a list of node types and their properties in a human readable way.
+     * @param nodeTypes
+     *  the node types to be logged.
+     */
     private void logNodeTypes(final NodeType... nodeTypes) {
 
         if(LOG.isDebugEnabled()){

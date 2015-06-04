@@ -22,15 +22,17 @@ import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 
 /**
  * A Builder for an {@link InMemoryContentRepository}. The {@link InMemoryContentRepository} requires a
- * {@link TemporaryFolder} as outer rule.
+ * {@link TemporaryFolder} as outer rule. The rule will create a repository with pure in-memory persistence that is
+ * fast to instantiate and tear down and the content will be lost on each restart. The builder allows to activate
+ * security in the rule, so that user management and access control can be properly used.
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
 public class InMemoryContentRepositoryBuilder extends ContentRepositoryBuilder<InMemoryContentRepository> {
 
-    private final TemporaryFolder temporaryFolder;
+    private transient final TemporaryFolder temporaryFolder;
 
-    private boolean securityEnabled;
+    private transient boolean securityEnabled;
 
     public InMemoryContentRepositoryBuilder(final TemporaryFolder temporaryFolder) {
         this.temporaryFolder = temporaryFolder;

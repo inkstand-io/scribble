@@ -31,7 +31,7 @@ import io.inkstand.scribble.rules.jcr.ContentRepository;
  */
 public abstract class ContentRepositoryBuilder<T extends ContentRepository> extends Builder<T> {
 
-    private URL cndModelResource;
+    private transient URL cndModelResource;
 
     /**
      * Creates a {@link JCRSessionBuilder} for building a {@link ActiveSession} with the {@link ContentRepository} as

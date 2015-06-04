@@ -24,11 +24,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import javax.jcr.Node;
+import javax.jcr.AccessDeniedException;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.security.auth.login.LoginException;
 import java.net.URL;
+
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.Before;
@@ -39,9 +43,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import io.inkstand.scribble.rules.BaseRule;
-import io.inkstand.scribble.rules.BaseRuleHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ContentRepositoryTest {
@@ -346,23 +347,52 @@ public class ContentRepositoryTest {
         subject.grant("anonymous", "/", "jcr:all");
 
         //assert
-        Session session = repository.login();
-        Node node = session.getRootNode().addNode("test", "nt:unstructured");
-        assertNotNull(node);
+        assertNotNull(repository.login().getRootNode().addNode("test", "nt:unstructured"));
 
     }
 
-    /**
-     * Replaces the mock repository with a real repository with effective security and in-memory persistence.
-     *
-     * @throws Throwable
-     */
-    private void setupInMemoryRepository() throws Throwable {
+    @Test(expected = AccessDeniedException.class)
+    public void testClearACLs_matchingSingleUser() throws Throwable {
+        //prepare
+        setupInMemoryRepository();
+        //see testGrant that this works
+        subject.grant("anonymous", "/", "jcr:all");
 
-        final URL configUrl = getClass().getResource("ContentRepositoryTest_repository.xml");
-        RepositoryConfig config = RepositoryConfig.create(configUrl.toURI(), folder.getRoot().getAbsolutePath());
-        this.repository = RepositoryImpl.create(config);
-        subject.before();
+        //act
+        subject.clearACL("/", "anonymous");
+
+        //assert
+        //this call will fail as the removed the all permission
+        repository.login().getRootNode().addNode("test", "nt:unstructured");
+    }
+
+    @Test
+    public void testClearACLs_notMatchingSingleUser() throws Throwable {
+        //prepare
+        setupInMemoryRepository();
+        //see testGrant that this works
+        subject.grant("anonymous", "/", "jcr:all");
+
+        //act
+        subject.clearACL("/", "someoneElse");
+
+        //assert
+        assertNotNull(repository.login().getRootNode().addNode("test", "nt:unstructured"));
+    }
+
+    @Test(expected = LoginException.class)
+    public void testClearACLs_allUsers() throws Throwable {
+        //prepare
+        setupInMemoryRepository();
+        //see testGrant that this works
+        subject.grant("anonymous", "/", "jcr:all");
+
+        //act
+        subject.clearACL("/");
+
+        //assert
+        //this call will fail as the removed the all permission on the root node so that no user can login anymore
+        repository.login();
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -407,5 +437,18 @@ public class ContentRepositoryTest {
 
         //assert
 
+    }
+
+    /**
+     * Replaces the mock repository with a real repository with effective security and in-memory persistence.
+     *
+     * @throws Throwable
+     */
+    private void setupInMemoryRepository() throws Throwable {
+
+        final URL configUrl = getClass().getResource("ContentRepositoryTest_repository.xml");
+        RepositoryConfig config = RepositoryConfig.create(configUrl.toURI(), folder.getRoot().getAbsolutePath());
+        this.repository = RepositoryImpl.create(config);
+        subject.before();
     }
 }

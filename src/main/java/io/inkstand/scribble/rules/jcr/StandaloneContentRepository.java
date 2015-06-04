@@ -36,7 +36,7 @@ public class StandaloneContentRepository extends JackrabbitContentRepository {
 
         super(workingDirectory);
         // set the default configuration
-        setConfigUrl(getClass().getResource("inMemoryRepository.xml"));
+        super.setConfigUrl(getClass().getResource("inMemoryRepository.xml"));
     }
 
     /**
@@ -53,13 +53,14 @@ public class StandaloneContentRepository extends JackrabbitContentRepository {
     /**
      * Sets the URL pointing to the node type definition to be loaded upon initialization.
      *
-     * @param nodeTypeDefinitions
-     *         resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
+     * @param cndUrl
+     *         resource locator for the CND node type definitions, {@see http://jackrabbit.apache
+     *         .org/jcr/node-type-notation.html}
      */
     @Override
-    public void setCndUrl(final URL nodeTypeDefinitions) {
+    public void setCndUrl(final URL cndUrl) {
 
-        super.setCndUrl(nodeTypeDefinitions);
+        super.setCndUrl(cndUrl);
     }
 
 
