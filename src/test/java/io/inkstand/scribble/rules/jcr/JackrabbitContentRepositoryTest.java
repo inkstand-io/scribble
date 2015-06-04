@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.inkstand.scribble.rules.jcr;
 
 import static org.mockito.Mockito.spy;
@@ -8,11 +24,9 @@ import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.net.URL;
-
-import io.inkstand.scribble.rules.BaseRule;
-import io.inkstand.scribble.rules.BaseRuleHelper;
-import junit.framework.TestCase;
-import org.apache.jackrabbit.api.security.user.User;
+import java.security.Principal;
+import org.apache.jackrabbit.api.JackrabbitSession;
+import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +39,10 @@ import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
+
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
+import junit.framework.TestCase;
 
 /**
  * Created by gerald on 03.06.15.
@@ -71,13 +89,17 @@ public class JackrabbitContentRepositoryTest extends TestCase {
         final String username = "testuser";
         final String password = "password";
 
-        //act
         subject.apply(new Statement() {
 
             @Override
             public void evaluate() throws Throwable {
-                User user = subject.addUser(username, password);
+                //act
+                Principal user = subject.addUser(username, password);
                 LOG.info("User {} created", user);
+
+                //assert
+                assertNotNull(user);
+                assertEquals(username, user.getName());
                 Session session = subject.getRepository().login(
                         new SimpleCredentials(username, password.toCharArray()));
                 assertEquals(username, session.getUserID());
@@ -89,29 +111,126 @@ public class JackrabbitContentRepositoryTest extends TestCase {
 
     }
 
+    @Test(expected = AssertionError.class)
+    public void testAddUser_userExists_fail() throws Throwable {
+        //prepare
+        final String username = "testuser";
+        final String password = "password";
+
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+                subject.addUser(username, password);
+                //act
+                subject.addUser(username, password);
+
+            }
+        }, description).evaluate();
+
+        //assert
+
+    }
+
     @Test
-    public void testDeleteUser() throws Throwable {
+    public void testDeleteUser_userExists_false() throws Throwable {
         //prepare
         final String username = "testuser";
         final String password = "password";
 
 
-        //act
-        //act
         subject.apply(new Statement() {
 
             @Override
             public void evaluate() throws Throwable {
-                User user = subject.addUser(username, password);
-                assertNotNull(user);
+
+                final Principal user = subject.addUser(username, password);
+
+                //act
                 boolean result = subject.deleteUser(username);
 
                 //assert
+                assertNotNull(user);
                 assertTrue(result);
 
             }
         },description).evaluate();
+    }
 
+    @Test
+    public void testDeleteUser_userNotExists_false() throws Throwable {
+        //prepare
+        final String username = "testuser";
+        final String password = "password";
+
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                //act
+                boolean result = subject.deleteUser(username);
+
+                //assert
+                assertFalse(result);
+
+            }
+        }, description).evaluate();
+    }
+
+    @Test
+    public void testResetUsers() throws Throwable {
+        //prepare
+        final String user1 = "user1";
+        final String user2 = "user2";
+
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+                subject.addUser(user1, user1);
+                subject.addUser(user2, user2);
+
+                //act
+                subject.resetUsers();
+
+                //assert
+                UserManager um = ((JackrabbitSession) subject.getAdminSession()).getUserManager();
+                assertNull(um.getAuthorizable(user1));
+                assertNull(um.getAuthorizable(user2));
+
+            }
+        }, description).evaluate();
+
+    }
+
+    @Test
+    public void testResetUsers_userDeleted_ok() throws Throwable {
+        //prepare
+        final String user1 = "user1";
+        final String user2 = "user2";
+
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+                subject.addUser(user1, user1);
+                subject.addUser(user2, user2);
+                subject.deleteUser(user1);
+
+                //act
+                subject.resetUsers();
+
+                //assert
+                UserManager um = ((JackrabbitSession) subject.getAdminSession()).getUserManager();
+                assertNull(um.getAuthorizable(user1));
+                assertNull(um.getAuthorizable(user2));
+
+            }
+        }, description).evaluate();
 
     }
 

@@ -19,7 +19,6 @@ package io.inkstand.scribble.rules.jcr;
 import static io.inkstand.scribble.JCRAssert.assertNodeTypeExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -30,6 +29,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.net.URL;
+import java.security.Principal;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.After;
@@ -47,19 +47,34 @@ import io.inkstand.scribble.rules.BaseRuleHelper;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurableContentRepositoryTest {
 
-    @Mock
-    private Repository repository;
+    private final URL configUrl = getClass().getResource("ConfigurableContentRepositoryTest_repository.xml");
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-
+    @Mock
+    private Repository repository;
     private ConfigurableContentRepository subject;
-
-    private final URL configUrl = getClass().getResource("ConfigurableContentRepositoryTest_repository.xml");
 
     @Before
     public void setUp() throws Exception {
 
         subject = new ConfigurableContentRepository(folder) {
+
+            @Override
+            public Principal addUser(final String username, final String password) {
+
+                return null;
+            }
+
+            @Override
+            public boolean deleteUser(final String username) {
+
+                return false;
+            }
+
+            @Override
+            public void resetUsers() {
+
+            }
 
             @Override
             protected void destroyRepository() {

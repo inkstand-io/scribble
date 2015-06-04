@@ -31,8 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-
-import io.inkstand.scribble.rules.RuleSetup;
+import java.security.Principal;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.config.ConfigurationException;
@@ -40,6 +39,8 @@ import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.slf4j.Logger;
+
+import io.inkstand.scribble.rules.RuleSetup;
 
 /**
  * Abstract {@link TestRule} for providing a JCR {@link Repository} that requires a configuration an a working
@@ -72,31 +73,9 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
     }
 
     /**
-     * The URL referring to the resource containing the configuration for the repository.
-     *
-     * @return the URL pointing to the configuration of the repository.
-     */
-    protected URL getConfigUrl() {
-        return this.configUrl;
-    }
-
-    /**
-     * Sets the URL that refers to the resource containing the configuration for the repository. An implementation of
-     * the class should provide a default configuration for convenience therefore the method is marked as optional.
-     *
-     * @param configUrl
-     *            the configuration to use for the repository
-     */
-    @RuleSetup
-    protected void setConfigUrl(final URL configUrl) {
-        assertStateBefore(State.INITIALIZED);
-        this.configUrl = configUrl;
-    }
-
-    /**
      * The node type definitions that are loaded on content repository initialization.
-     * @return
-     *  the URL pointing to the CND resource
+     *
+     * @return the URL pointing to the CND resource
      */
     protected URL getCndUrl() {
 
@@ -110,6 +89,7 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      */
     @RuleSetup
     protected void setCndUrl(final URL cndUrl) {
+
         assertStateBefore(State.INITIALIZED);
         this.cndUrl = cndUrl;
     }
@@ -124,11 +104,36 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      *             if the configuration can not be read
      */
     protected RepositoryConfig createRepositoryConfiguration() throws ConfigurationException, IOException {
+
         final File jcrHome = getOuterRule().getRoot();
         final URL configUrl = this.getConfigUrl();
         assertNotNull("No Repository Configuration found", configUrl);
 
         return RepositoryConfig.create(configUrl.openStream(), jcrHome.getAbsolutePath());
+    }
+
+    /**
+     * The URL referring to the resource containing the configuration for the repository.
+     *
+     * @return the URL pointing to the configuration of the repository.
+     */
+    protected URL getConfigUrl() {
+
+        return this.configUrl;
+    }
+
+    /**
+     * Sets the URL that refers to the resource containing the configuration for the repository. An implementation of
+     * the class should provide a default configuration for convenience therefore the method is marked as optional.
+     *
+     * @param configUrl
+     *            the configuration to use for the repository
+     */
+    @RuleSetup
+    protected void setConfigUrl(final URL configUrl) {
+
+        assertStateBefore(State.INITIALIZED);
+        this.configUrl = configUrl;
     }
 
     @Override
@@ -151,9 +156,7 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
                     session.logout();
                 }
             }
-
         }
-
     }
 
     private void logNodeTypes(final NodeType... nodeTypes) {
@@ -178,5 +181,35 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
         }
     }
 
+    /**
+     * Adds a user with the given password to the repository. <p> <b>Note:</b> in case the rule is used as a class rule
+     * you should ensure that you delete each created user properly. Otherwise consecutive calls will fail. You may also
+     * invoke to cleanup the users created in one session using the {@code resetUsers()} method. </p>
+     *
+     * @param username
+     *         the name of the user to add
+     * @param password
+     *         the password for the user
+     *
+     * @return the Principal representing the the newly created user.
+     */
+    public abstract Principal addUser(final String username, final String password);
+
+    /**
+     * Removes a user from the repository.
+     *
+     * @param username
+     *         the name of the user to remove
+     *
+     * @return <code>true</code> if the user was found and successfully deleted. <code>false</code> if no such user
+     * existed
+     */
+    public abstract boolean deleteUser(String username);
+
+    /**
+     * Removes all users from the repository that have been created using this rule. If users are already removed the
+     * method will not fail.
+     */
+    public abstract void resetUsers();
 
 }
