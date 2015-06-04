@@ -20,10 +20,19 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.jcr.security.AccessControlEntry;
+import javax.jcr.security.AccessControlList;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.Privilege;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import org.junit.rules.TemporaryFolder;
 
 import io.inkstand.scribble.inject.InjectableHolder;
 import io.inkstand.scribble.rules.ExternalResource;
+import io.inkstand.scribble.security.SecurityTestHelper;
 
 /**
  * Rule for testing with java content repositories (JCR). The rule implementations rely on the reference implementation
@@ -196,6 +205,80 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     }
 
     /**
+     * Adds a user with the given password to the repository. <p> <b>Note:</b> in case the rule is used as a class rule
+     * you should ensure that you delete each created user properly. Otherwise consecutive calls will fail. You may also
+     * invoke to cleanup the users created in one session using the {@code resetUsers()} method. </p> <p> The default
+     * implementation throws an {@link UnsupportedOperationException} as it's up to the JCR implementation if and how
+     * user management ist provided. </p>
+     *
+     * @param username
+     *         the name of the user to add
+     * @param password
+     *         the password for the user
+     *
+     * @return the Principal representing the the newly created user.
+     */
+    public Principal addUser(final String username, final String password) {
+
+        throw new UnsupportedOperationException("add user not supported");
+    }
+
+    /**
+     * Removes a user from the repository. <p> The default implementation throws an {@link
+     * UnsupportedOperationException} as it's up to the JCR implementation if and how user management ist provided.
+     * </p>
+     *
+     * @param username
+     *         the name of the user to remove
+     *
+     * @return <code>true</code> if the user was found and successfully deleted. <code>false</code> if no such user
+     * existed
+     */
+    public boolean deleteUser(String username) {
+
+        throw new UnsupportedOperationException("delete user not supported");
+    }
+
+    /**
+     * Removes all users from the repository that have been created using this rule. If users are already removed the
+     * method will not fail. <p> The default implementation throws an {@link UnsupportedOperationException} as it's up
+     * to the JCR implementation if and how user management ist provided. </p>
+     */
+    public void resetUsers() {
+
+        throw new UnsupportedOperationException("reset user not supported");
+    }
+
+    /**
+     * Grants the specified principal (user or group) on the specified resource one or more JCR permissions.
+     *
+     * @param principalId
+     *         the id of the principal to grant privileges
+     * @param path
+     *         the path of the node to which a privilege should be applied
+     * @param privileges
+     *         the privileges to grant.
+     */
+    public void grant(String principalId, String path, String... privileges) throws RepositoryException {
+
+        final Session session = getAdminSession();
+        final AccessControlManager acm = session.getAccessControlManager();
+
+        final Privilege[] privilegeArray = toPrivilegeArray(session, privileges);
+        final AccessControlList acl = getAccessControlList(session, path);
+        final Principal principal = resolvePrincipal(principalId);
+        // add a new one for the special "everyone" principal
+        acl.addAccessControlEntry(principal, privilegeArray);
+
+        // the policy must be re-set
+        acm.setPolicy(path, acl);
+
+        // and the session must be saved for the changes to be applied
+        session.save();
+
+    }
+
+    /**
      * Logs into the repository as admin user. The session should be logged out after each test if the repository is
      * used as a {@link org.junit.ClassRule}.
      *
@@ -215,4 +298,161 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
 
         return this.adminSession;
     }
+
+    /**
+     * Converts the list of privilege names to an array of {@link Privilege}s.
+     * @param session
+     *  the current session that provides the {@link AccessControlManager}
+     * @param privileges
+     *  the privileges to convert
+     * @return
+     *  an array of {@link Privilege}s
+     * @throws RepositoryException
+     */
+    protected Privilege[] toPrivilegeArray(Session session, final String... privileges) throws RepositoryException {
+
+        final AccessControlManager acm = session.getAccessControlManager();
+
+        final List<Privilege> privilegeList = new ArrayList<>();
+        for (String p : privileges) {
+            privilegeList.add(acm.privilegeFromName(p));
+        }
+        return privilegeList.toArray(new Privilege[privilegeList.size()]);
+    }
+
+    /**
+     * Retrieves the {@link AccessControlList} for a given path. If there is no ACL present, a new one will be created.
+     *
+     * @param session
+     *         the current session that provides the {@link AccessControlManager}
+     * @param path
+     *         the path for which the ACL should be retrieved.
+     *
+     * @return the access control list for the path
+     *
+     * @throws RepositoryException
+     */
+    protected AccessControlList getAccessControlList(Session session, final String path) throws RepositoryException {
+
+        final AccessControlManager acm = session.getAccessControlManager();
+        AccessControlList acl;
+        try {
+            // get first applicable policy (for nodes w/o a policy)
+            acl = (AccessControlList) acm.getApplicablePolicies(path).nextAccessControlPolicy();
+        } catch (NoSuchElementException e) {
+            // else node already has a policy, get that one
+            acl = (AccessControlList) acm.getPolicies(path)[0];
+        }
+        return acl;
+    }
+
+    /**
+     * Method to resolve a user ID to a {@link Principal}. The default implementation will provide a custom principal
+     * implementation that may well suit the needs. If the JCR implementation requires an implementation specific
+     * Principal, it is recommended to override this method with an JCR implementation specific implementation.
+     *
+     * @param principalId
+     *         the principal Id to be resolved
+     *
+     * @return the {@link Principal} that reflects the ID.
+     */
+    protected Principal resolvePrincipal(final String principalId) throws RepositoryException {
+
+        return SecurityTestHelper.toPrincipal(principalId);
+    }
+
+    /**
+     * Denys a specific privilege to a user on a node specified by the path. Different to the {@code grant()} method the
+     * deny capability is not covered by the JCR specification and is therefore dependant on the the vendor specific
+     * implementation. Therefore the default implementation will throw an {@link UnsupportedOperationException}.
+     *
+     * @param principalId
+     *         the id of the principal to whom a specific privilege should be denied
+     * @param path
+     *         the path of the node on which the privilege should be denied
+     * @param privilege
+     *         one or more privileges to be denied
+     *
+     * @throws RepositoryException
+     */
+    public void deny(String principalId, String path, String... privilege) throws RepositoryException {
+
+        throw new UnsupportedOperationException("deny is not supported by this implementation");
+    }
+
+    /**
+     * Removes all ACLs on the node specified by the path.
+     *
+     * @param path
+     *         the absolute path to the node
+     * @param principalNames
+     *         the user(s) whose ACL entries should be removed. If none is provided, all ACLs will be removed.
+     */
+    public void clearACLs(String path, String... principalNames) throws RepositoryException {
+
+        final Session session = getAdminSession();
+        final AccessControlManager acm = session.getAccessControlManager();
+        final AccessControlList acl = getAccessControlList(session, path);
+
+        final String[] principals;
+        if (principalNames.length == 0) {
+            // remove all existing entries
+            principals = new String[] { "*" };
+        } else {
+            principals = principalNames;
+        }
+
+        for (String username : principals) {
+            removeAccessControlEntries(acl, username);
+        }
+
+        // the policy must be re-set
+        acm.setPolicy(path, acl);
+
+        session.save();
+    }
+
+    /**
+     * Removes all entries from the {@link AccessControlList} that match the given principal name
+     *
+     * @param acl
+     *         the acl from which the entries should be removed
+     * @param principalName
+     *         the name of the principal whose matching entries should be removed. If the wildcard '*' is used, all
+     *         entries will be removed.
+     *
+     * @throws RepositoryException
+     *         if the entries could not be removed
+     */
+    private void removeAccessControlEntries(final AccessControlList acl, final String principalName)
+            throws RepositoryException {
+
+        for (final AccessControlEntry e : acl.getAccessControlEntries()) {
+            removeAccessControlEntry(acl, e, principalName);
+        }
+    }
+
+    /**
+     * Removes the specified access control entry if the given principal name matches the principal associated with the
+     * entry.
+     *
+     * @param acl
+     *         the access control list to remove the entry from
+     * @param e
+     *         the entry to be potentially removed
+     * @param principalName
+     *         the name of the principal to match. Use the '*' wildcard to match all principal.
+     *
+     * @throws RepositoryException
+     *         if the entry removal failed
+     */
+    private void removeAccessControlEntry(final AccessControlList acl,
+                                          final AccessControlEntry e,
+                                          final String principalName) throws RepositoryException {
+
+        if ("*".equals(principalName) || e.getPrincipal().getName().equals(principalName)) {
+            acl.removeAccessControlEntry(e);
+        }
+    }
+
 }

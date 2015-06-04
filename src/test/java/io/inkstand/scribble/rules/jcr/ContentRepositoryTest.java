@@ -24,10 +24,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.net.URL;
+import org.apache.jackrabbit.core.RepositoryImpl;
+import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,6 +59,7 @@ public class ContentRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
+
         subject = new ContentRepository(folder) {
 
             private URL nodeTypeDefinitions;
@@ -184,6 +188,7 @@ public class ContentRepositoryTest {
 
     @Test(expected = AssertionError.class)
     public void testGetRepository_uninitialized_fail() throws Exception {
+
         subject.getRepository();
     }
 
@@ -200,6 +205,7 @@ public class ContentRepositoryTest {
 
     @Test(expected = AssertionError.class)
     public void testGetInjectionValue_uninitialized_fail() throws Exception {
+
         subject.getInjectionValue();
     }
 
@@ -226,11 +232,13 @@ public class ContentRepositoryTest {
 
     @Test(expected = AssertionError.class)
     public void testGetWorkingDirectory_notInitialized_fail() throws Throwable {
+
         subject.getWorkingDirectory();
     }
 
     @Test(expected = AssertionError.class)
     public void testLogin_notInitialized_fail() throws Throwable {
+
         subject.login("aUser", "aPassword");
     }
 
@@ -327,5 +335,77 @@ public class ContentRepositoryTest {
         final SimpleCredentials passedParam = captor.getValue();
         assertEquals("admin", passedParam.getUserID());
         assertEquals("admin", String.valueOf(passedParam.getPassword()));
+    }
+
+    @Test
+    public void testGrant() throws Throwable {
+        //prepare
+        setupInMemoryRepository();
+
+        //act
+        subject.grant("anonymous", "/", "jcr:all");
+
+        //assert
+        Session session = repository.login();
+        Node node = session.getRootNode().addNode("test", "nt:unstructured");
+        assertNotNull(node);
+
+    }
+
+    /**
+     * Replaces the mock repository with a real repository with effective security and in-memory persistence.
+     *
+     * @throws Throwable
+     */
+    private void setupInMemoryRepository() throws Throwable {
+
+        final URL configUrl = getClass().getResource("ContentRepositoryTest_repository.xml");
+        RepositoryConfig config = RepositoryConfig.create(configUrl.toURI(), folder.getRoot().getAbsolutePath());
+        this.repository = RepositoryImpl.create(config);
+        subject.before();
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testDeny() throws Exception {
+        //prepare
+
+        //act
+        subject.deny("anyId", "anyPath", "jcr:all");
+
+        //assert
+
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testAddUser() throws Exception {
+        //prepare
+
+        //act
+        subject.addUser("anyName", "anyPassword");
+
+        //assert
+
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testDeleteUser() throws Exception {
+        //prepare
+
+        //act
+        subject.deleteUser("anyName");
+
+        //assert
+
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testResetUsers() throws Exception {
+        //prepare
+
+        //act
+        subject.resetUsers();
+
+        //assert
+
     }
 }

@@ -20,6 +20,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import javax.jcr.LoginException;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
@@ -228,6 +229,25 @@ public class JackrabbitContentRepositoryTest extends TestCase {
                 UserManager um = ((JackrabbitSession) subject.getAdminSession()).getUserManager();
                 assertNull(um.getAuthorizable(user1));
                 assertNull(um.getAuthorizable(user2));
+
+            }
+        }, description).evaluate();
+
+    }
+
+    @Test(expected = LoginException.class)
+    public void testDeny() throws Throwable {
+        // act
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+                //act
+                subject.deny("anonymous", "/", "jcr:read");
+
+                //assert
+                subject.getRepository().login();
 
             }
         }, description).evaluate();

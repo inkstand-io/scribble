@@ -16,17 +16,21 @@
 
 package io.inkstand.scribble.rules.jcr;
 
+import static org.junit.Assert.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.security.Privilege;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.jackrabbit.api.JackrabbitSession;
+import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
+import org.apache.jackrabbit.commons.jackrabbit.authorization.AccessControlUtils;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.ConfigurationException;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
@@ -56,6 +60,43 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
     public JackrabbitContentRepository(final TemporaryFolder workingDirectory) {
         super(workingDirectory);
         this.addedUsers = new HashSet<>();
+    }
+
+    /**
+     * Closes the admin session, and in case of local transient respository for unit test, shuts down the repository and
+     * cleans all temporary files.
+     *
+     * @throws IOException
+     */
+    @Override
+    protected void destroyRepository() {
+
+        final RepositoryImpl repository = (RepositoryImpl) getRepository();
+        repository.shutdown();
+        LOG.info("Destroyed repository at {}", repository.getConfig().getHomeDir());
+    }
+
+    /**
+     * Creates a transient repository with files in the local temp directory.
+     *
+     * @return the created repository
+     *
+     * @throws IOException
+     * @throws ConfigurationException
+     */
+    @Override
+    protected RepositoryImpl createRepository() throws IOException {
+
+        try {
+            final RepositoryConfig config = createRepositoryConfiguration();
+            return RepositoryImpl.create(config);
+        } catch (final ConfigurationException e) {
+            LOG.error("Configuration invalid", e);
+            throw new AssertionError(e.getMessage(), e);
+        } catch (RepositoryException e) {
+            LOG.error("Could not create repository", e);
+            throw new AssertionError(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -94,6 +135,7 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
 
     @Override
     public void resetUsers() {
+
         try {
             final Session session = getAdminSession();
             final UserManager userManager = ((JackrabbitSession) session).getUserManager();
@@ -111,39 +153,66 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
 
     }
 
-    /**
-     * Closes the admin session, and in case of local transient respository for unit test, shuts down the repository and
-     * cleans all temporary files.
-     *
-     * @throws IOException
-     */
     @Override
-    protected void destroyRepository() {
+    protected Principal resolvePrincipal(final String principalId) throws RepositoryException {
 
-        final RepositoryImpl repository = (RepositoryImpl) getRepository();
-        repository.shutdown();
-        LOG.info("Destroyed repository at {}", repository.getConfig().getHomeDir());
+        final Principal principal;
+
+        final Session session = getAdminSession();
+        if ("everyone".equals(principalId)) {
+            principal = ((JackrabbitSession) session).getPrincipalManager().getEveryone();
+        } else {
+            final Authorizable authorizable = resolveAuthorizable(principalId);
+            principal = authorizable.getPrincipal();
+        }
+
+        return principal;
     }
 
     /**
-     * Creates a transient repository with files in the local temp directory.
+     * Denies the specified principal (user or group) on the specified resource one or more JCR permissions.
      *
-     * @return the created repository
-     * @throws IOException
-     * @throws ConfigurationException
+     * @param principalId
+     *         the id of the principal to deny privileges
+     * @param path
+     *         the path of the node to which a privilege should be applied
+     * @param privilege
+     *         the privileges to deny.
      */
-    @Override
-    protected RepositoryImpl createRepository() throws IOException {
+    public void deny(String principalId, String path, String... privilege) throws RepositoryException {
 
-        try {
-            final RepositoryConfig config = createRepositoryConfiguration();
-            return RepositoryImpl.create(config);
-        } catch (final ConfigurationException e) {
-            LOG.error("Configuration invalid", e);
-            throw new AssertionError(e.getMessage(), e);
-        } catch (RepositoryException e) {
-            LOG.error("Could not create repository", e);
-            throw new AssertionError(e.getMessage(), e);
-        }
+        final Session session = getAdminSession();
+
+        final Privilege[] privilegeArray = toPrivilegeArray(session, privilege);
+        final Principal principal = resolvePrincipal(principalId);
+
+        AccessControlUtils.addAccessControlEntry(session, path, principal, privilegeArray, false);
+
+        // and the session must be saved for the changes to be applied
+        session.save();
+    }
+
+    /**
+     * Resolves a name to an {@link Authorizable}. The name can be of a user or a group. The resulting authroziable can
+     * be of type {@link org.apache.jackrabbit.api.security.user.User} or {@link org.apache.jackrabbit.api.security.user.Group}
+     * and has to be checked and cast accordingly. The method will fail with an {@link AssertionError} if no such
+     * authorizable exists.
+     *
+     * @param authorizableId
+     *         the id of the authorizable
+     *
+     * @return the resolved {@link org.apache.jackrabbit.api.security.user.Authorizable}. It is either a {@link
+     * org.apache.jackrabbit.api.security.user.Group} or a {@link org.apache.jackrabbit.api.security.user.User}.
+     *
+     * @throws RepositoryException
+     *         if the name was not found
+     */
+    protected Authorizable resolveAuthorizable(final String authorizableId) throws RepositoryException {
+
+        final Session session = getAdminSession();
+        final UserManager um = ((JackrabbitSession) session).getUserManager();
+        final Authorizable authorizable = um.getAuthorizable(authorizableId);
+        assertNotNull("Could not resolve " + authorizableId, authorizable);
+        return authorizable;
     }
 }

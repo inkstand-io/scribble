@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.Principal;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.config.ConfigurationException;
@@ -179,74 +178,6 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
             buf.append(']');
             LOG.debug("Registered NodeTypes: {}",buf.toString());
         }
-    }
-
-    /**
-     * Adds a user with the given password to the repository. <p> <b>Note:</b> in case the rule is used as a class rule
-     * you should ensure that you delete each created user properly. Otherwise consecutive calls will fail. You may also
-     * invoke to cleanup the users created in one session using the {@code resetUsers()} method. </p>
-     *
-     * @param username
-     *         the name of the user to add
-     * @param password
-     *         the password for the user
-     *
-     * @return the Principal representing the the newly created user.
-     */
-    public abstract Principal addUser(final String username, final String password);
-
-    /**
-     * Removes a user from the repository.
-     *
-     * @param username
-     *         the name of the user to remove
-     *
-     * @return <code>true</code> if the user was found and successfully deleted. <code>false</code> if no such user
-     * existed
-     */
-    public abstract boolean deleteUser(String username);
-
-    /**
-     * Removes all users from the repository that have been created using this rule. If users are already removed the
-     * method will not fail.
-     */
-    public abstract void resetUsers();
-
-    /**
-     * Grants the specified principal (user or group) on the specified resource one or more JCR permissions.
-     * @param principalId
-     *  the id of the principal to grant privileges
-     * @param path
-     *  the path of the node to which a privilege should be applied
-     * @param privilege
-     *  the privileges to grant.
-     */
-    public void grant(String principalId, String path, String... privilege){
-
-    };
-
-    /**
-     * Denies the specified principal (user or group) on the specified resource one or more JCR permissions.
-     * @param principalId
-     *  the id of the principal to deny privileges
-     * @param path
-     *  the path of the node to which a privilege should be applied
-     * @param privilege
-     *  the privileges to deny.
-     */
-    public void deny(String principalId, String path, String... privilege) {
-
-    }
-
-    /**
-     * Removes all ACLs on the node specified by the path.
-     * @param path
-     *  the absolute path to the node
-     * @param user
-     *  the user(s) whose ACL entries should be removed. If none is provided, all ACLs will be removed.
-     */
-    public void clearACLs(String path, String... user) {
-
     }
 
 }

@@ -29,7 +29,6 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.net.URL;
-import java.security.Principal;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.After;
@@ -58,24 +57,6 @@ public class ConfigurableContentRepositoryTest {
     public void setUp() throws Exception {
 
         subject = new ConfigurableContentRepository(folder) {
-
-            @Override
-            public Principal addUser(final String username, final String password) {
-
-                return null;
-            }
-
-            @Override
-            public boolean deleteUser(final String username) {
-
-                return false;
-            }
-
-            @Override
-            public void resetUsers() {
-
-            }
-
             @Override
             protected void destroyRepository() {
 

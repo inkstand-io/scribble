@@ -16,9 +16,6 @@
 
 package io.inkstand.scribble.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.security.auth.Subject;
 import java.lang.reflect.Method;
 import java.security.Principal;
@@ -27,6 +24,8 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
@@ -42,32 +41,23 @@ public final class SecurityTestHelper {
     }
 
     /**
-     * Creates a subject for a user with the given name
+     * Invokes the specified method on the target in the JAAS Context of the given user
      *
-     * @param userName
-     *            name of the user
-     * @return a subject for the user
+     * @param user
+     *            the user in whose context the method should be invoked
+     * @param target
+     *            the target object of the method invocation or <code>null</code> if it is a static method
+     * @param method
+     *            the method to be invoked
+     * @param params
+     *            the parameters passed to the method
+     * @return the result of the method invocation
+     * @throws Throwable
+     *             if the invokation failed for any reason
      */
-    public static Subject subjectForUser(final String userName) {
-
-        final SimpleUserPrincipal principal = new SimpleUserPrincipal(userName);
-        return subjectForUser(principal);
-
-    }
-
-    /**
-     * Creates a subject for the given user principal
-     *
-     * @param userPrincipal
-     *            the user principal to be added to the subject
-     * @return the subject for the user
-     */
-    public static Subject subjectForUser(final Principal userPrincipal) {
-
-        final Set<Principal> principals = new HashSet<>();
-        principals.add(userPrincipal);
-
-        return new Subject(false, principals, Collections.emptySet(), Collections.emptySet());
+    public static <T> T invokeAs(final String user, final Object target, final Method method, final Object... params)
+            throws Throwable { // NOSONAR
+        return invokeAs(subjectForUser(user), target, method, params);
     }
 
     /**
@@ -105,23 +95,46 @@ public final class SecurityTestHelper {
     }
 
     /**
-     * Invokes the specified method on the target in the JAAS Context of the given user
+     * Creates a subject for a user with the given name
      *
-     * @param user
-     *            the user in whose context the method should be invoked
-     * @param target
-     *            the target object of the method invocation or <code>null</code> if it is a static method
-     * @param method
-     *            the method to be invoked
-     * @param params
-     *            the parameters passed to the method
-     * @return the result of the method invocation
-     * @throws Throwable
-     *             if the invokation failed for any reason
+     * @param userName
+     *            name of the user
+     * @return a subject for the user
      */
-    public static <T> T invokeAs(final String user, final Object target, final Method method, final Object... params)
-            throws Throwable { // NOSONAR
-        return invokeAs(subjectForUser(user), target, method, params);
+    public static Subject subjectForUser(final String userName) {
+
+        final SimpleUserPrincipal principal = new SimpleUserPrincipal(userName);
+        return subjectForUser(principal);
+
     }
 
+    /**
+     * Creates a subject for the given user principal
+     *
+     * @param userPrincipal
+     *         the user principal to be added to the subject
+     *
+     * @return the subject for the user
+     */
+    public static Subject subjectForUser(final Principal userPrincipal) {
+
+        final Set<Principal> principals = new HashSet<>();
+        principals.add(userPrincipal);
+
+        return new Subject(false, principals, Collections.emptySet(), Collections.emptySet());
+    }
+
+    /**
+     * Creates a {@link Principal} for the given user name. The principal will be of type {@link SimpleUserPrincipal} so
+     * it might not be useful, if a certain {@link Principal} implementation is required.
+     *
+     * @param userName
+     *         the user name for which a {@link Principal} should be created.
+     *
+     * @return a principal reflecting the user name
+     */
+    public static Principal toPrincipal(final String userName) {
+
+        return new SimpleUserPrincipal(userName);
+    }
 }
