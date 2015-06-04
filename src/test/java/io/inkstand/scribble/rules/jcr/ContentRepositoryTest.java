@@ -25,10 +25,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import javax.jcr.AccessDeniedException;
+import javax.jcr.LoginException;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.security.auth.login.LoginException;
 import java.net.URL;
 
 import io.inkstand.scribble.rules.BaseRule;
