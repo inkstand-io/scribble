@@ -18,10 +18,8 @@ package io.inkstand.scribble.rules.builder;
 
 import static org.junit.Assert.assertNotNull;
 
-import javax.jcr.Node;
-import javax.jcr.Session;
+import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -30,8 +28,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InMemoryContentRepositoryBuilderTest {
@@ -58,39 +54,29 @@ public class InMemoryContentRepositoryBuilderTest {
     }
 
     @Test
-    @Ignore
     public void testEnableSecurity() throws Throwable {
         //prepare
 
         //act
-        InMemoryContentRepositoryBuilder builder = subject.enableSecurity();
-
-        //assert
-        assertNotNull(builder);
-        final InMemoryContentRepository rule = subject.build();
+        final InMemoryContentRepository rule = subject.withSecurityEnabled().build();
 
         rule.apply(new Statement() {
 
             @Override
             public void evaluate() throws Throwable {
 
-                Session anonSession = rule.getRepository().login();
-                Node node = anonSession.getRootNode().addNode("test", "nt:unstructured");
-                assertNotNull(node);
+                //without security, no user can be added
+                rule.addUser("user1", "password");
+
 
             }
         }, description).evaluate();
 
     }
 
-    @Test
-    @Ignore
+    @Test(expected = AssertionError.class)
     public void testDefaultSecurity() throws Throwable {
         //prepare
-
-        //act
-
-        //assert
         final InMemoryContentRepository rule = subject.build();
 
         rule.apply(new Statement() {
@@ -98,9 +84,9 @@ public class InMemoryContentRepositoryBuilderTest {
             @Override
             public void evaluate() throws Throwable {
 
-                Session anonSession = rule.getRepository().login();
-                Node node = anonSession.getRootNode().addNode("test", "nt:unstructured");
-                assertNotNull(node);
+                //without security, no user can be added
+                rule.addUser("user1", "password");
+
 
             }
         }, description).evaluate();

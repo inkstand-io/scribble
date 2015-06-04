@@ -30,6 +30,8 @@ public class InMemoryContentRepositoryBuilder extends ContentRepositoryBuilder<I
 
     private final TemporaryFolder temporaryFolder;
 
+    private boolean securityEnabled;
+
     public InMemoryContentRepositoryBuilder(final TemporaryFolder temporaryFolder) {
         this.temporaryFolder = temporaryFolder;
     }
@@ -39,12 +41,14 @@ public class InMemoryContentRepositoryBuilder extends ContentRepositoryBuilder<I
 
         InMemoryContentRepository repository = new InMemoryContentRepository(temporaryFolder);
         repository.setCndUrl(getCndModelResource());
+        repository.setSecurityEnabled(this.securityEnabled);
         return repository;
     }
 
-    public InMemoryContentRepositoryBuilder enableSecurity() {
-
+    public InMemoryContentRepositoryBuilder withSecurityEnabled() {
+        this.securityEnabled = true;
         return this;
+
 
     }
 }

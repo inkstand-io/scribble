@@ -18,6 +18,7 @@ package io.inkstand.scribble.rules.jcr;
 
 import java.net.URL;
 
+import io.inkstand.scribble.rules.RuleSetup;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
@@ -37,18 +38,46 @@ public class InMemoryContentRepository extends JackrabbitContentRepository{
      */
     private static final Logger LOG = LoggerFactory.getLogger(InMemoryContentRepository.class);
 
+    private static final String SIMPLE_SECURITY_INMEMORY_CONFIG = "inMemoryRepository.xml";
+
+    private static final String SECURITY_ENABLED_INMEMORY_CONFIG = "securityEnabledInMemoryRepository.xml";
+
+    private boolean securityEnabled;
+
     public InMemoryContentRepository(final TemporaryFolder workingDirectory) {
         super(workingDirectory);
     }
 
     @Override
     public URL getConfigUrl() {
-        return getClass().getResource("inMemoryRepository.xml");
+
+        String configResourceName;
+        if(securityEnabled){
+            configResourceName = SECURITY_ENABLED_INMEMORY_CONFIG;
+        } else {
+            configResourceName = SIMPLE_SECURITY_INMEMORY_CONFIG;
+        }
+
+        return getClass().getResource(configResourceName);
     }
 
     @Override
     public void setCndUrl(final URL cndUrl) {
 
         super.setCndUrl(cndUrl);
+    }
+
+    /**
+     * Enables security for this rule. With enabled security, the repository supports user management and access
+     * management. Without security enabled, no users or groups can be added. There are only the anonymous user
+     * with universal read access and the admin user with universal write access. Which is sufficient for read-oriented
+     * test-cases
+     * @param securityEnabled
+     *  <code>true</code> to enable security. <code>false</code> to disable security (default)
+     */
+    @RuleSetup
+    public void setSecurityEnabled(final boolean securityEnabled) {
+        this.securityEnabled = securityEnabled;
+
     }
 }
