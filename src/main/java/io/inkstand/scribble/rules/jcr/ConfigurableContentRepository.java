@@ -212,4 +212,41 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      */
     public abstract void resetUsers();
 
+    /**
+     * Grants the specified principal (user or group) on the specified resource one or more JCR permissions.
+     * @param principalId
+     *  the id of the principal to grant privileges
+     * @param path
+     *  the path of the node to which a privilege should be applied
+     * @param privilege
+     *  the privileges to grant.
+     */
+    public void grant(String principalId, String path, String... privilege){
+
+    };
+
+    /**
+     * Denies the specified principal (user or group) on the specified resource one or more JCR permissions.
+     * @param principalId
+     *  the id of the principal to deny privileges
+     * @param path
+     *  the path of the node to which a privilege should be applied
+     * @param privilege
+     *  the privileges to deny.
+     */
+    public void deny(String principalId, String path, String... privilege) {
+
+    }
+
+    /**
+     * Removes all ACLs on the node specified by the path.
+     * @param path
+     *  the absolute path to the node
+     * @param user
+     *  the user(s) whose ACL entries should be removed. If none is provided, all ACLs will be removed.
+     */
+    public void clearACLs(String path, String... user) {
+
+    }
+
 }
