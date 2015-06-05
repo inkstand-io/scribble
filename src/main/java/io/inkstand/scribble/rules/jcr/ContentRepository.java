@@ -62,6 +62,11 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     private transient Session adminSession;
 
     /**
+     * Session for anonymous access
+     */
+    private Session anonSession;
+
+    /**
      * Creates the content repository in the working directory.
      *
      * @param workingDirectory
@@ -310,14 +315,17 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
 
     /**
      * Converts the list of privilege names to an array of {@link Privilege}s.
+     *
      * @param session
-     *  the current session that provides the {@link AccessControlManager}
+     *         the current session that provides the {@link AccessControlManager}
      * @param privileges
-     *  the privileges to convert
-     * @return
-     *  an array of {@link Privilege}s
+     *         the privileges to convert
+     *
+     * @return an array of {@link Privilege}s
+     *
      * @throws RepositoryException
-     *  if the access control manager could not be retrieved of the list of privileges contained unsupported privileges
+     *         if the access control manager could not be retrieved of the list of privileges contained unsupported
+     *         privileges
      */
     protected Privilege[] toPrivilegeArray(Session session, final String... privileges) throws RepositoryException {
 
@@ -352,7 +360,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
             // get first applicable policy (for nodes w/o a policy)
             acl = (AccessControlList) acm.getApplicablePolicies(path).nextAccessControlPolicy();
         } catch (NoSuchElementException e) {
-            LOG.debug("no applicable policy found",e);
+            LOG.debug("no applicable policy found", e);
 
             // else node already has a policy, get that one
             acl = (AccessControlList) acm.getPolicies(path)[0];
@@ -373,6 +381,27 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     protected Principal resolvePrincipal(final String principalId) throws RepositoryException {
 
         return SecurityTestHelper.toPrincipal(principalId);
+    }
+
+    /**
+     * Logs into the repository as anonymous user. The session should be logged out after each test if the repository is
+     * used as a {@link org.junit.ClassRule}.
+     * @return
+     *  a session for the anonymous principal. In most default configurations the anonymous user has only read
+     *  permissions.
+     * @throws RepositoryException
+     *  if the login failed for any reason
+     */
+    public Session login() throws RepositoryException {
+
+        if (this.isActive(this.anonSession)) {
+            //perform a refresh to update the session to the latest repository version
+            this.anonSession.refresh(false);
+        } else {
+            this.anonSession = this.repository.login();
+        }
+
+        return this.anonSession;
     }
 
     /**
@@ -471,5 +500,6 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
             acList.removeAccessControlEntry(acEntry);
         }
     }
+
 
 }

@@ -367,6 +367,70 @@ public class ContentRepositoryTest {
     }
 
     @Test
+    public void testLogin_anonymous_firstLogin() throws Throwable {
+
+        //prepare
+        when(repository.login()).thenReturn(session);
+        subject.before();
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+
+        // act
+        final Session session = subject.login();
+
+        // assert
+        assertNotNull(session);
+        assertEquals(this.session, session);
+    }
+
+    @Test
+    public void testLogin_anonymous_consecutiveLogin() throws Throwable {
+
+        //prepare
+        when(repository.login()).thenReturn(session);
+        when(session.isLive()).thenReturn(true);
+        subject.before();
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+        //the first login
+        subject.login();
+
+        // act
+        //the second login
+        Session session = subject.login();
+
+        // assert
+        assertNotNull(session);
+        assertEquals(this.session, session);
+
+        //verify no new admin login has been performed, only 1 login from the prepare phase
+        verify(repository, times(1)).login();
+        //and the session was refreshed
+        verify(this.session).refresh(false);
+    }
+
+    @Test
+    public void testLogin_anonymous_inactiveSession() throws Throwable {
+
+        //prepare
+        when(repository.login()).thenReturn(session);
+        when(session.isLive()).thenReturn(false);
+        subject.before();
+        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
+        //the first login
+        subject.login();
+
+        // act
+        //the second login
+        Session session = subject.login();
+
+        // assert
+        assertNotNull(session);
+        assertEquals(this.session, session);
+
+        //two logins are performed, 1 in prepare and 1 in act
+        verify(repository, times(2)).login();
+    }
+
+    @Test
     public void testGrant() throws Throwable {
         //prepare
         setupInMemoryRepository();
