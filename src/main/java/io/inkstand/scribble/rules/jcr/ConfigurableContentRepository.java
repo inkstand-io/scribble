@@ -142,10 +142,9 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
     protected void initialize() {
 
         if(this.cndUrl != null) {
-            Session session = null;
             try(InputStream cndStream = this.cndUrl.openStream();
-                InputStreamReader cndReader = new InputStreamReader(cndStream, Charset.forName("UTF-8"))) {
-                session = getAdminSession();
+                final InputStreamReader cndReader = new InputStreamReader(cndStream, Charset.forName("UTF-8"))) {
+                final Session session = getAdminSession();
                 this.logNodeTypes(CndImporter.registerNodeTypes(cndReader, session));
             } catch (IOException e) {
                 throw new AssertionError("Could not load CND resource", e);
@@ -153,10 +152,6 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
                 throw new AssertionError("Could not perform repository operation", e);
             } catch (ParseException e) {
                 throw new AssertionError("Could not parse CND resource", e);
-            } finally {
-                if(session != null) {
-                    session.logout();
-                }
             }
         }
     }

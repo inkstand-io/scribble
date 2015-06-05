@@ -235,6 +235,120 @@ public class JackrabbitContentRepositoryTest extends TestCase {
 
     }
 
+    @Test
+    public void testResetUsers_userExternallyDeleted_ok() throws Throwable {
+        //prepare
+        final String user1 = "user1";
+        final String user2 = "user2";
+
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+                subject.addUser(user1, user1);
+                subject.addUser(user2, user2);
+                final UserManager um = ((JackrabbitSession) subject.getAdminSession()).getUserManager();
+                um.getAuthorizable(user1).remove();
+
+                //act
+                subject.resetUsers();
+
+                //assert
+                assertNull(um.getAuthorizable(user1));
+                assertNull(um.getAuthorizable(user2));
+
+            }
+        }, description).evaluate();
+
+    }
+
+    @Test
+    public void testResolvePrincipal_Everyone() throws Throwable {
+
+        //act
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+
+                //act
+                Principal principal = subject.resolvePrincipal("everyone");
+
+                //assert
+                assertNotNull(principal);
+                assertEquals("everyone", principal.getName());
+
+            }
+        }, description).evaluate();
+
+    }
+
+    @Test
+    public void testResolvePrincipal_Anonymous() throws Throwable {
+
+        //act
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+
+                //act
+                Principal principal = subject.resolvePrincipal("anonymous");
+
+                //assert
+                assertNotNull(principal);
+                assertEquals("anonymous", principal.getName());
+
+            }
+        }, description).evaluate();
+
+    }
+
+    @Test
+    public void testResolvePrincipal_User() throws Throwable {
+
+        //act
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+                Principal expected = subject.addUser("user1", "password");
+
+                //act
+                Principal actual = subject.resolvePrincipal("user1");
+
+                //assert
+                assertNotNull(actual);
+                assertEquals(expected, actual);
+                assertEquals("user1", actual.getName());
+
+            }
+        }, description).evaluate();
+
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testResolvePrincipal_UnknownUser_fail() throws Throwable {
+
+        //act
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+                //prepare
+
+                //act
+                subject.resolvePrincipal("user1");
+
+            }
+        }, description).evaluate();
+
+    }
+
     @Test(expected = LoginException.class)
     public void testDeny() throws Throwable {
         // act

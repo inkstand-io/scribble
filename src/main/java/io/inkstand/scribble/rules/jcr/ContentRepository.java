@@ -31,11 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
 
 import io.inkstand.scribble.inject.InjectableHolder;
 import io.inkstand.scribble.rules.ExternalResource;
 import io.inkstand.scribble.security.SecurityTestHelper;
-import org.slf4j.Logger;
 
 /**
  * Rule for testing with java content repositories (JCR). The rule implementations rely on the reference implementation
@@ -76,7 +76,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     @Override
     protected void beforeClass() throws Throwable {
 
-        doBefore();
+        this.doBefore();
 
     }
 
@@ -84,7 +84,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     @Override
     protected void afterClass() {
 
-        doAfter();
+        this.doAfter();
 
     }
 
@@ -94,7 +94,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
         // this check is required if the rule is used as class rule, where the repository
         // is initialized before the before method, to avoid initializing the repository twice
         if (isBeforeState(State.CREATED)) {
-            doBefore();
+            this.doBefore();
             doStateTransition(State.BEFORE_EXECUTED);
         }
     }
@@ -115,11 +115,10 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      */
     private void doAfter() { //NOSONAR
 
-        super.after();
-        if(isActive(this.adminSession)) {
+        if (this.isActive(this.adminSession)) {
             this.adminSession.logout();
         }
-        destroyRepository();
+        this.destroyRepository();
         doStateTransition(State.DESTROYED);
     }
 
@@ -147,15 +146,15 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      */
     private void doBefore() throws Throwable { //NOSONAR
 
-        super.before();
-        repository = createRepository();
+        this.repository = this.createRepository();
         doStateTransition(State.CREATED);
-        initialize();
+        this.initialize();
         doStateTransition(State.INITIALIZED);
     }
 
     /**
-     * Creates a JCR {@link Repository}
+     * Creates the JCR {@link Repository}. Implement this method to provide a repository instance suitable for
+     * testing purposes.
      *
      * @return the created repository
      *
@@ -172,17 +171,18 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     }
 
     /**
+     * The repository wrapped by this rule.
      * @return the repository
      */
     public Repository getRepository() {
         assertStateAfterOrEqual(State.CREATED);
-        return repository;
+        return this.repository;
     }
 
     @Override
     public Repository getInjectionValue() {
         assertStateAfterOrEqual(State.CREATED);
-        return repository;
+        return this.repository;
     }
 
     /**
@@ -192,7 +192,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      */
     public TemporaryFolder getWorkingDirectory() {
         assertStateAfterOrEqual(State.CREATED);
-        return workingDirectory;
+        return this.workingDirectory;
     }
 
     /**
@@ -205,11 +205,12 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      *            the password for the user
      * @return the {@link Session} for the user
      * @throws RepositoryException
+     *  if the login failed for a repository internal error
      */
     public Session login(final String userId, final String password) throws RepositoryException {
 
         assertStateAfterOrEqual(State.CREATED);
-        return repository.login(new SimpleCredentials(userId, password.toCharArray()));
+        return this.repository.login(new SimpleCredentials(userId, password.toCharArray()));
     }
 
     /**
@@ -269,12 +270,12 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      */
     public void grant(String principalId, String path, String... privileges) throws RepositoryException {
 
-        final Session session = getAdminSession();
+        final Session session = this.getAdminSession();
         final AccessControlManager acm = session.getAccessControlManager();
 
-        final Privilege[] privilegeArray = toPrivilegeArray(session, privileges);
-        final AccessControlList acl = getAccessControlList(session, path);
-        final Principal principal = resolvePrincipal(principalId);
+        final Privilege[] privilegeArray = this.toPrivilegeArray(session, privileges);
+        final AccessControlList acl = this.getAccessControlList(session, path);
+        final Principal principal = this.resolvePrincipal(principalId);
         // add a new one for the special "everyone" principal
         acl.addAccessControlEntry(principal, privilegeArray);
 
@@ -301,7 +302,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
             //perform a refresh to update the session to the latest repository version
             this.adminSession.refresh(false);
         } else {
-            this.adminSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+            this.adminSession = this.repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         }
 
         return this.adminSession;
@@ -316,6 +317,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * @return
      *  an array of {@link Privilege}s
      * @throws RepositoryException
+     *  if the access control manager could not be retrieved of the list of privileges contained unsupported privileges
      */
     protected Privilege[] toPrivilegeArray(Session session, final String... privileges) throws RepositoryException {
 
@@ -339,6 +341,8 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      * @return the access control list for the path
      *
      * @throws RepositoryException
+     *  when the access control manager could not be retrieved or the ACLs of the specified path could not be
+     *  obtained.
      */
     protected AccessControlList getAccessControlList(Session session, final String path) throws RepositoryException {
 
@@ -384,6 +388,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      *         one or more privileges to be denied
      *
      * @throws RepositoryException
+     *  if the privilege can not be denied
      */
     public void deny(String principalId, String path, String... privilege) throws RepositoryException {
 
@@ -402,9 +407,9 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
      */
     public void clearACL(String path, String... principalNames) throws RepositoryException {
 
-        final Session session = getAdminSession();
+        final Session session = this.getAdminSession();
         final AccessControlManager acm = session.getAccessControlManager();
-        final AccessControlList acl = getAccessControlList(session, path);
+        final AccessControlList acl = this.getAccessControlList(session, path);
 
         final String[] principals;
         if (principalNames.length == 0) {
@@ -415,7 +420,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
         }
 
         for (String username : principals) {
-            removeAccessControlEntries(acl, username);
+            this.removeAccessControlEntries(acl, username);
         }
 
         // the policy must be re-set
@@ -425,7 +430,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
     }
 
     /**
-     * Removes all entries from the {@link AccessControlList} that match the given principal name
+     * Removes all entries from the {@link AccessControlList} that match the given principal name.
      *
      * @param acl
      *         the acl from which the entries should be removed
@@ -440,7 +445,7 @@ public abstract class ContentRepository extends ExternalResource<TemporaryFolder
             throws RepositoryException {
 
         for (final AccessControlEntry e : acl.getAccessControlEntries()) {
-            removeAccessControlEntry(acl, e, principalName);
+            this.removeAccessControlEntry(acl, e, principalName);
         }
     }
 

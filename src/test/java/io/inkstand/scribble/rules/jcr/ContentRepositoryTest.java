@@ -30,9 +30,7 @@ import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.net.URL;
-
-import io.inkstand.scribble.rules.BaseRule;
-import io.inkstand.scribble.rules.BaseRuleHelper;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.Before;
@@ -43,6 +41,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ContentRepositoryTest {
@@ -57,6 +58,8 @@ public class ContentRepositoryTest {
     private Session session;
 
     private ContentRepository subject;
+
+    private AtomicBoolean exceptionInInitialize = new AtomicBoolean(false);
 
     @Before
     public void setUp() throws Exception {
@@ -79,6 +82,14 @@ public class ContentRepositoryTest {
             protected Repository createRepository() throws Exception {
 
                 return repository;
+            }
+
+            @Override
+            protected void initialize() {
+
+                if (exceptionInInitialize.get()) {
+                    throw new RuntimeException();
+                }
             }
         };
     }
@@ -127,6 +138,23 @@ public class ContentRepositoryTest {
 
         //assert
         assertEquals(BaseRule.State.BEFORE_EXECUTED, BaseRuleHelper.getState(subject));
+    }
+
+    @Test
+    public void testBefore_exceptionInInitialization() throws Throwable {
+        //prepare
+        BaseRuleHelper.setState(subject, BaseRule.State.NEW);
+        this.exceptionInInitialize.set(true);
+
+        //act
+        try {
+            subject.before();
+        } catch (RuntimeException e) {
+            //this was expected
+        }
+
+        //assert
+        assertEquals(BaseRule.State.CREATED, BaseRuleHelper.getState(subject));
     }
 
     @Test
@@ -351,6 +379,19 @@ public class ContentRepositoryTest {
 
     }
 
+    /**
+     * Replaces the mock repository with a real repository with effective security and in-memory persistence.
+     *
+     * @throws Throwable
+     */
+    private void setupInMemoryRepository() throws Throwable {
+
+        final URL configUrl = getClass().getResource("ContentRepositoryTest_repository.xml");
+        RepositoryConfig config = RepositoryConfig.create(configUrl.toURI(), folder.getRoot().getAbsolutePath());
+        this.repository = RepositoryImpl.create(config);
+        subject.before();
+    }
+
     @Test(expected = AccessDeniedException.class)
     public void testClearACLs_matchingSingleUser() throws Throwable {
         //prepare
@@ -437,18 +478,5 @@ public class ContentRepositoryTest {
 
         //assert
 
-    }
-
-    /**
-     * Replaces the mock repository with a real repository with effective security and in-memory persistence.
-     *
-     * @throws Throwable
-     */
-    private void setupInMemoryRepository() throws Throwable {
-
-        final URL configUrl = getClass().getResource("ContentRepositoryTest_repository.xml");
-        RepositoryConfig config = RepositoryConfig.create(configUrl.toURI(), folder.getRoot().getAbsolutePath());
-        this.repository = RepositoryImpl.create(config);
-        subject.before();
     }
 }

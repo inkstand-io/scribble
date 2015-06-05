@@ -44,7 +44,6 @@ import org.slf4j.Logger;
  *     <b>Note:</b> if you're using this rule as a class rule, be sure to remove users that are added within a single
  *     test execution properly after the test.
  * </p>
- *
  * Created by gerald on 03.06.15.
  */
 public abstract class JackrabbitContentRepository extends ConfigurableContentRepository {
@@ -65,8 +64,6 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
     /**
      * Closes the admin session, and in case of local transient respository for unit test, shuts down the repository and
      * cleans all temporary files.
-     *
-     * @throws IOException
      */
     @Override
     protected void destroyRepository() {
@@ -82,7 +79,7 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
      * @return the created repository
      *
      * @throws IOException
-     * @throws ConfigurationException
+     *  if the repository configuration can not be read
      */
     @Override
     protected RepositoryImpl createRepository() throws IOException {
@@ -106,7 +103,6 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
             final Session session = getAdminSession();
             final UserManager userManager = ((JackrabbitSession) session).getUserManager();
             final User user = userManager.createUser(username, password);
-            session.save();
             this.addedUsers.add(username);
             return user.getPrincipal();
         } catch (RepositoryException e) {
@@ -125,7 +121,6 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
                 return false;
             }
             user.remove();
-            session.save();
             this.addedUsers.remove(username);
             return true;
         } catch (RepositoryException e) {
@@ -145,7 +140,6 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
                     user.remove();
                 }
             }
-            session.save();
             this.addedUsers.clear();
         } catch (RepositoryException e) {
             throw new AssertionError("Could not reset users", e);
@@ -162,7 +156,7 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
         if ("everyone".equals(principalId)) {
             principal = ((JackrabbitSession) session).getPrincipalManager().getEveryone();
         } else {
-            final Authorizable authorizable = resolveAuthorizable(principalId);
+            final Authorizable authorizable = this.resolveAuthorizable(principalId);
             principal = authorizable.getPrincipal();
         }
 
@@ -185,7 +179,7 @@ public abstract class JackrabbitContentRepository extends ConfigurableContentRep
         final Session session = getAdminSession();
 
         final Privilege[] privilegeArray = toPrivilegeArray(session, privilege);
-        final Principal principal = resolvePrincipal(principalId);
+        final Principal principal = this.resolvePrincipal(principalId);
 
         AccessControlUtils.addAccessControlEntry(session, path, principal, privilegeArray, false);
 

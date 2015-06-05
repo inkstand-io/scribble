@@ -54,21 +54,12 @@ public class StandaloneContentRepositoryBuilder extends ContentRepositoryBuilder
         return this;
     }
 
-    /**
-     * The resource that defines the configuration for the repository that should be created.
-     * @return
-     *  the url to the configuration file
-     */
-    protected URL getConfigUrl() {
-        return configUrl;
-    }
-
     @Override
     public StandaloneContentRepository build() {
 
-        StandaloneContentRepository repository = new StandaloneContentRepository(workingDirectory);
-        if(configUrl != null) {
-            repository.setConfigUrl(configUrl);
+        StandaloneContentRepository repository = new StandaloneContentRepository(this.workingDirectory);
+        if (this.configUrl != null) {
+            repository.setConfigUrl(this.configUrl);
         }
         repository.setCndUrl(getCndModelResource());
         return repository;
