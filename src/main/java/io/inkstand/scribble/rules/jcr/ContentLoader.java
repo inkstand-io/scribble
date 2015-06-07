@@ -16,9 +16,7 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import javax.jcr.Repository;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 import java.net.URL;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -28,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import io.inkstand.scribble.rules.BaseRule;
 import io.inkstand.scribble.rules.RuleSetup;
 import io.inkstand.scribble.rules.RuleSetup.RequirementLevel;
+import io.inkstand.scribble.rules.jcr.util.XMLContentLoader;
 
 /**
  * The ContentLoader is a testRule to prefill a {@link ContentRepository} with a node structure before the test.
@@ -72,12 +71,8 @@ public class ContentLoader extends BaseRule<ContentRepository> {
             public void evaluate() throws Throwable {
                 try {
                     LOG.info("Loading Content");
-                    final Repository repo = repository.getRepository();
-                    final Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
-                    // TODO replace with content provider
-                    // JCRUtil.loadContent(session, contentDescriptorUrl);
-                    System.out.println(contentDescriptorUrl);
-                    session.logout();
+                    final Session session = repository.getAdminSession();
+                    new XMLContentLoader().loadContent(session, contentDescriptorUrl);
                     base.evaluate();
 
                 } catch (final Exception e) {
