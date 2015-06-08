@@ -36,8 +36,6 @@ import io.inkstand.scribble.rules.jcr.util.XMLContentLoader;
  */
 public class ContentLoader extends BaseRule<ContentRepository> {
 
-    // TODO add proper content loading and refactor class
-
     /**
      * SLF4J Logger for this class
      */
