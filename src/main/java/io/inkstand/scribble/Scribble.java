@@ -22,6 +22,8 @@ import org.junit.rules.TemporaryFolder;
 import io.inkstand.scribble.inject.Injection;
 import io.inkstand.scribble.rules.BaseRule;
 import io.inkstand.scribble.rules.builder.Builder;
+import io.inkstand.scribble.rules.builder.DirectoryBuilder;
+import io.inkstand.scribble.rules.builder.DirectoryServerBuilder;
 import io.inkstand.scribble.rules.builder.GenericBuilder;
 import io.inkstand.scribble.rules.builder.InMemoryContentRepositoryBuilder;
 import io.inkstand.scribble.rules.builder.JNDIContentRepositoryBuilder;
@@ -49,17 +51,17 @@ import io.inkstand.scribble.rules.jcr.MockContentRepository;
  * {@literal @}Rule
  * TemporaryFolder folder = new TemporaryFolder();
  * </pre>
- *
+ * <p>
  * If you need a chain of rules, that are nested, JUnit provides the {@link RuleChain}:
- *
+ * </p>
  * <pre>
  * {@literal @}Rule
  * TestRule chain = RuleChain.outerRouler(new OuterRule()).around(new InnerRule());
  * </pre>
- *
+ * <p>
  * This approach is perfectly alright but is a bit awkward when you have rules in the chain, that depend on each other.
  * In that case you have to instantiate the rules before creating the chain:
- *
+ * </p>
  * <pre>
  * OuterRule outer = new OuterRule();
  * InnerRule inner = new InnerRule(outer); //inner depends on outer
@@ -67,11 +69,15 @@ import io.inkstand.scribble.rules.jcr.MockContentRepository;
  * TestRule chain = RuleChain.outerRouler(outer).around(inner);
  * </pre>
  *
- * <h3>Test Rule Chains, Scribble way</h3> Scribble provides a set of rules that have dependencies on other rules. But
+ * <h3>Test Rule Chains, Scribble way</h3>
+ * <p>
+ * Scribble provides a set of rules that have dependencies on other rules. But
  * the rules may be created using a builder pattern that allows the creation and configuration of interdependent rule in
  * single line statements, that make the test setup more readable. The dependency mechanism is provided in the
  * {@link BaseRule} on which all the Scribble rules depend on. Furhter, the {@link Scribble} utility class provides
- * factory methods for creating specific rule builders.<br>
+ * factory methods for creating specific rule builders.
+ * </p>
+ * <br>
  * Examples:
  * <ul>
  * <li>Creating a temporary file with content from a classpath resource in a temporary folder:<br>
@@ -146,6 +152,36 @@ public final class Scribble {
     }
 
     /**
+     * Creates a new {@link Builder} for a {@link MockContentRepository}.
+     *
+     * @return a {@link MockContentRepositoryBuilder}
+     */
+    public static MockContentRepositoryBuilder newMockContentRepository() {
+
+        return new MockContentRepositoryBuilder();
+    }
+
+    /**
+     * Creates a new {@link Builder} for a {@link JNDIContentRepository}.
+     *
+     * @return a {@link JNDIContentRepositoryBuilder}
+     */
+    public static JNDIContentRepositoryBuilder newJndiContentRepository() {
+
+        return new JNDIContentRepositoryBuilder();
+    }
+
+    /**
+     * Convenient method for {@code newTempFolder().aroundInMemoryContentRepository()}.
+     *
+     * @return a builder for an in-memory content repository
+     */
+    public static InMemoryContentRepositoryBuilder newInMemoryContentRepository() {
+
+        return newTempFolder().aroundInMemoryContentRepository();
+    }
+
+    /**
      * Creates a new {@link Builder} for a {@link TemporaryFolder}. The {@link TemporaryFolderBuilder} allows further
      * chaining of rules that require a temporary folder. <br>
      * To create a new Temporary folder there are two options:
@@ -173,29 +209,35 @@ public final class Scribble {
     }
 
     /**
-     * Creates a new {@link Builder} for a {@link MockContentRepository}
-     *
-     * @return a {@link MockContentRepositoryBuilder}
+     * Convenient method for
+     * {@code newTempFolder().aroundStandaloneContentRepository()}.
+     * @return
+     *  a builder for a standalone content repository
      */
-    public static MockContentRepositoryBuilder newMockContentRepository() {
-        return new MockContentRepositoryBuilder();
-    }
-
-    /**
-     * Creates a new {@link Builder} for a {@link JNDIContentRepository}
-     *
-     * @return a {@link JNDIContentRepositoryBuilder}
-     */
-    public static JNDIContentRepositoryBuilder newJNDIContentRepository() {
-        return new JNDIContentRepositoryBuilder();
-    }
-
-    public static InMemoryContentRepositoryBuilder newInMemoryContentRepository() {
-        return newTempFolder().aroundInMemoryContentRepository();
-    }
-
     public static StandaloneContentRepositoryBuilder newStandaloneContentRepository() {
+
         return newTempFolder().aroundStandaloneContentRepository();
     }
 
+    /**
+     * Convenient method for {@code newTempFolder().aroundDirectory()}.
+     *
+     * @return a builder for an ldap service
+     */
+    public static DirectoryBuilder newDirectory() {
+
+        return newTempFolder().aroundDirectory();
+    }
+
+
+    /**
+     * Convenient method for
+     * {@code newTempFolder().aroundDirectory().aroundDirectoryServer()}.
+     * @return
+     *  a builder for a ldap directory server
+     */
+    public static DirectoryServerBuilder newDirectoryServer() {
+
+        return newTempFolder().aroundDirectory().aroundDirectoryServer();
+    }
 }

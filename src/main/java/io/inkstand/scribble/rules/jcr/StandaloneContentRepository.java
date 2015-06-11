@@ -20,8 +20,7 @@
 package io.inkstand.scribble.rules.jcr;
 
 import java.net.URL;
-import org.apache.jackrabbit.core.RepositoryImpl;
-import org.apache.jackrabbit.core.config.RepositoryConfig;
+
 import org.junit.rules.TemporaryFolder;
 
 /**
@@ -31,13 +30,13 @@ import org.junit.rules.TemporaryFolder;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class StandaloneContentRepository extends ConfigurableContentRepository {
+public class StandaloneContentRepository extends JackrabbitContentRepository {
 
     public StandaloneContentRepository(final TemporaryFolder workingDirectory) {
 
         super(workingDirectory);
         // set the default configuration
-        setConfigUrl(getClass().getResource("inMemoryRepository.xml"));
+        super.setConfigUrl(getClass().getResource("inMemoryRepository.xml"));
     }
 
     /**
@@ -54,28 +53,15 @@ public class StandaloneContentRepository extends ConfigurableContentRepository {
     /**
      * Sets the URL pointing to the node type definition to be loaded upon initialization.
      *
-     * @param nodeTypeDefinitions
-     *         resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
+     * @param cndUrl
+     *         resource locator for the CND node type definitions, {@see http://jackrabbit.apache
+     *         .org/jcr/node-type-notation.html}
      */
     @Override
-    public void setCndUrl(final URL nodeTypeDefinitions) {
+    public void setCndUrl(final URL cndUrl) {
 
-        super.setCndUrl(nodeTypeDefinitions);
+        super.setCndUrl(cndUrl);
     }
 
-    @Override
-    protected RepositoryImpl createRepository() throws Exception {
-
-        final RepositoryConfig config = createRepositoryConfiguration();
-        final RepositoryImpl repository = RepositoryImpl.create(config);
-        return repository;
-    }
-
-    @Override
-    protected void destroyRepository() {
-
-        ((RepositoryImpl) getRepository()).shutdown();
-
-    }
 
 }

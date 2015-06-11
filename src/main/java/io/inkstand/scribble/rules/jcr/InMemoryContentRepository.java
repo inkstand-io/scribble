@@ -16,16 +16,11 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import javax.jcr.RepositoryException;
-import java.io.IOException;
 import java.net.URL;
-import org.apache.jackrabbit.core.RepositoryImpl;
+
+import io.inkstand.scribble.rules.RuleSetup;
 import org.apache.jackrabbit.core.TransientRepository;
-import org.apache.jackrabbit.core.config.ConfigurationException;
-import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link InMemoryContentRepository} rule is intended for self-sufficient unit tests. It is based on the
@@ -34,12 +29,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class InMemoryContentRepository extends ConfigurableContentRepository {
+public class InMemoryContentRepository extends JackrabbitContentRepository{
 
-    /**
-     * SLF4J Logger for this class
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(InMemoryContentRepository.class);
+    private static final String SIMPLE_SECURITY_INMEMORY_CONFIG = "inMemoryRepository.xml";
+
+    private static final String SECURITY_ENABLED_INMEMORY_CONFIG = "securityEnabledInMemoryRepository.xml";
+
+    private transient boolean securityEnabled;
 
     public InMemoryContentRepository(final TemporaryFolder workingDirectory) {
         super(workingDirectory);
@@ -47,51 +43,34 @@ public class InMemoryContentRepository extends ConfigurableContentRepository {
 
     @Override
     public URL getConfigUrl() {
-        return getClass().getResource("inMemoryRepository.xml");
-    }
 
-    /**
-     * Creates a transient repository with files in the local temp directory.
-     *
-     * @return the created repository
-     * @throws IOException
-     * @throws ConfigurationException
-     */
-    @Override
-    protected RepositoryImpl createRepository() throws IOException {
-        try {
-            final RepositoryConfig config = createRepositoryConfiguration();
-            return RepositoryImpl.create(config);
-        } catch (final ConfigurationException e) {
-            LOG.error("Configuration invalid", e);
-            throw new AssertionError(e.getMessage(), e);
-        } catch (RepositoryException e) {
-            LOG.error("Could not create repository", e);
-            throw new AssertionError(e.getMessage(), e);
+        String cfgResName;
+        if(securityEnabled){
+            cfgResName = SECURITY_ENABLED_INMEMORY_CONFIG;
+        } else {
+            cfgResName = SIMPLE_SECURITY_INMEMORY_CONFIG;
         }
+
+        return getClass().getResource(cfgResName);
+    }
+
+    @Override
+    public void setCndUrl(final URL cndUrl) {
+
+        super.setCndUrl(cndUrl);
     }
 
     /**
-     * Closes the admin session, and in case of local transient respository for unit test, shuts down the repository and
-     * cleans all temporary files.
-     *
-     * @throws IOException
+     * Enables security for this rule. With enabled security, the repository supports user management and access
+     * management. Without security enabled, no users or groups can be added. There are only the anonymous user
+     * with universal read access and the admin user with universal write access. Which is sufficient for read-oriented
+     * test-cases
+     * @param securityEnabled
+     *  <code>true</code> to enable security. <code>false</code> to disable security (default)
      */
-    @Override
-    protected void destroyRepository() {
-        final RepositoryImpl repository = (RepositoryImpl) getRepository();
-        repository.shutdown();
-        LOG.info("Destroyed repository at {}", repository.getConfig().getHomeDir());
-    }
+    @RuleSetup
+    public void setSecurityEnabled(final boolean securityEnabled) {
+        this.securityEnabled = securityEnabled;
 
-    /**
-     * Sets the URL pointing to the node type definition to be loaded upon initialization.
-     * @param nodeTypeDefinitions
-     *  resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
-     */
-    @Override
-    public void setCndUrl(final URL nodeTypeDefinitions) {
-
-        super.setCndUrl(nodeTypeDefinitions);
     }
 }

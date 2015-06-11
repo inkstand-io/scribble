@@ -21,10 +21,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,6 +80,14 @@ public class InjectionTest {
     }
 
     @Test
+    public void testAsQualifyingInstace() throws Exception {
+
+        assertNotNull(subject.asQualifyingInstance());
+        //see CdiInjectionTest for more details
+
+    }
+
+    @Test
     public void testAsConfigProperty() throws Exception {
         final ConfigPropertyInjection cpi = subject.asConfigProperty("myProperty");
         assertNotNull(cpi);
@@ -99,7 +107,7 @@ public class InjectionTest {
     @Test
     public void testInto() throws Exception {
         // the test assumes the of the fields is always the same as defined in the class
-        Assume.assumeTrue("injectionTarget1".equals(SimpleInjectionTarget.class.getDeclaredFields()[0].getName()));
+        assumeTrue("injectionTarget1".equals(SimpleInjectionTarget.class.getDeclaredFields()[0].getName()));
         // only the first match should be injected
         // act
         subject.into(injectionTarget);
@@ -117,10 +125,81 @@ public class InjectionTest {
         subject.into(null);
     }
 
+    @Test
+    public void testInto_primitiveType_byte() throws Exception {
+
+        byte var = (byte) 123;
+        test_into_primitiveField("primitiveByte", var);
+    }
+
+    private void test_into_primitiveField(String fieldname, Object primitiveValue)
+            throws NoSuchFieldException, IllegalAccessException {
+
+        //prepare
+        final Injection subject = new Injection(primitiveValue);
+        final SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        //act
+        subject.into(target);
+
+        //assert
+        final Field field = SimpleInjectionTarget.class.getDeclaredField(fieldname);
+        assertEquals(primitiveValue, field.get(target));
+    }
+
+    @Test
+    public void testInto_primitiveType_short() throws Exception {
+
+        short var = (short) 123;
+        test_into_primitiveField("primitiveShort", var);
+    }
+
+    @Test
+    public void testInto_primitiveType_int() throws Exception {
+
+        int var = 123;
+        test_into_primitiveField("primitiveInt", var);
+    }
+
+    @Test
+    public void testInto_primitiveType_long() throws Exception {
+
+        long var = (long) 123;
+        test_into_primitiveField("primitiveLong", var);
+    }
+
+    @Test
+    public void testInto_primitiveType_float() throws Exception {
+
+        float var = (float) 123;
+        test_into_primitiveField("primitiveFloat", var);
+    }
+
+    @Test
+    public void testInto_primitiveType_double() throws Exception {
+
+        double var = (double) 123;
+        test_into_primitiveField("primitiveDouble", var);
+    }
+
+    @Test
+    public void testInto_primitiveType_char() throws Exception {
+
+        char var = (char) 123;
+        test_into_primitiveField("primitiveChar", var);
+    }
+
+    @Test
+    public void testInto_primitiveType_boolean() throws Exception {
+
+        boolean var = true;
+        test_into_primitiveField("primitiveBoolean", var);
+    }
+
     @Test(expected = AssertionError.class)
     public void testInto_noMatchingTarget_fail() throws Exception {
         //prepare
-        final Injection subject = new Injection(new Short((short) 123));
+        final Injection subject = new Injection(new NonMatchingType());
         final SimpleInjectionTarget target = new SimpleInjectionTarget();
 
         //act
@@ -150,10 +229,10 @@ public class InjectionTest {
     @Test
     public void testIsMatching_primitiveBooleanField_true() throws Exception {
 
-        test_primitiveField("primitiveBoolean", true);
+        test_isMatching_primitiveField("primitiveBoolean", true);
     }
 
-    private void test_primitiveField(String fieldname, Object primitiveValue) throws NoSuchFieldException {
+    private void test_isMatching_primitiveField(String fieldname, Object primitiveValue) throws NoSuchFieldException {
 
         final Field field = SimpleInjectionTarget.class.getDeclaredField(fieldname);
         assertTrue(new Injection(primitiveValue).isMatching(field));
@@ -162,43 +241,43 @@ public class InjectionTest {
     @Test
     public void testIsMatching_primitiveByteField_true() throws Exception {
 
-        test_primitiveField("primitiveByte", (byte) 79);
+        test_isMatching_primitiveField("primitiveByte", (byte) 79);
     }
 
     @Test
     public void testIsMatching_primitiveShortField_true() throws Exception {
 
-        test_primitiveField("primitiveShort", (short) 123);
+        test_isMatching_primitiveField("primitiveShort", (short) 123);
     }
 
     @Test
     public void testIsMatching_primitiveIntField_true() throws Exception {
 
-        test_primitiveField("primitiveInt", 123);
+        test_isMatching_primitiveField("primitiveInt", 123);
     }
 
     @Test
     public void testIsMatching_primitiveLongField_true() throws Exception {
 
-        test_primitiveField("primitiveLong", (long) 123);
+        test_isMatching_primitiveField("primitiveLong", (long) 123);
     }
 
     @Test
     public void testIsMatching_primitiveFloatField_true() throws Exception {
 
-        test_primitiveField("primitiveFloat", (float) 123);
+        test_isMatching_primitiveField("primitiveFloat", (float) 123);
     }
 
     @Test
     public void testIsMatching_primitiveDoubleField_true() throws Exception {
 
-        test_primitiveField("primitiveDouble", (double) 123);
+        test_isMatching_primitiveField("primitiveDouble", (double) 123);
     }
 
     @Test
     public void testIsMatching_primitiveCharField_true() throws Exception {
 
-        test_primitiveField("primitiveChar", (char) 123);
+        test_isMatching_primitiveField("primitiveChar", (char) 123);
     }
 
     @Test
@@ -207,11 +286,35 @@ public class InjectionTest {
         assertFalse(subject.isMatching(field));
     }
 
+    @Test
+    public void testInject() throws Exception {
+        //prepare
+        String value = "123";
+        SimpleInjectionTarget target = new SimpleInjectionTarget();
+        Field field = SimpleInjectionTarget.class.getDeclaredField("injectionTarget1");
+        field.setAccessible(true);
+
+        //act
+        subject.inject(target, field, value);
+
+        //assert
+        assertEquals(value, target.injectionTarget1);
+
+    }
+
+    static class NonMatchingType {
+
+    }
+
+    static class AnyType {
+
+    }
+
     static class SimpleInjectionTarget {
 
         String injectionTarget1;
         String injectionTarget2;
-        Integer injectionTarget3;
+        AnyType injectionTarget3;
 
         boolean primitiveBoolean;
         byte primitiveByte;
@@ -222,4 +325,5 @@ public class InjectionTest {
         double primitiveDouble;
         char primitiveChar;
     }
+
 }

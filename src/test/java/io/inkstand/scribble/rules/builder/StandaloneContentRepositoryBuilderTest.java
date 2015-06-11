@@ -57,16 +57,16 @@ public class StandaloneContentRepositoryBuilderTest {
     }
 
     @Test
-    public void testWithConfiguration_customConfig() throws Exception {
+    public void testWithConfiguration() throws Exception {
 
         //prepare
         URL configUrl = new URL("http://localhost");
 
         //act
-        subject.withConfiguration(configUrl);
+        StandaloneContentRepositoryBuilder builder = subject.withConfiguration(configUrl);
 
         //assert
-        assertEquals(configUrl, subject.getConfigUrl());
+        assertNotNull(builder);
     }
 
     @Test
@@ -83,7 +83,12 @@ public class StandaloneContentRepositoryBuilderTest {
 
             @Override
             public void evaluate() throws Throwable {
+
                 assertNotNull(result.getRepository());
+                //the default admin
+                Session session = result.getRepository().login();
+                assertNotNull(session);
+                assertEquals("anonymous", session.getUserID());
             }
         }, description).evaluate();
     }
@@ -93,10 +98,9 @@ public class StandaloneContentRepositoryBuilderTest {
 
         //prepare
         URL configUrl = getClass().getResource("StandaloneContentRepositoryBuilderTest_repository.xml");
-        subject.withConfiguration(configUrl);
 
         //act
-        final StandaloneContentRepository result = subject.build();
+        final StandaloneContentRepository result = subject.withConfiguration(configUrl).build();
 
         //assert
         assertNotNull(result);
@@ -104,7 +108,12 @@ public class StandaloneContentRepositoryBuilderTest {
 
             @Override
             public void evaluate() throws Throwable {
+
                 assertNotNull(result.getRepository());
+                Session session = result.getRepository().login();
+                assertNotNull(session);
+                assertEquals("anon", session.getUserID());
+
             }
         }, description).evaluate();
 
@@ -116,11 +125,9 @@ public class StandaloneContentRepositoryBuilderTest {
         //prepare
         final URL configUrl = getClass().getResource("StandaloneContentRepositoryBuilderTest_repository.xml");
         final URL cndUrl = getClass().getResource("StandaloneContentRepositoryBuilderTest_testModel.cnd");
-        subject.withConfiguration(configUrl);
-        subject.withNodeTypes(cndUrl);
 
         //act
-        final StandaloneContentRepository result = subject.build();
+        final StandaloneContentRepository result = subject.withConfiguration(configUrl).withNodeTypes(cndUrl).build();
 
         //assert
         assertNotNull(result);
@@ -130,7 +137,9 @@ public class StandaloneContentRepositoryBuilderTest {
             public void evaluate() throws Throwable {
 
                 assertNotNull(result.getRepository());
-                final Session session = result.login("admin","admin");
+                final Session session = result.getRepository().login();
+                assertNotNull(session);
+                assertEquals("anon", session.getUserID());
                 assertNodeTypeExists(session, "test:testType");
 
             }

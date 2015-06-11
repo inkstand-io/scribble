@@ -46,20 +46,17 @@ import io.inkstand.scribble.rules.BaseRuleHelper;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurableContentRepositoryTest {
 
-    @Mock
-    private Repository repository;
+    private final URL configUrl = getClass().getResource("ConfigurableContentRepositoryTest_repository.xml");
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-
+    @Mock
+    private Repository repository;
     private ConfigurableContentRepository subject;
-
-    private final URL configUrl = getClass().getResource("ConfigurableContentRepositoryTest_repository.xml");
 
     @Before
     public void setUp() throws Exception {
 
         subject = new ConfigurableContentRepository(folder) {
-
             @Override
             protected void destroyRepository() {
 
@@ -209,5 +206,7 @@ public class ConfigurableContentRepositoryTest {
         //invoke beforeClass which _should_ invoke initialize, we'll verify later
         subject.beforeClass();
     }
+
+
 
 }

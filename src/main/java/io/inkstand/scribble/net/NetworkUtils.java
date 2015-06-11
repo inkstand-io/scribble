@@ -16,7 +16,6 @@
 
 package io.inkstand.scribble.net;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import java.net.ServerSocket;
@@ -25,6 +24,10 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Utility class for helping with network related tasks. The {@link NetworkUtils} provides methods to find
+ * available TCP ports on the local machine and to check if a port is available. Both could help when writing
+ * tests that require a tcp port and at the time of writing the test, it is unknown whether the port is available
+ * on the build system, i.e. a CI server.
  * Created by Gerald M&uuml;cke on 11.03.2015.
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
@@ -47,7 +50,7 @@ public final class NetworkUtils {
      * system property {@code scribble.net.maxRetries}. The default value is 3. It may be modified at runtime by
      * accessing the AtomicInteger directly.
      */
-    public static final AtomicInteger DEFAULT_RETRY_COUNT = new AtomicInteger(Integer.parseInt(System.getProperty(
+    public static final AtomicInteger RETRY_COUNT = new AtomicInteger(Integer.parseInt(System.getProperty(
             "scribble.net.maxRetries",
             "3")));
     //SCRIB-25 although it has no relevance regarding security using the secure random number generator will less
@@ -66,7 +69,7 @@ public final class NetworkUtils {
      */
     public static int findAvailablePort() {
 
-        return findAvailablePort(DEFAULT_RETRY_COUNT.get());
+        return findAvailablePort(RETRY_COUNT.get());
     }
 
     /**
@@ -87,16 +90,14 @@ public final class NetworkUtils {
             randomPort = randomPort();
             portAvailable = isPortAvailable(randomPort);
         } while (retries++ < maxRetries && !portAvailable);
-        if (retries > maxRetries) {
-            assumeTrue("no open port found", portAvailable);
-        }
+        assumeTrue("no open port found", portAvailable);
         return randomPort;
     }
 
     /**
-     * Creates a random port number above 1024
+     * Creates a random port number above 1024.
      *
-     * @return
+     * @return a tcp port number.
      */
     public static int randomPort() {
 
@@ -105,7 +106,7 @@ public final class NetworkUtils {
     }
 
     /**
-     * Checks if the specified is available as listen port
+     * Checks if the specified is available as listen port.
      *
      * @param port
      *         the port to check
@@ -115,9 +116,7 @@ public final class NetworkUtils {
     public static boolean isPortAvailable(final int port) {
 
         try (ServerSocket socket = new ServerSocket(port)) {
-
-            assertTrue(socket.isBound());
-            return true;
+            return socket.isBound();
         } catch (Exception e) { //NOSONAR
             return false;
         }

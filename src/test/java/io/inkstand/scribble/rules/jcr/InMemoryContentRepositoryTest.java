@@ -20,8 +20,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import javax.jcr.Repository;
+import javax.jcr.Session;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.Privilege;
 import java.net.URL;
+
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.VersioningConfig;
 import org.apache.jackrabbit.core.config.WorkspaceConfig;
@@ -34,9 +39,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import io.inkstand.scribble.rules.BaseRule;
-import io.inkstand.scribble.rules.BaseRuleHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InMemoryContentRepositoryTest {
@@ -54,18 +56,6 @@ public class InMemoryContentRepositoryTest {
     public void tearDown() throws Exception {
     }
 
-    @Test
-    public void testDestroyRepository() throws Throwable {
-        // prepare
-        subject.before();
-        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
-
-        // act
-        subject.destroyRepository();
-
-        // assert
-        // there is no assertion to be made, just ensure, no exception occurs on destroy
-    }
 
     @Test
     public void testGetConfigUrl() throws Exception {
@@ -100,19 +90,6 @@ public class InMemoryContentRepositoryTest {
 
     }
 
-    @Test
-    public void testCreateRepository() throws Throwable {
-
-        // prepare
-        BaseRuleHelper.setState(subject, BaseRule.State.INITIALIZED);
-        // act
-        final Repository repository = subject.createRepository();
-
-        // assert
-        assertNotNull(repository);
-
-    }
-
 
     @Test
     public void testSetGetNodeTypeDefinitions() throws Exception {
@@ -125,6 +102,22 @@ public class InMemoryContentRepositoryTest {
 
         //assert
         assertEquals(someUrl, actualUrl);
+
+    }
+
+    @Test
+    public void testGetAdminSession() throws Throwable {
+        //prepare
+        subject.before();
+
+        //act
+        Session session = subject.getAdminSession();
+
+        //assert
+        assertNotNull(session);
+        assertEquals("admin", session.getUserID());
+        AccessControlManager acm = session.getAccessControlManager();
+        assertTrue(acm.hasPrivileges("/", new Privilege[] { acm.privilegeFromName(Privilege.JCR_ALL) }));
 
     }
 }

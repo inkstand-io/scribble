@@ -17,27 +17,64 @@
 package io.inkstand.scribble.inject;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 /**
  * Injection support for injecting DeltaSpike {@link ConfigProperty} annotated properties. The property can be of any
  * type and has a name. If the property annotation defines a default value, it is injected if the inject value is
- * <code>null</code>.
+ * <code>null</code>. Note, that this implementation is not thread-safe. As the defaultValue is updated on the last
+ * match processing of injections should be done in a sequential way.
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald Muecke</a>
  */
 public class ConfigPropertyInjection extends CdiInjection {
 
     /**
-     * The name of the {@link ConfigProperty} into which the value should be injected
+     * Set containing types that are provide from string conversion.
      */
-    private final String configPropertyName;
+    private static final Set<Class> AUTO_CONVERTIBLE_TYPES;
+
+    static {
+        Set<Class> types = new HashSet<>();
+        types.add(Boolean.class);
+        types.add(Character.class);
+        types.add(Byte.class);
+        types.add(Short.class);
+        types.add(Integer.class);
+        types.add(Long.class);
+        types.add(Float.class);
+        types.add(Double.class);
+        types.add(boolean.class);
+        types.add(char.class);
+        types.add(byte.class);
+        types.add(short.class); //NOSONAR
+        types.add(int.class);
+        types.add(long.class);
+        types.add(float.class);
+        types.add(double.class);
+        AUTO_CONVERTIBLE_TYPES = Collections.unmodifiableSet(types);
+    }
 
     /**
-     * The default value if it is set on the matching annotation
+     * The name of the {@link ConfigProperty} into which the value should be injected.
      */
-    private Object defaultValue;
+    private final transient String configPropertyName;
+    /**
+     * The default value if it is set on the matching annotation.
+     */
+    private transient Object defaultValue;
 
+    /**
+     * Constructor for a config property injection, accepting the property name and the value.
+     *
+     * @param configPropertyName
+     *         the name of the {@link ConfigProperty}
+     * @param injectedValue
+     *         the value to be injected. May be null.
+     */
     public ConfigPropertyInjection(final String configPropertyName, final Object injectedValue) {
 
         super(injectedValue);
@@ -49,9 +86,22 @@ public class ConfigPropertyInjection extends CdiInjection {
 
         Object value = super.getValue();
         if (value == null) {
-            value = defaultValue;
+            value = this.defaultValue;
         }
         return value;
+    }
+
+    @Override
+    protected void inject(final Object target, final Field field, final Object value) throws IllegalAccessException {
+
+        final Object injectedValue;
+        if (this.isAutoConvertible(field, value)) {
+            injectedValue = TypeUtil.convert((String) value, field.getType());
+        } else {
+            injectedValue = value;
+        }
+
+        super.inject(target, field, injectedValue);
     }
 
     @Override
@@ -60,8 +110,37 @@ public class ConfigPropertyInjection extends CdiInjection {
         //@formatter:off
         return field.getAnnotation(ConfigProperty.class) != null
                 && (injectedValue == null
-                || field.getType().isAssignableFrom(injectedValue.getClass()));
+                || super.isFieldCandidate(field, injectedValue)
+                || this.isAutoConvertible(field, injectedValue));
         //@formatter:on
+    }
+
+    /**
+     * Verifies if the injected value can be automatically converted into the field's type.
+     *
+     * @param field
+     *         the target field into which the value should be injected
+     * @param injectedValue
+     *         the value to be injected
+     *
+     * @return <code>true</code> if the value can be converted into the field's type
+     */
+    private boolean isAutoConvertible(final Field field, final Object injectedValue) {
+
+        return injectedValue instanceof String && this.isAutoConvertibleType(field);
+    }
+
+    /**
+     * Verifies if the field is of a type that provides conversion a method.
+     *
+     * @param field
+     *         the field to check
+     *
+     * @return <code>true</code> if the field can be automatically converted
+     */
+    private boolean isAutoConvertibleType(final Field field) {
+
+        return AUTO_CONVERTIBLE_TYPES.contains(field.getType());
     }
 
     /**
@@ -72,12 +151,12 @@ public class ConfigPropertyInjection extends CdiInjection {
     @Override
     protected boolean isMatching(final Field field) {
 
-        if (!super.isMatching(field)) {
+        if (!this.isAutoConvertible(field, super.getValue()) && !super.isMatching(field)) {
             return false;
         }
         final ConfigProperty configProperty = field.getAnnotation(ConfigProperty.class);
-        if (configProperty != null && configPropertyName.equals(configProperty.name())) {
-            defaultValue = configProperty.defaultValue();
+        if (configProperty != null && this.configPropertyName.equals(configProperty.name())) {
+            this.defaultValue = configProperty.defaultValue();
             return true;
         }
         return false;

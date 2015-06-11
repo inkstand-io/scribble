@@ -47,17 +47,17 @@ public class MockContentRepository extends ContentRepository {
         super(null);
     }
 
-    /**
-     * Creates a repository mock.
-     */
-    @Override
-    protected Repository createRepository() throws IOException {
-        return mock(Repository.class, RETURNS_DEEP_STUBS);
-    }
-
     @Override
     protected void destroyRepository() { // NOSONAR
 
     }
 
+    /**
+     * Creates a repository mock.
+     */
+    @Override
+    protected Repository createRepository() throws IOException {
+
+        return mock(Repository.class, RETURNS_DEEP_STUBS);
+    }
 }

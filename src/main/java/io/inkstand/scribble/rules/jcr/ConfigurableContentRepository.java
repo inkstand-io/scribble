@@ -39,9 +39,14 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 
+import io.inkstand.scribble.rules.RuleSetup;
+
 /**
  * Abstract {@link TestRule} for providing a JCR {@link Repository} that requires a configuration an a working
- * directory.
+ * directory. On top of the basic {@link ContentRepository} this configurable version allows to define a resource
+ * that contains a configuration file for the repository. The configuration may define security, persistence or
+ * cluster settings. Beyond that, the class allows to specify a resource containing node type definitions in the
+ * compact node type definition (CND) format that are loaded into the repository on startup.
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
@@ -70,30 +75,9 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
     }
 
     /**
-     * The URL referring to the resource containing the configuration for the repository.
-     *
-     * @return the URL pointing to the configuration of the repository.
-     */
-    protected URL getConfigUrl() {
-        return this.configUrl;
-    }
-
-    /**
-     * Sets the URL that refers to the resource containing the configuration for the repository. An implementation of
-     * the class should provide a default configuration for convenience therefore the method is marked as optional.
-     *
-     * @param configUrl
-     *            the configuration to use for the repository
-     */
-    protected void setConfigUrl(final URL configUrl) {
-        assertStateBefore(State.INITIALIZED);
-        this.configUrl = configUrl;
-    }
-
-    /**
      * The node type definitions that are loaded on content repository initialization.
-     * @return
-     *  the URL pointing to the CND resource
+     *
+     * @return the URL pointing to the CND resource
      */
     protected URL getCndUrl() {
 
@@ -105,7 +89,9 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      * @param cndUrl
      *  resource locator for the CND note type definitions, {@see http://jackrabbit.apache.org/jcr/node-type-notation.html}
      */
+    @RuleSetup
     protected void setCndUrl(final URL cndUrl) {
+
         assertStateBefore(State.INITIALIZED);
         this.cndUrl = cndUrl;
     }
@@ -120,22 +106,45 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
      *             if the configuration can not be read
      */
     protected RepositoryConfig createRepositoryConfiguration() throws ConfigurationException, IOException {
-        final File jcrHome = getOuterRule().getRoot();
-        final URL configUrl = this.getConfigUrl();
-        assertNotNull("No Repository Configuration found", configUrl);
 
-        return RepositoryConfig.create(configUrl.openStream(), jcrHome.getAbsolutePath());
+        final File jcrHome = getOuterRule().getRoot();
+        final URL cfgUrl = this.getConfigUrl();
+        assertNotNull("No Repository Configuration found", cfgUrl);
+
+        return RepositoryConfig.create(cfgUrl.openStream(), jcrHome.getAbsolutePath());
+    }
+
+    /**
+     * The URL referring to the resource containing the configuration for the repository.
+     *
+     * @return the URL pointing to the configuration of the repository.
+     */
+    protected URL getConfigUrl() {
+
+        return this.configUrl;
+    }
+
+    /**
+     * Sets the URL that refers to the resource containing the configuration for the repository. An implementation of
+     * the class should provide a default configuration for convenience therefore the method is marked as optional.
+     *
+     * @param configUrl
+     *            the configuration to use for the repository
+     */
+    @RuleSetup
+    protected void setConfigUrl(final URL configUrl) {
+
+        assertStateBefore(State.INITIALIZED);
+        this.configUrl = configUrl;
     }
 
     @Override
     protected void initialize() {
 
         if(this.cndUrl != null) {
-            Session session = null;
             try(InputStream cndStream = this.cndUrl.openStream();
-                InputStreamReader cndReader = new InputStreamReader(cndStream, Charset.forName("UTF-8"))) {
-                //TODO SCRIB-14 replace with admin login method
-                session = login("admin", "admin");
+                final InputStreamReader cndReader = new InputStreamReader(cndStream, Charset.forName("UTF-8"))) {
+                final Session session = getAdminSession();
                 this.logNodeTypes(CndImporter.registerNodeTypes(cndReader, session));
             } catch (IOException e) {
                 throw new AssertionError("Could not load CND resource", e);
@@ -143,16 +152,15 @@ public abstract class ConfigurableContentRepository extends ContentRepository {
                 throw new AssertionError("Could not perform repository operation", e);
             } catch (ParseException e) {
                 throw new AssertionError("Could not parse CND resource", e);
-            } finally {
-                if(session != null) {
-                    session.logout();
-                }
             }
-
         }
-
     }
 
+    /**
+     * Helper method to logs a list of node types and their properties in a human readable way.
+     * @param nodeTypes
+     *  the node types to be logged.
+     */
     private void logNodeTypes(final NodeType... nodeTypes) {
 
         if(LOG.isDebugEnabled()){

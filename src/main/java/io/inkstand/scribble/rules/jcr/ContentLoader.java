@@ -16,18 +16,17 @@
 
 package io.inkstand.scribble.rules.jcr;
 
-import javax.jcr.Repository;
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 import java.net.URL;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.ExternalResource;
 import io.inkstand.scribble.rules.RuleSetup;
 import io.inkstand.scribble.rules.RuleSetup.RequirementLevel;
+import io.inkstand.scribble.rules.jcr.util.XMLContentLoader;
 
 /**
  * The ContentLoader is a testRule to prefill a {@link ContentRepository} with a node structure before the test.
@@ -35,9 +34,7 @@ import io.inkstand.scribble.rules.RuleSetup.RequirementLevel;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class ContentLoader extends BaseRule<ContentRepository> {
-
-    // TODO add proper content loading and refactor class
+public class ContentLoader extends ExternalResource<ContentRepository> {
 
     /**
      * SLF4J Logger for this class
@@ -45,49 +42,64 @@ public class ContentLoader extends BaseRule<ContentRepository> {
     private static final Logger LOG = LoggerFactory.getLogger(ContentLoader.class);
 
     private final ContentRepository repository;
-    private URL contentDescriptorUrl;
+    private URL contentDef;
+    private Node rootNode;
 
     public ContentLoader(final ContentRepository repository) {
+
         super(repository);
         this.repository = repository;
     }
 
     /**
-     * Sets the resource containing the description of the content ro
+     * Sets the locator pointing to the content definition.
      *
-     * @param contentDescriptorUrl
+     * @param contentDef
+     *         the url of the content definition.
      */
-    @RuleSetup(RequirementLevel.REQUIRED)
-    public void setContentDescriptorUrl(final URL contentDescriptorUrl) {
+    @RuleSetup(RequirementLevel.OPTIONAL)
+    public void setContentDefinition(final URL contentDef) {
+
         assertStateBefore(State.INITIALIZED);
-        this.contentDescriptorUrl = contentDescriptorUrl;
+        this.contentDef = contentDef;
     }
 
     @Override
-    public Statement apply(final Statement base, final Description description) {
+    protected void before() throws Throwable {
 
-        return new Statement() {
-
-            @Override
-            public void evaluate() throws Throwable {
-                try {
-                    LOG.info("Loading Content");
-                    final Repository repo = repository.getRepository();
-                    final Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
-                    // TODO replace with content provider
-                    // JCRUtil.loadContent(session, contentDescriptorUrl);
-                    System.out.println(contentDescriptorUrl);
-                    session.logout();
-                    base.evaluate();
-
-                } catch (final Exception e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-
-        };
-
+        if (this.contentDef != null) {
+            this.rootNode = loadContent(this.contentDef);
+        }
     }
 
+    @Override
+    protected void after() {
+
+        if (this.rootNode != null) {
+            try {
+                this.rootNode.refresh(false);
+                this.rootNode.remove();
+            } catch (RepositoryException e) {
+                LOG.warn("Could not remove root node", e);
+            }
+        }
+    }
+
+    /**
+     * Loads content from an external content definition into the underlying repository.
+     *
+     * @param contentDefinition
+     *         URL pointing to the resource that defines the content to be loaded.
+     *
+     * @return The root node, defined by the content's document element, is returned.
+     *
+     * @throws RepositoryException
+     */
+    public Node loadContent(URL contentDefinition) throws RepositoryException {
+
+        LOG.info("Loading Content");
+        final Session session = repository.getAdminSession();
+        final XMLContentLoader loader = new XMLContentLoader();
+        return loader.loadContent(session, contentDefinition);
+    }
 }

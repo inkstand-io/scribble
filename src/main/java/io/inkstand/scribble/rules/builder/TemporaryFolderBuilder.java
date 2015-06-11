@@ -16,10 +16,11 @@
 
 package io.inkstand.scribble.rules.builder;
 
+import org.junit.rules.TemporaryFolder;
+
 import io.inkstand.scribble.rules.TemporaryFile;
 import io.inkstand.scribble.rules.jcr.InMemoryContentRepository;
 import io.inkstand.scribble.rules.jcr.StandaloneContentRepository;
-import org.junit.rules.TemporaryFolder;
 
 /**
  * Builder for the Temporary Folder.
@@ -43,6 +44,12 @@ public class TemporaryFolderBuilder extends Builder<TemporaryFolder> {
         return new StandaloneContentRepositoryBuilder(build());
     }
 
+    @Override
+    public TemporaryFolder build() {
+
+        return temporaryFolder;
+    }
+
     /**
      * Creates a builder for an {@link InMemoryContentRepository} that is chained inside the {@link TemporaryFolder}
      *
@@ -50,6 +57,11 @@ public class TemporaryFolderBuilder extends Builder<TemporaryFolder> {
      */
     public InMemoryContentRepositoryBuilder aroundInMemoryContentRepository() {
         return new InMemoryContentRepositoryBuilder(build());
+    }
+
+    public DirectoryBuilder aroundDirectory() {
+
+        return new DirectoryBuilder(temporaryFolder);
     }
 
     /**
@@ -61,10 +73,5 @@ public class TemporaryFolderBuilder extends Builder<TemporaryFolder> {
      */
     public TemporaryFileBuilder aroundTempFile(final String filename) {
         return new TemporaryFileBuilder(build(), filename);
-    }
-
-    @Override
-    public TemporaryFolder build() {
-        return temporaryFolder;
     }
 }

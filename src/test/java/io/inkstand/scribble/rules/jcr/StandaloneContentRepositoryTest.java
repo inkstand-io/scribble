@@ -18,12 +18,17 @@ package io.inkstand.scribble.rules.jcr;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import javax.jcr.Repository;
+import javax.jcr.Session;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.Privilege;
 import java.net.URL;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,10 +39,9 @@ import io.inkstand.scribble.rules.BaseRuleHelper;
 
 public class StandaloneContentRepositoryTest {
 
+    private final URL configUrl = getClass().getResource("StandaloneContentRepositoryTest_repository.xml");
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-
-    private final URL configUrl = getClass().getResource("StandaloneContentRepositoryTest_repository.xml");
     private StandaloneContentRepository subject;
 
     private RepositoryImpl repositorySpy;
@@ -51,6 +55,12 @@ public class StandaloneContentRepositoryTest {
                 return repositorySpy;
             }
         };
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+        subject.after();
     }
 
     @Test
@@ -116,5 +126,20 @@ public class StandaloneContentRepositoryTest {
 
     }
 
+    @Test
+    public void testGetAdminSession() throws Throwable {
+        //prepare
+        subject.before();
+
+        //act
+        Session session = subject.getAdminSession();
+
+        //assert
+        assertNotNull(session);
+        assertEquals("admin", session.getUserID());
+        AccessControlManager acm = session.getAccessControlManager();
+        assertTrue(acm.hasPrivileges("/", new Privilege[] { acm.privilegeFromName(Privilege.JCR_ALL) }));
+
+    }
 
 }

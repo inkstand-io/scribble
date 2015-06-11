@@ -16,8 +16,18 @@
 
 package io.inkstand.scribble.rules.ldap;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.io.File;
+import java.net.URL;
+import java.util.Set;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -37,31 +47,17 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import java.io.File;
-import java.net.URL;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.slf4j.LoggerFactory.getLogger;
-
 @RunWith(MockitoJUnitRunner.class)
 public class DirectoryTest {
 
     private static final Logger LOG = getLogger(DirectoryTest.class);
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
     /**
      * The class under test
      */
     private Directory subject;
-
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Mock
     private Description description;
 
@@ -102,7 +98,6 @@ public class DirectoryTest {
         verify(base).evaluate();
         //verify, the service is stopped after evaluate
         assertFalse(subject.getDirectoryService().isStarted());
-
     }
 
     @Test
@@ -111,8 +106,8 @@ public class DirectoryTest {
         LOG.info("ENTER testSetupService_withAccessControl ()");
 
         //prepare
-        this.subject.setAccessControlEnabled(true);
-        this.subject.setAnonymousAccessEnabled(false);
+        this.subject.setAcEnabled(true);
+        this.subject.setAnonymousAccess(false);
         //act
         subject.setupService();
 
@@ -130,8 +125,8 @@ public class DirectoryTest {
 
         LOG.info("ENTER testSetupService_withAnonymousAccesss ()");
         //prepare
-        this.subject.setAccessControlEnabled(false);
-        this.subject.setAnonymousAccessEnabled(true);
+        this.subject.setAcEnabled(false);
+        this.subject.setAnonymousAccess(true);
         //act
         subject.setupService();
 
@@ -166,12 +161,27 @@ public class DirectoryTest {
         partition.initialize();
 
         //act
-        subject.addPartition(partition);
+        subject.addPartitionInternal(partition);
         subject.setupService();
 
         //assert
         Set<? extends Partition> partitions = subject.getDirectoryService().getPartitions();
         assertContainsPartition(partitions, partitionId, partitionSuffix);
+    }
+
+    private void assertContainsPartition(final Set<? extends Partition> partitions,
+                                         final String partitionId,
+                                         final String partitionSuffix) {
+
+        Partition actual = null;
+        for (Partition p : partitions) {
+            if (partitionId.equals(p.getId())) {
+                actual = p;
+                break;
+            }
+        }
+        assertNotNull(partitionId + " not found", actual);
+        assertEquals(partitionSuffix, actual.getSuffixDn().toString());
     }
 
     @Test
@@ -188,22 +198,20 @@ public class DirectoryTest {
         assertContainsPartition(partitions, "testPartition", "dc=test");
     }
 
-
     @Test
     public void testImportLdif() throws Exception {
         //prepare
         URL ldifResource = getClass().getResource("DirectoryTest_testUsers.ldif");
         subject.setupService();
         subject.startService();
-        subject.addPartition("scribble", "dc=scribble");
+        subject.addPartitionInternal("scribble", "dc=scribble");
 
         //act
         subject.importLdif(ldifResource.openStream());
 
         //assert
-        assertTrue(subject.getDirectoryService().getAdminSession().exists(new Dn("ou=users,dc=scribble")));
+        assertTrue(subject.getDirectoryService().getSession().exists("uid=testuser,ou=users,dc=scribble"));
     }
-
 
     @Test
     public void testTearDownService() throws Exception {
@@ -215,19 +223,5 @@ public class DirectoryTest {
 
         //assert
         assertFalse(subject.getDirectoryService().isStarted());
-    }
-
-    private void assertContainsPartition(final Set<? extends Partition> partitions,
-                                         final String partitionId,
-                                         final String partitionSuffix) {
-        Partition actual = null;
-        for(Partition p : partitions) {
-            if(partitionId.equals(p.getId())) {
-                actual = p;
-                break;
-            }
-        }
-        assertNotNull(partitionId + " not found", actual);
-        assertEquals(partitionSuffix, actual.getSuffixDn().toString());
     }
 }

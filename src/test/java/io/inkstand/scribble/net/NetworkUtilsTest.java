@@ -16,18 +16,21 @@
 
 package io.inkstand.scribble.net;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.internal.AssumptionViolatedException;
+import static io.inkstand.scribble.net.NetworkUtils.findAvailablePort;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Random;
-
-import static io.inkstand.scribble.net.NetworkUtils.findAvailablePort;
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.internal.AssumptionViolatedException;
 
 public class NetworkUtilsTest {
 
@@ -44,7 +47,7 @@ public class NetworkUtilsTest {
     }
 
     @Test
-    public void testFindAvailablePort_defaultRetries() throws Exception {
+    public void testFindAvailablePort_defaultRetries_portAvailable_ok() throws Exception {
 
         //prepare
 
@@ -52,11 +55,60 @@ public class NetworkUtilsTest {
         int port = findAvailablePort();
 
         //assert
-        assertTrue("Port " + port + " is not available",  portAvailable(port));
+        assertTrue("Port " + port + " is not available", portAvailable(port));
+    }
+
+    private boolean portAvailable(final int port) throws IOException {
+
+        try (ServerSocket socket = new ServerSocket(port)) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     @Test
-    public void testFindAvailablePort_maxRetries() throws Exception {
+    public void testFindAvailablePort_defaultRetries_noPortAvailable_ignore() throws Exception {
+        //prepare
+        NetworkUtils.PORT_OFFSET.set(65536 - 1024 - 1);
+        try (ServerSocket socket = new ServerSocket(65535)) {
+            //act
+            int port = NetworkUtils.findAvailablePort();
+            fail("AssumptionViolatedException expected");
+        } catch (AssumptionViolatedException e) {
+            //have to catch the exception to prove its working, otherwise the test will be ignored
+        }
+
+    }
+
+    @Test
+    public void testFindAvailablePort_oneTry_portAvailable_ok() throws Exception {
+
+        //prepare
+
+        //act
+        int port = findAvailablePort(1);
+
+        //assert
+        assertTrue("Port " + port + " is not available", portAvailable(port));
+    }
+
+    @Test
+    public void testFindAvailablePort_oneTry_noPortAvailable_ignore() throws Exception {
+
+        NetworkUtils.PORT_OFFSET.set(65536 - 1024 - 1);
+        try (ServerSocket socket = new ServerSocket(65535)) {
+            //act
+            //specifying 1 is semantically equal to 0. There is at minimum one try to get an available port.
+            int port = NetworkUtils.findAvailablePort(1);
+            fail("AssumptionViolatedException expected");
+        } catch (AssumptionViolatedException e) {
+            //have to catch the exception to prove its working, otherwise the test will be ignored
+        }
+    }
+
+    @Test
+    public void testFindAvailablePort_maxRetries_portAvailable_ok() throws Exception {
 
         //prepare
 
@@ -64,11 +116,11 @@ public class NetworkUtilsTest {
         int port = findAvailablePort(10);
 
         //assert
-        assertTrue("Port " + port + " is not available",  portAvailable(port));
+        assertTrue("Port " + port + " is not available", portAvailable(port));
     }
 
     @Test
-    public void testFindAvailablePort_maxRetries_retryLimitReached() throws Exception {
+    public void testFindAvailablePort_maxRetries_retryLimitReached_portAvailable() throws Exception {
 
         //prepare
 
@@ -77,21 +129,21 @@ public class NetworkUtilsTest {
         int port = findAvailablePort(0);
 
         //assert
-        assertTrue("Port " + port + " is not available",  portAvailable(port));
+        assertTrue("Port " + port + " is not available", portAvailable(port));
     }
 
     @Test
-    public void testFindAvailablePort_noPortAvailable() throws Exception {
+    public void testFindAvailablePort_maxRetries_retryLimitReached_noPortAvailable_ignore() throws Exception {
+
         //prepare
-        NetworkUtils.PORT_OFFSET.set(65536-1024-1);
+        NetworkUtils.PORT_OFFSET.set(65536 - 1024 - 1);
         try(ServerSocket socket = new ServerSocket(65535)){
             //act
-            int port = NetworkUtils.findAvailablePort();
+            int port = NetworkUtils.findAvailablePort(0);
             fail("AssumptionViolatedException expected");
-        } catch ( AssumptionViolatedException e){
-            //Saul Goodman
+        } catch (AssumptionViolatedException e) {
+            //have to catch the exception to prove its working, otherwise the test will be ignored
         }
-
 
     }
 
@@ -177,14 +229,5 @@ public class NetworkUtilsTest {
         //assert
         assertEquals(11024, offset);
 
-    }
-
-    private boolean portAvailable(final int port) throws IOException {
-
-        try (ServerSocket socket = new ServerSocket(port)) {
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
     }
 }
