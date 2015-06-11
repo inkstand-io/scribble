@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import io.inkstand.schemas.jcr_import.ObjectFactory;
@@ -52,12 +53,11 @@ public class XMLContentHandler extends DefaultHandler {
     /**
      * Namespace the content handler uses to identify the correct elements.
      */
-    public static final String INKSTAND_IMPORT_NAMESPACE = "http://inkstand.io/schemas/jcr-import";
+    public static final String NS_INK_IMPORT = "http://inkstand.io/schemas/jcr-import";
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentHandler.class);
     /**
      * Object Factory for creating temporary model object.
      */
-
     private static final ObjectFactory FACTORY = new ObjectFactory();
 
     /**
@@ -66,7 +66,7 @@ public class XMLContentHandler extends DefaultHandler {
     private static final Map<PropertyValueType, Integer> JCR_PROPERTIES;
 
     static {
-        final Map<PropertyValueType, Integer> properties = new HashMap<>();
+        final Map<PropertyValueType, Integer> properties = new HashMap<>(); //NOSONAR
         //@formatter:off
         properties.put(PropertyValueType.BINARY,        PropertyType.BINARY);
         properties.put(PropertyValueType.DATE,          PropertyType.DATE);
@@ -143,12 +143,12 @@ public class XMLContentHandler extends DefaultHandler {
         try {
             this.session.save();
         } catch (final RepositoryException e) {
-            throw new SAXException("Saving failed", e);
+            throw new AssertionError("Saving failed", e);
         }
-        final long endTime = System.nanoTime();
-        final long processingTime = endTime - this.startTime;
-        LOG.info("Content imported in {} ms", processingTime / 1_000_000);
-        LOG.info("END ContentImport");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Content imported in {} ms", (System.nanoTime() - this.startTime) / 1_000_000);
+            LOG.info("END ContentImport");
+        }
     }
 
     /**
@@ -213,15 +213,15 @@ public class XMLContentHandler extends DefaultHandler {
         }
     }
 
-    private void endElementProperty() throws SAXException {
+    private void endElementProperty() {
 
         LOG.debug("Closing property");
-        final PropertyDescriptor pd = this.propertyStack.pop();
+        final PropertyDescriptor propDesc = this.propertyStack.pop();
         try {
-            pd.setValue(this.parseValue(pd.getJcrType(), this.textStack.pop()));
-            this.addProperty(this.nodeStack.peek(), pd);
+            propDesc.setValue(this.parseValue(propDesc.getJcrType(), this.textStack.pop()));
+            this.addProperty(this.nodeStack.peek(), propDesc);
         } catch (final RepositoryException e) {
-            throw new SAXException("Could set property value", e);
+            throw new AssertionError("Could set property value", e);
         }
     }
 
@@ -244,7 +244,7 @@ public class XMLContentHandler extends DefaultHandler {
                 value = null;
                 break;
             default:
-                value = valFactory.createValue(valueAsText, getPropertyType(valueType));
+                value = valFactory.createValue(valueAsText, this.getPropertyType(valueType));
         }
 
         return value;
@@ -259,7 +259,7 @@ public class XMLContentHandler extends DefaultHandler {
      *         the {@link PropertyDescriptor} containing the details of the property
      *
      * @throws RepositoryException
-     *  if the path of the node can not be determined or the property value can not be set
+     *         if the path of the node can not be determined or the property value can not be set
      */
     private void addProperty(final Node node, final PropertyDescriptor propDesc) throws RepositoryException {
 
@@ -289,10 +289,21 @@ public class XMLContentHandler extends DefaultHandler {
         final String text = new String(chr).substring(start, start + length);
         LOG.trace("characters; '{}'", text);
         final String trimmedText = text.trim();
-        if (!trimmedText.isEmpty()) {
-            LOG.info("text: '{}'", trimmedText);
-            this.textStack.push(trimmedText);
-        }
+        LOG.info("text: '{}'", trimmedText);
+        this.textStack.push(trimmedText);
+    }
+
+    /**
+     * Converts the {@link SAXParseException} into an {@link AssertionError} to force the test to fail.
+     * @param e
+     *  the exception that occured during parsing
+     * @throws SAXException
+     *  is not thrown.
+     */
+    @Override
+    public void error(final SAXParseException e) throws SAXException {
+
+        throw new AssertionError("parse error",e);
     }
 
     /**
@@ -305,7 +316,7 @@ public class XMLContentHandler extends DefaultHandler {
      */
     private boolean isNotInkstandNamespace(final String uri) {
 
-        return !INKSTAND_IMPORT_NAMESPACE.equals(uri);
+        return !NS_INK_IMPORT.equals(uri);
     }
 
     /**
@@ -314,16 +325,14 @@ public class XMLContentHandler extends DefaultHandler {
      * @param attributes
      *         the DOM attributes of the root node element
      *
-     * @throws SAXException
-     *  if the node for the new element can not be added
      */
-    private void startElementRootNode(final Attributes attributes) throws SAXException {
+    private void startElementRootNode(final Attributes attributes) {
 
         LOG.debug("Found rootNode");
         try {
             this.nodeStack.push(this.newNode(null, attributes));
         } catch (final RepositoryException e) {
-            throw new SAXException("Could not create node", e);
+            throw new AssertionError("Could not create node", e);
         }
     }
 
@@ -336,13 +345,13 @@ public class XMLContentHandler extends DefaultHandler {
      * @throws SAXException
      *  if the node for the new element can not be added
      */
-    private void startElementNode(final Attributes attributes) throws SAXException {
+    private void startElementNode(final Attributes attributes)  {
 
         LOG.debug("Found node");
         try {
-            this.nodeStack.push(this.newNode(nodeStack.peek(), attributes));
+            this.nodeStack.push(this.newNode(this.nodeStack.peek(), attributes));
         } catch (final RepositoryException e) {
-            throw new SAXException("Could not create node", e);
+            throw new AssertionError("Could not create node", e);
         }
     }
 
@@ -355,13 +364,13 @@ public class XMLContentHandler extends DefaultHandler {
      * @throws SAXException
      *  if the mixin type can not be added
      */
-    private void startElementMixin(final Attributes attributes) throws SAXException {
+    private void startElementMixin(final Attributes attributes) {
 
         LOG.debug("Found mixin declaration");
         try {
             this.addMixin(this.nodeStack.peek(), attributes);
         } catch (final RepositoryException e) {
-            throw new SAXException("Could not add mixin type", e);
+            throw new AssertionError("Could not add mixin type", e);
         }
     }
 

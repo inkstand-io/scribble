@@ -36,7 +36,6 @@ import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -63,10 +62,27 @@ public class XMLContentLoaderTest {
     }
 
     @Test
-    public void testLoadContent_validResource() throws Exception {
+    public void testLoadContent_notValidating_validResource() throws Exception {
         // prepare
         final URL resource = getClass().getResource("XMLContentLoaderTest_inkstandJcrImport_v1-0.xml");
-        final Session actSession = repository.login("admin", "admin");
+        final Session actSession = repository.getAdminSession();
+        // act
+        subject.loadContent(actSession, resource);
+        // assert
+        final Session verifySession = repository.getRepository().login();
+        verifySession.refresh(true);
+        assertNodeExistByPath(verifySession, "/root");
+        final Node root = verifySession.getNode("/root");
+        assertPrimaryNodeType(root, "nt:unstructured");
+        assertMixinNodeType(root, "mix:title");
+        assertStringPropertyEquals(root, "jcr:title", "TestTitle");
+    }
+
+    @Test
+    public void testLoadContent_notValidating_invalidResource() throws Exception {
+        // prepare
+        final URL resource = getClass().getResource("XMLContentLoaderTest_inkstandJcrImport_v1-0_invalid.xml");
+        final Session actSession = repository.getAdminSession();
         // act
         subject.loadContent(actSession, resource);
         // assert
@@ -83,7 +99,7 @@ public class XMLContentLoaderTest {
     public void testLoadContent_validating_validResource() throws Exception {
         // prepare
         final URL resource = getClass().getResource("XMLContentLoaderTest_inkstandJcrImport_v1-0.xml");
-        final Session actSession = repository.login("admin", "admin");
+        final Session actSession = repository.getAdminSession();
         final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         final Schema schema = schemaFactory.newSchema(getClass().getResource("inkstandJcrImport_v1-0.xsd"));
         // act
@@ -99,13 +115,11 @@ public class XMLContentLoaderTest {
         assertStringPropertyEquals(root, "jcr:title", "TestTitle");
     }
 
-    // TODO test is ignored as the XMLContentHandler does not implement an error method to react on invalid xml
-    @Test(expected = RuntimeException.class)
-    @Ignore
+    @Test(expected = AssertionError.class)
     public void testLoadContent_validating_invalidResource() throws Exception {
         // prepare
         final URL resource = getClass().getResource("XMLContentLoaderTest_inkstandJcrImport_v1-0_invalid.xml");
-        final Session actSession = repository.login("admin", "admin");
+        final Session actSession = repository.getAdminSession();
         final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         final Schema schema = schemaFactory.newSchema(getClass().getResource("inkstandJcrImport_v1-0.xsd"));
         // act
@@ -122,7 +136,7 @@ public class XMLContentLoaderTest {
      *
      * @throws Throwable
      */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = AssertionError.class)
     public void testLoadContent_ExternalitEntityAttack_notVulnerable() throws Throwable {
         //prepare
         //the attacked file containing the secret
@@ -136,26 +150,19 @@ public class XMLContentLoaderTest {
         final File attackerFile = folder.newFile("attackerFile.xml");
 
         //load the template file from the classpath
-        try (InputStream is = getClass().getResourceAsStream("test01_inkstandJcrImport_v1-0_xxe-attack.xml");
+        try (InputStream is = getClass().getResourceAsStream(
+                "XMLContentLoaderTest_inkstandJcrImport_v1-0_xxe-attack.xml");
              FileOutputStream fos = new FileOutputStream(attackerFile)) {
 
             final String attackerContent = prepareAttackerContent(is, attackedFile);
             IOUtils.write(attackerContent, fos);
         }
-        final Session actSession = repository.login("admin", "admin");
+        final Session actSession = repository.getAdminSession();
 
         //act
         //when the code is not vulnerable, the following call will cause a runtime exception
         //as the dtd processing of external entities is not allowed.
         subject.loadContent(actSession, attackerFile.toURI().toURL());
-
-        //assert
-        //the content from the attacked file is inserted as test title and in the repository
-        //if the code would be vulnerable, the following lines would succeed
-        final Session verifySession = repository.getRepository().login();
-        final Node root = verifySession.getNode("/root");
-        assertStringPropertyEquals(root, "jcr:title", "secretContent");
-        throw new AssertionError("Code is vulnerable to XXE attack");
     }
 
     private String prepareAttackerContent(final InputStream templateInputStream, final File attackedFile)

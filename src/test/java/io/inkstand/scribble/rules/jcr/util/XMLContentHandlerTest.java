@@ -22,6 +22,7 @@ import static io.inkstand.scribble.JCRAssert.assertNodeNotExistByPath;
 import static io.inkstand.scribble.JCRAssert.assertPrimaryNodeType;
 import static io.inkstand.scribble.JCRAssert.assertStringPropertyEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
@@ -30,7 +31,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import io.inkstand.scribble.Scribble;
@@ -55,7 +58,7 @@ public class XMLContentHandlerTest {
     @Before
     public void setUp() throws Exception {
 
-        adminSession = repository.login("admin", "admin");
+        adminSession = repository.getAdminSession();
         subject = new XMLContentHandler(adminSession);
     }
 
@@ -67,53 +70,22 @@ public class XMLContentHandlerTest {
         }
     }
 
-    /**
-     * A simple flow of events that creates an unstructured root node
-     *
-     * @throws Exception
-     */
-    public void eventFlow_ignoredNameSpace() throws Exception {
+    @Test(expected = AssertionError.class)
+    public void testError() throws Exception {
+        //prepare
+        Locator locator = mock(Locator.class);
+        SAXParseException sx = new SAXParseException("test", locator);
 
-        subject.startDocument();
-        subject.startPrefixMapping("ink", "");
-
-        subject.startElement(INKSTAND_IMPORT_NAMESPACE,
-                             ROOT_NODE,
-                             INK_ROOT_NODE,
-                             createAttributes("name", "root", "primaryType", "nt:unstructured"));
-
-        subject.startElement(INKSTAND_IMPORT_NAMESPACE, MIXIN, INK_MIXIN, createAttributes("name", "mix:title"));
-        subject.endElement(INKSTAND_IMPORT_NAMESPACE, MIXIN, INK_MIXIN);
-
-        subject.startElement(INKSTAND_IMPORT_NAMESPACE,
-                             PROPERTY,
-                             INK_PROPERTY,
-                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
-        subject.characters("TestTitle".toCharArray(), 0, 9);
-        subject.endElement(INKSTAND_IMPORT_NAMESPACE, PROPERTY, INK_PROPERTY);
-
-        subject.endElement(INKSTAND_IMPORT_NAMESPACE, ROOT_NODE, INK_ROOT_NODE);
-        subject.endPrefixMapping("ink");
-        subject.endDocument();
-    }
-
-    private Attributes createAttributes(final String... att) {
-
-        assertEquals("list must be name-value pairs", 0, att.length % 2);
-        final AttributesImpl attr = new AttributesImpl();
-        for (int i = 0, len = att.length; i < len; i += 2) {
-            // no namespace & qname for attributes
-            attr.addAttribute("", att[i], att[i], "CDATA", att[i + 1]);
-        }
-        return attr;
+        //act
+        subject.error(sx);
     }
 
     @Test
     public void testEventFlow_01_simpleStructure() throws Exception {
         // act
-        ns_eventflow_rootNode(INKSTAND_IMPORT_NAMESPACE);
+        ns_eventFlow_rootNode(INKSTAND_IMPORT_NAMESPACE);
         // assert
-        final Session session = repository.login("admin", "admin");
+        final Session session = repository.getAdminSession();
         assertNodeExistByPath(session, "/root");
         final Node rootNode = session.getNode("/root");
         assertPrimaryNodeType(rootNode, "nt:unstructured");
@@ -129,7 +101,7 @@ public class XMLContentHandlerTest {
      *
      * @throws SAXException
      */
-    protected void ns_eventflow_rootNode(final String namespace) throws SAXException {
+    protected void ns_eventFlow_rootNode(final String namespace) throws SAXException {
 
         subject.startDocument();
         subject.startPrefixMapping("ink", namespace);
@@ -154,12 +126,23 @@ public class XMLContentHandlerTest {
         subject.endDocument();
     }
 
+    private Attributes createAttributes(final String... att) {
+
+        assertEquals("list must be name-value pairs", 0, att.length % 2);
+        final AttributesImpl attr = new AttributesImpl();
+        for (int i = 0, len = att.length; i < len; i += 2) {
+            // no namespace & qname for attributes
+            attr.addAttribute("", att[i], att[i], "CDATA", att[i + 1]);
+        }
+        return attr;
+    }
+
     @Test
     public void testEventFlow_01_ignoredNamespace() throws Exception {
         // act
-        ns_eventflow_rootNode("ignore");
+        ns_eventFlow_rootNode("ignore");
         // assert
-        final Session session = repository.login("admin", "admin");
+        final Session session = repository.getAdminSession();
         // nothing is created at all
         assertNodeNotExistByPath(session, "/root");
     }
@@ -169,11 +152,16 @@ public class XMLContentHandlerTest {
         // act
         ns_eventFlow_ignoredElements();
         // assert
-        final Session session = repository.login("admin", "admin");
+        final Session session = repository.getAdminSession();
         // nothing is created at all
         assertNodeNotExistByPath(session, "/root");
     }
 
+    /**
+     * An event flow with ignored elements. The elements in this flow are not defined in the schema.
+     *
+     * @throws SAXException
+     */
     protected void ns_eventFlow_ignoredElements() throws SAXException {
 
         final String namespace = INKSTAND_IMPORT_NAMESPACE;
@@ -203,9 +191,9 @@ public class XMLContentHandlerTest {
     @Test
     public void testEventFlow_03_simpleNestedStructure() throws Exception {
         // act
-        ns_eventflow_rootAndChildNode(INKSTAND_IMPORT_NAMESPACE);
+        ns_eventFlow_rootAndChildNode(INKSTAND_IMPORT_NAMESPACE);
         // assert
-        final Session session = repository.login("admin", "admin");
+        final Session session = repository.getAdminSession();
         assertNodeExistByPath(session, "/root");
         assertNodeExistByPath(session, "/root/child");
         final Node rootNode = session.getNode("/root");
@@ -227,7 +215,7 @@ public class XMLContentHandlerTest {
      *
      * @throws SAXException
      */
-    protected void ns_eventflow_rootAndChildNode(final String namespace) throws SAXException {
+    protected void ns_eventFlow_rootAndChildNode(final String namespace) throws SAXException {
 
         subject.startDocument();
         subject.startPrefixMapping("ink", namespace);
@@ -264,6 +252,83 @@ public class XMLContentHandlerTest {
         // end child node
 
         subject.endElement(namespace, ROOT_NODE, INK_ROOT_NODE);
+        subject.endPrefixMapping("ink");
+        subject.endDocument();
+    }
+
+    @Test
+    public void testEventFlow_04_structureWithEmptyText() throws Exception {
+        // act
+        ns_eventFlow_rootNode_emptyTitle(INKSTAND_IMPORT_NAMESPACE);
+        // assert
+        final Session session = repository.getAdminSession();
+        assertNodeExistByPath(session, "/root");
+        final Node rootNode = session.getNode("/root");
+        assertPrimaryNodeType(rootNode, "nt:unstructured");
+        assertMixinNodeType(rootNode, "mix:title");
+        assertStringPropertyEquals(rootNode, "jcr:title", "");
+    }
+
+    /**
+     * A simple flow of events that creates an unstructured root node with an empty title
+     *
+     * @param namespace
+     *         the namespace for all element events
+     *
+     * @throws SAXException
+     */
+    protected void ns_eventFlow_rootNode_emptyTitle(final String namespace) throws SAXException {
+
+        subject.startDocument();
+        subject.startPrefixMapping("ink", namespace);
+
+        subject.startElement(namespace,
+                             ROOT_NODE,
+                             INK_ROOT_NODE,
+                             createAttributes("name", "root", "primaryType", "nt:unstructured"));
+
+        subject.startElement(namespace, MIXIN, INK_MIXIN, createAttributes("name", "mix:title"));
+        subject.endElement(namespace, MIXIN, INK_MIXIN);
+
+        subject.startElement(namespace,
+                             PROPERTY,
+                             INK_PROPERTY,
+                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
+        //title is empty
+        subject.characters("".toCharArray(), 0, 0);
+        subject.endElement(namespace, PROPERTY, INK_PROPERTY);
+
+        subject.endElement(namespace, ROOT_NODE, INK_ROOT_NODE);
+        subject.endPrefixMapping("ink");
+        subject.endDocument();
+    }
+
+    /**
+     * A simple flow of events that creates an unstructured root node
+     *
+     * @throws Exception
+     */
+    protected void eventFlow_ignoredNameSpace() throws Exception {
+
+        subject.startDocument();
+        subject.startPrefixMapping("ink", "");
+
+        subject.startElement(INKSTAND_IMPORT_NAMESPACE,
+                             ROOT_NODE,
+                             INK_ROOT_NODE,
+                             createAttributes("name", "root", "primaryType", "nt:unstructured"));
+
+        subject.startElement(INKSTAND_IMPORT_NAMESPACE, MIXIN, INK_MIXIN, createAttributes("name", "mix:title"));
+        subject.endElement(INKSTAND_IMPORT_NAMESPACE, MIXIN, INK_MIXIN);
+
+        subject.startElement(INKSTAND_IMPORT_NAMESPACE,
+                             PROPERTY,
+                             INK_PROPERTY,
+                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
+        subject.characters("TestTitle".toCharArray(), 0, 9);
+        subject.endElement(INKSTAND_IMPORT_NAMESPACE, PROPERTY, INK_PROPERTY);
+
+        subject.endElement(INKSTAND_IMPORT_NAMESPACE, ROOT_NODE, INK_ROOT_NODE);
         subject.endPrefixMapping("ink");
         subject.endDocument();
     }
