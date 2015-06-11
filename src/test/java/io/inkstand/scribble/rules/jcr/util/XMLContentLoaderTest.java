@@ -20,6 +20,8 @@ import static io.inkstand.scribble.JCRAssert.assertMixinNodeType;
 import static io.inkstand.scribble.JCRAssert.assertNodeExistByPath;
 import static io.inkstand.scribble.JCRAssert.assertPrimaryNodeType;
 import static io.inkstand.scribble.JCRAssert.assertStringPropertyEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
@@ -35,7 +37,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,8 +46,8 @@ import io.inkstand.scribble.rules.jcr.ContentRepository;
 
 public class XMLContentLoaderTest {
 
-    @ClassRule
-    public static final ContentRepository repository = Scribble.newTempFolder()
+    @Rule
+    public final ContentRepository repository = Scribble.newTempFolder()
                                                                .aroundInMemoryContentRepository()
                                                                .build();
 
@@ -67,12 +68,14 @@ public class XMLContentLoaderTest {
         final URL resource = getClass().getResource("XMLContentLoaderTest_inkstandJcrImport_v1-0.xml");
         final Session actSession = repository.getAdminSession();
         // act
-        subject.loadContent(actSession, resource);
+        Node rootNode = subject.loadContent(actSession, resource);
         // assert
+        assertNotNull(rootNode);
         final Session verifySession = repository.getRepository().login();
         verifySession.refresh(true);
         assertNodeExistByPath(verifySession, "/root");
         final Node root = verifySession.getNode("/root");
+        assertEquals(root.getPath(), rootNode.getPath());
         assertPrimaryNodeType(root, "nt:unstructured");
         assertMixinNodeType(root, "mix:title");
         assertStringPropertyEquals(root, "jcr:title", "TestTitle");
@@ -84,12 +87,14 @@ public class XMLContentLoaderTest {
         final URL resource = getClass().getResource("XMLContentLoaderTest_inkstandJcrImport_v1-0_invalid.xml");
         final Session actSession = repository.getAdminSession();
         // act
-        subject.loadContent(actSession, resource);
+        Node rootNode = subject.loadContent(actSession, resource);
         // assert
+        assertNotNull(rootNode);
         final Session verifySession = repository.getRepository().login();
         verifySession.refresh(true);
         assertNodeExistByPath(verifySession, "/root");
         final Node root = verifySession.getNode("/root");
+        assertEquals(root.getPath(), rootNode.getPath());
         assertPrimaryNodeType(root, "nt:unstructured");
         assertMixinNodeType(root, "mix:title");
         assertStringPropertyEquals(root, "jcr:title", "TestTitle");
@@ -104,12 +109,14 @@ public class XMLContentLoaderTest {
         final Schema schema = schemaFactory.newSchema(getClass().getResource("inkstandJcrImport_v1-0.xsd"));
         // act
         subject.setSchema(schema);
-        subject.loadContent(actSession, resource);
+        Node rootNode = subject.loadContent(actSession, resource);
         // assert
+        assertNotNull(rootNode);
         final Session verifySession = repository.getRepository().login();
         verifySession.refresh(true);
         assertNodeExistByPath(verifySession, "/root");
         final Node root = verifySession.getNode("/root");
+        assertNodeExistByPath(verifySession, "/root");
         assertPrimaryNodeType(root, "nt:unstructured");
         assertMixinNodeType(root, "mix:title");
         assertStringPropertyEquals(root, "jcr:title", "TestTitle");

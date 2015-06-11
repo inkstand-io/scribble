@@ -16,6 +16,12 @@
 
 package io.inkstand.scribble.rules.jcr;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Session;
 import java.net.URL;
 import org.junit.Before;
@@ -26,6 +32,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 import io.inkstand.scribble.JCRAssert;
 import io.inkstand.scribble.Scribble;
@@ -35,6 +42,8 @@ import io.inkstand.scribble.Scribble;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ContentLoaderTest {
+
+    private static final Logger LOG = getLogger(ContentLoaderTest.class);
 
     @Rule
     public InMemoryContentRepository repository = Scribble.newInMemoryContentRepository().build();
@@ -55,11 +64,11 @@ public class ContentLoaderTest {
     }
 
     @Test
-    public void testApply_withContentDescriptorUrl() throws Throwable {
+    public void testApply_withInitialContentDefinition() throws Throwable {
 
         //prepare
         URL contentResource = getClass().getResource("ContentLoaderTest_inkstandJcrImport_v1-0.xml");
-        subject.setContentDescriptorUrl(contentResource);
+        subject.setContentDefinition(contentResource);
 
         //act
         subject.apply(new Statement() {
@@ -73,5 +82,50 @@ public class ContentLoaderTest {
 
             }
         }, description).evaluate();
+    }
+
+    @Test
+    public void testApply_withoutInitialContentDefinition() throws Throwable {
+
+        //prepare
+
+        //act
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                //assert
+                Session session = repository.login();
+
+                NodeIterator nit = session.getRootNode().getNodes();
+                assertEquals(1, nit.getSize());
+                assertEquals("/jcr:system", nit.nextNode().getPath());
+
+            }
+        }, description).evaluate();
+    }
+
+    @Test
+    public void testLoadContent_noInitialContent() throws Throwable {
+
+        //prepare
+        final URL contentResource = getClass().getResource("ContentLoaderTest_inkstandJcrImport_v1-0.xml");
+
+        //act
+        subject.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                //act
+                Node root = subject.loadContent(contentResource);
+
+                //assert
+                assertNotNull(root);
+                assertEquals("/root", root.getPath());
+            }
+        }, description).evaluate();
+
     }
 }

@@ -16,6 +16,7 @@
 
 package io.inkstand.scribble.rules.jcr.util;
 
+import javax.jcr.Node;
 import javax.jcr.Session;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -45,25 +46,24 @@ public class XMLContentLoader {
 
     /**
      * Loads the content from the specified contentDefinition into the JCRRepository, using the specified session.
-     *
-     * @param session
+     *  @param session
      *         the session used to import the date. The user bound to the session must have the required privileges to
      *         perform the import operation.
      * @param contentDef
-     *         the content definition describing which content to import.
      */
-    public void loadContent(final Session session, final URL contentDef) {
+    public Node loadContent(final Session session, final URL contentDef) {
 
         final SAXParserFactory factory = this.getSAXParserFactory();
         try {
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             final SAXParser parser = factory.newSAXParser();
             final InputSource source = new InputSource(contentDef.openStream());
-            parser.parse(source, new XMLContentHandler(session));
+            final XMLContentHandler handler = new XMLContentHandler(session);
+            parser.parse(source, handler);
+            return handler.getRootNode();
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new AssertionError("Loading Content to JCR Repository failed", e);
         }
-
     }
 
     /**

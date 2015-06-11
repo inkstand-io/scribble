@@ -54,6 +54,7 @@ public class XMLContentHandler extends DefaultHandler {
      * Namespace the content handler uses to identify the correct elements.
      */
     public static final String NS_INK_IMPORT = "http://inkstand.io/schemas/jcr-import";
+
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentHandler.class);
     /**
      * Object Factory for creating temporary model object.
@@ -92,7 +93,7 @@ public class XMLContentHandler extends DefaultHandler {
      * A stack of the created nodes.
      */
     private final Deque<Node> nodeStack;
-    // TODO verify if text stack could be replaced by lastText
+    // TODO verify if textstack could be replaced by lastText
     /**
      * A stack of the created text elements.
      */
@@ -104,9 +105,13 @@ public class XMLContentHandler extends DefaultHandler {
     /**
      * The start time in ns.
      */
-    private long startTime;
-
     // TODO verify if propertyStack could be replaced by lastProperty
+    private long startTime;
+    /**
+     * The root node of the content tree that is created by this handler.
+     */
+    private Node rootNode;
+
 
     /**
      * Creates a new content handler using the specified session for performing the input.
@@ -295,15 +300,15 @@ public class XMLContentHandler extends DefaultHandler {
 
     /**
      * Converts the {@link SAXParseException} into an {@link AssertionError} to force the test to fail.
-     * @param e
+     * @param parseException
      *  the exception that occured during parsing
      * @throws SAXException
      *  is not thrown.
      */
     @Override
-    public void error(final SAXParseException e) throws SAXException {
+    public void error(final SAXParseException parseException) throws SAXException {
 
-        throw new AssertionError("parse error",e);
+        throw new AssertionError("parse error", parseException);
     }
 
     /**
@@ -330,7 +335,8 @@ public class XMLContentHandler extends DefaultHandler {
 
         LOG.debug("Found rootNode");
         try {
-            this.nodeStack.push(this.newNode(null, attributes));
+            this.rootNode = this.newNode(null, attributes);
+            this.nodeStack.push(this.rootNode);
         } catch (final RepositoryException e) {
             throw new AssertionError("Could not create node", e);
         }
@@ -345,7 +351,7 @@ public class XMLContentHandler extends DefaultHandler {
      * @throws SAXException
      *  if the node for the new element can not be added
      */
-    private void startElementNode(final Attributes attributes)  {
+    private void startElementNode(final Attributes attributes) {
 
         LOG.debug("Found node");
         try {
@@ -443,5 +449,15 @@ public class XMLContentHandler extends DefaultHandler {
         propDesc.setName(attributes.getValue("name"));
         propDesc.setJcrType(PropertyValueType.fromValue(attributes.getValue("jcrType")));
         return propDesc;
+    }
+
+    /**
+     * Accessor for the root {@link Node} created by this handler for the root element.
+     * @return
+     *  the Node representing the root node of the content created by this handler.
+     */
+    public Node getRootNode() {
+
+        return rootNode;
     }
 }

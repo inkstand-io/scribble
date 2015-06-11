@@ -22,6 +22,7 @@ import static io.inkstand.scribble.JCRAssert.assertNodeNotExistByPath;
 import static io.inkstand.scribble.JCRAssert.assertPrimaryNodeType;
 import static io.inkstand.scribble.JCRAssert.assertStringPropertyEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 import javax.jcr.Node;
@@ -91,6 +92,11 @@ public class XMLContentHandlerTest {
         assertPrimaryNodeType(rootNode, "nt:unstructured");
         assertMixinNodeType(rootNode, "mix:title");
         assertStringPropertyEquals(rootNode, "jcr:title", "TestTitle");
+
+        Node node = subject.getRootNode();
+        node.refresh(true);
+        assertNotNull(node);
+        assertEquals(node.getPath(), rootNode.getPath());
     }
 
     /**

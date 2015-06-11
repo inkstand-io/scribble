@@ -16,10 +16,10 @@
 
 package io.inkstand.scribble.rules.builder;
 
+import java.net.URL;
+
 import io.inkstand.scribble.rules.jcr.ContentLoader;
 import io.inkstand.scribble.rules.jcr.ContentRepository;
-
-import java.net.URL;
 
 /**
  * Builder for creating {@link io.inkstand.scribble.rules.jcr.ContentLoader} TestRules. A content loader can be used to
@@ -43,7 +43,8 @@ public class ContentLoaderBuilder extends Builder<ContentLoader> {
      * @return this builder
      */
     public ContentLoaderBuilder fromUrl(final URL contentDescriptorUrl) {
-        contentLoader.setContentDescriptorUrl(contentDescriptorUrl);
+
+        contentLoader.setContentDefinition(contentDescriptorUrl);
         return this;
     }
 
