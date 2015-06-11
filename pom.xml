@@ -136,6 +136,24 @@
 						<artifactId>sonar-maven-plugin</artifactId>
 						<version>2.5</version>
 					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.10.1</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<additionalJOptions>
+								<additionalJOption>-J-Xmx16m</additionalJOption>
+							</additionalJOptions>
+						</configuration>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>

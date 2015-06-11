@@ -271,7 +271,7 @@ public class Directory implements TestRule {
     /**
      * The Apache DS Directory Service instance wrapped by this rule.
      *
-     * @return the {@link org.apache.directory.server.core.api.DirectoryService) instance of this rule
+     * @return the {@link org.apache.directory.server.core.api.DirectoryService} instance of this rule
      */
     public DirectoryService getDirectoryService() {
 
