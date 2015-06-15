@@ -16,19 +16,12 @@
 
 package io.inkstand.scribble.rules.ldap;
 
-import static io.inkstand.scribble.net.NetworkMatchers.isReachable;
-import static io.inkstand.scribble.net.NetworkMatchers.remotePort;
 import static io.inkstand.scribble.net.NetworkUtils.findAvailablePort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
@@ -40,7 +33,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.model.Statement;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -87,34 +79,29 @@ public class DirectoryServerTest {
         }
     }
 
+
     @Test
-    public void testApply() throws Throwable {
+    public void testBeforeAfter() throws Exception {
         //prepare
-        final int port = findAvailablePort();
+        int port = findAvailablePort();
         subject.setTcpPort(port);
-        Statement base = spy(new Statement(){
-
-            @Override
-            public void evaluate() throws Throwable {
-
-                assertThat(remotePort("localhost", port), isReachable());
-                try(Socket socket = new Socket()) {
-                    socket.connect(new InetSocketAddress(port));
-                } catch (Exception e) {
-                    throw new AssertionError("Could not connect to ldap server running on tcp port " + port, e);
-                }
-                
-            }
-        });
 
         //act
-        final Statement statement = subject.apply(base, description);
-        
+        boolean started, stopped;
+        try {
+            subject.startServer();
+            started = subject.getLdapServer().isStarted();
+        } finally {
+            subject.shutdownServer();
+            stopped = !subject.getLdapServer().isStarted();
+
+        }
 
         //assert
-        assertNotNull(statement);
-        statement.evaluate();
-        verify(base).evaluate();
+        assertTrue("Server was expected to be started", started);
+        assertTrue("Server was expected to be stopped", stopped);
+
+
     }
 
     @Test

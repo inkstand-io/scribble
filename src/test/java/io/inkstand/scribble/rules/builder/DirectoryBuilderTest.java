@@ -33,14 +33,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
+import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import io.inkstand.scribble.rules.ldap.Directory;
 
 /**
  * Created by Gerald on 29.05.2015.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DirectoryBuilderTest {
 
     @Rule
@@ -54,7 +57,6 @@ public class DirectoryBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-
         this.subject = new DirectoryBuilder(folder);
     }
 

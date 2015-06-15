@@ -20,6 +20,7 @@ import static io.inkstand.scribble.JCRAssert.assertNodeTypeExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -262,6 +263,35 @@ public class ScribbleTest {
 
         //assert
         assertNotNull(ds);
+    }
+
+    /**
+     * Test to verify the rule is properly applicable and initialized with users from an ldif.
+     *
+     * @throws Throwable
+     */
+    @Test
+    public void testNewDirectoryServerWithContent() throws Throwable {
+        //prepare
+
+        //act
+        final URL ldif = getClass().getResource("ScribbleTest_testUsers.ldif");
+        final DirectoryServer ds = Scribble.newDirectory()
+                                           .withPartition("inkstand", "dc=scribble")
+                                           .importLdif(ldif)
+                                           .aroundDirectoryServer()
+                                           .onAvailablePort()
+                                           .build();
+        //assert
+        assertNotNull(ds);
+        ds.apply(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                assertTrue(ds.getDirectoryService().getSession().exists("uid=testuser,ou=users,dc=scribble"));
+            }
+        }, description).evaluate();
     }
 
     static class SimpleInjectionTarget {

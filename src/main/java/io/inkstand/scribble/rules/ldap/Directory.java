@@ -44,11 +44,9 @@ import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 
+import io.inkstand.scribble.rules.ExternalResource;
 import io.inkstand.scribble.rules.RuleSetup;
 
 /**
@@ -57,14 +55,10 @@ import io.inkstand.scribble.rules.RuleSetup;
  *
  * @author Gerald Muecke, gerald@inkstand.io
  */
-public class Directory implements TestRule {
+public class Directory extends ExternalResource<TemporaryFolder> {
 
     private static final Logger LOG = getLogger(Directory.class);
 
-    /**
-     * Rule providing the working directory for the ldap directory as temporary folder.
-     */
-    private transient final TemporaryFolder folder;
 
     /**
      * Map of partitions that should be created on directory initialization.
@@ -98,30 +92,67 @@ public class Directory implements TestRule {
 
     public Directory(final TemporaryFolder folder) {
 
-        super();
+        super(folder);
         this.partitions = new HashMap<>();
-        this.folder = folder;
     }
 
     @Override
-    public Statement apply(final Statement base, final Description description) {
+    protected void before() throws Throwable {
 
-        return new Statement() {
+        setupService();
+        startService();
+    }
 
-            @Override
-            public void evaluate() throws Throwable {
+    @Override
+    protected void after() {
 
-                setupService();
-                startService();
-                try {
-                    base.evaluate();
-                } finally {
-                    tearDownService();
-                }
+        try {
+            tearDownService();
+        } catch (Exception e) {
+            throw new AssertionError("Error tearing down the directoy", e);
+        }
+    }
 
-            }
+    /**
+     * Shuts down the directory service.
+     *
+     * @throws Exception
+     *         if the shutdown fails for any reason
+     */
+    protected void tearDownService() throws Exception { // NOSONAR
 
-        };
+        this.getDirectoryService().shutdown();
+
+    }
+
+    /**
+     * The Apache DS Directory Service instance wrapped by this rule.
+     *
+     * @return the {@link org.apache.directory.server.core.api.DirectoryService} instance of this rule
+     */
+    public DirectoryService getDirectoryService() {
+
+        if (this.directoryService == null) {
+            this.directoryService = this.createDirectoryService();
+        }
+
+        return this.directoryService;
+    }
+
+    /**
+     * Creates a new DirectoryService instance for the test rule. Initialization of the service is done in the
+     * apply Statement phase by invoking the setupService method.
+     */
+    private DirectoryService createDirectoryService() {
+
+        final DirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
+        try {
+            factory.init("scribble");
+            return factory.getDirectoryService();
+        } catch (Exception e) { //NOSONAR
+
+            throw new AssertionError("Unable to create directory service", e);
+        }
     }
 
     /**
@@ -136,7 +167,7 @@ public class Directory implements TestRule {
         final DirectoryService service = this.getDirectoryService();
         service.getChangeLog().setEnabled(false);
 
-        this.workDir = this.folder.newFolder("dsworkdir");
+        this.workDir = getOuterRule().newFolder("dsworkdir");
 
         service.setInstanceLayout(new InstanceLayout(this.workDir));
         final CacheService cacheService = new CacheService();
@@ -159,18 +190,6 @@ public class Directory implements TestRule {
     protected void startService() throws Exception { //NOSONAR
 
         this.getDirectoryService().startup();
-    }
-
-    /**
-     * Shuts down the directory service.
-     *
-     * @throws Exception
-     *         if the shutdown fails for any reason
-     */
-    protected void tearDownService() throws Exception { // NOSONAR
-
-        this.getDirectoryService().shutdown();
-
     }
 
     /**
@@ -269,36 +288,6 @@ public class Directory implements TestRule {
     }
 
     /**
-     * The Apache DS Directory Service instance wrapped by this rule.
-     *
-     * @return the {@link org.apache.directory.server.core.api.DirectoryService} instance of this rule
-     */
-    public DirectoryService getDirectoryService() {
-
-        if (this.directoryService == null) {
-            this.directoryService = this.createDirectoryService();
-        }
-
-        return this.directoryService;
-    }
-
-    /**
-     * Creates a new DirectoryService instance for the test rule. Initialization of the service is done in the
-     * apply Statement phase by invoking the setupService method.
-     */
-    private DirectoryService createDirectoryService() {
-
-        final DirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
-        try {
-            factory.init("scribble");
-            return factory.getDirectoryService();
-        } catch (Exception e) { //NOSONAR
-
-            throw new AssertionError("Unable to create directory service", e);
-        }
-    }
-
-    /**
      * Specifies the location of an ldif file that is imported on initialization of the rule.
      *
      * @param ldif
@@ -322,7 +311,7 @@ public class Directory implements TestRule {
      */
     public void importLdif(InputStream ldifData) throws IOException {
 
-        final File ldifFile = this.folder.newFile("scribble_import.ldif");
+        final File ldifFile = getOuterRule().newFile("scribble_import.ldif");
         try (final Writer writer = new OutputStreamWriter(new FileOutputStream(ldifFile), Charsets.UTF_8)) {
 
             IOUtils.copy(ldifData, writer);

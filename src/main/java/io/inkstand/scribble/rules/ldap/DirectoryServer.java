@@ -20,10 +20,9 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 
 import io.inkstand.scribble.net.NetworkUtils;
+import io.inkstand.scribble.rules.ExternalResource;
 import io.inkstand.scribble.rules.RuleSetup;
 
 /**
@@ -31,12 +30,8 @@ import io.inkstand.scribble.rules.RuleSetup;
  * contains the LDAP service's content. The server may be configured regarding port and listen address. If neither is
  * configured, it listens on localhost:10389
  */
-public class DirectoryServer implements TestRule {
+public class DirectoryServer extends ExternalResource<Directory> {
 
-    /**
-     * The test rule that provides the {@link DirectoryService} providing the content.
-     */
-    private final transient Directory directory;
     /**
      * The server instance managed by this rule.
      */
@@ -58,25 +53,30 @@ public class DirectoryServer implements TestRule {
     private transient boolean autoBind;
 
     public DirectoryServer(final Directory directory) {
-        this.directory = directory;
+
+        super(directory);
     }
 
     @Override
-    public Statement apply(final Statement base, final Description description) {
-        return new Statement() {
+    protected void before() throws Throwable {
 
-            @Override
-            public void evaluate() throws Throwable {
-                startServer();
-                try {
-                    base.evaluate();
-                } finally {
-                    shutdownServer();
-                }
+        startServer();
+    }
 
-            }
+    @Override
+    protected void after() {
 
-        };
+        shutdownServer();
+    }
+
+    /**
+     * Shuts down the ldap server. This method is invoked by the apply statement. Override to add additional
+     * shutdown behavior.
+     */
+    protected void shutdownServer() {
+
+        this.ldapServer.stop();
+
     }
 
     /**
@@ -94,19 +94,9 @@ public class DirectoryServer implements TestRule {
         }
 
         this.ldapServer = new LdapServer();
-        this.ldapServer.setDirectoryService(this.directory.getDirectoryService());
+        this.ldapServer.setDirectoryService(getOuterRule().getDirectoryService());
         this.ldapServer.setTransports(new TcpTransport(this.getTcpPort()));
         this.ldapServer.start();
-    }
-
-    /**
-     * Shuts down the ldap server. This method is invoked by the apply statement. Override to add additional
-     * shutdown behavior.
-     */
-    protected void shutdownServer() {
-
-        this.ldapServer.stop();
-
     }
 
     /**
@@ -180,6 +170,6 @@ public class DirectoryServer implements TestRule {
      */
     public DirectoryService getDirectoryService() {
 
-        return this.directory.getDirectoryService();
+        return getOuterRule().getDirectoryService();
     }
 }
