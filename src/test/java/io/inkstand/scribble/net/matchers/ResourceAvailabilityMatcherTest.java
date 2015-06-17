@@ -17,6 +17,7 @@
 package io.inkstand.scribble.net.matchers;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -140,5 +141,17 @@ public class ResourceAvailabilityMatcherTest {
 
         //assert
         verify(description).appendText("resource is available");
+    }
+
+    @Test
+    public void testAssertThatIntegration() throws Exception {
+        //prepare
+        final URL url = getClass().getResource("ResourceAvailabilityMatcherTest_resource.txt");
+
+        //act
+        assertThat(url, subject);
+
+        //assert
+
     }
 }
