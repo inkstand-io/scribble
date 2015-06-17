@@ -33,7 +33,7 @@ import org.slf4j.Logger;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class ResourceAvailabilityMatcher extends BaseMatcher<TcpPort> {
+public class ResourceAvailabilityMatcher<RESOURCE> extends BaseMatcher<RESOURCE> {
 
     private static final Logger LOG = getLogger(ResourceAvailabilityMatcher.class);
 
