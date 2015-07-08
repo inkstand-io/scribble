@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
@@ -83,6 +84,32 @@ public class DirectoryTest {
 
             @Override
             public void evaluate() throws Throwable {
+                assertTrue(subject.getDirectoryService().isStarted());
+            }
+        });
+
+        //act
+        Statement stmt = subject.apply(base, description);
+
+        //assert
+        assertNotNull(stmt);
+        //run the created statement, causing the evaluate method to be executed, which is verified with the next
+        //statement. If the service is not started before the evaluate method, the evaluate method will fail
+        stmt.evaluate();
+        verify(base).evaluate();
+        //verify, the service is stopped after evaluate
+        assertFalse(subject.getDirectoryService().isStarted());
+    }
+
+    @Test
+    public void testApplyAsClassRule() throws Throwable {
+        //prepare
+        when(description.isSuite()).thenReturn(true);
+        Statement base = spy(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
                 assertTrue(subject.getDirectoryService().isStarted());
             }
         });

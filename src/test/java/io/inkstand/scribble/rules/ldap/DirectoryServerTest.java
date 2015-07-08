@@ -81,7 +81,7 @@ public class DirectoryServerTest {
 
 
     @Test
-    public void testBeforeAfter() throws Exception {
+    public void testBeforeAfter() throws Throwable {
         //prepare
         int port = findAvailablePort();
         subject.setTcpPort(port);
@@ -89,10 +89,33 @@ public class DirectoryServerTest {
         //act
         boolean started, stopped;
         try {
-            subject.startServer();
+            subject.before();
             started = subject.getLdapServer().isStarted();
         } finally {
-            subject.shutdownServer();
+            subject.after();
+            stopped = !subject.getLdapServer().isStarted();
+
+        }
+
+        //assert
+        assertTrue("Server was expected to be started", started);
+        assertTrue("Server was expected to be stopped", stopped);
+
+    }
+
+    @Test
+    public void testBeforeAfterClass() throws Throwable {
+        //prepare
+        int port = findAvailablePort();
+        subject.setTcpPort(port);
+
+        //act
+        boolean started, stopped;
+        try {
+            subject.beforeClass();
+            started = subject.getLdapServer().isStarted();
+        } finally {
+            subject.afterClass();
             stopped = !subject.getLdapServer().isStarted();
 
         }

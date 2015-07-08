@@ -58,6 +58,18 @@ public class DirectoryServer extends ExternalResource<Directory> {
     }
 
     @Override
+    protected void beforeClass() throws Throwable {
+
+        before();
+    }
+
+    @Override
+    protected void afterClass() {
+
+        after();
+    }
+
+    @Override
     protected void before() throws Throwable {
 
         startServer();
