@@ -97,6 +97,18 @@ public class Directory extends ExternalResource<TemporaryFolder> {
     }
 
     @Override
+    protected void beforeClass() throws Throwable {
+
+        before();
+    }
+
+    @Override
+    protected void afterClass() {
+
+        after();
+    }
+
+    @Override
     protected void before() throws Throwable {
 
         setupService();
