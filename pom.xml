@@ -20,7 +20,17 @@
 	<groupId>io.inkstand</groupId>
 	<artifactId>scribble</artifactId>
 	<version>0.3.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<modules>
+		<module>scribble-api</module>
+		<module>scribble-inject</module>
+		<module>scribble-net</module>
+		<module>scribble-security</module>
+		<module>scribble-jcr</module>
+		<module>scribble-ldap</module>
+		<module>scribble-file</module>
+		<module>scribble-all</module>
+	</modules>
+	<packaging>pom</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A testing framework for developing unit tests that required

@@ -17,3 +17,4 @@ hs_err_pid*
 .idea/
 atlassian-ide-plugin.xml
 scribble.iml
+*.iml
