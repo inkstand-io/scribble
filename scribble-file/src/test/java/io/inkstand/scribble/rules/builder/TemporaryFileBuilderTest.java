@@ -16,6 +16,15 @@
 
 package io.inkstand.scribble.rules.builder;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+import java.io.File;
+import java.net.URL;
+
 import io.inkstand.scribble.rules.TemporaryFile;
 import org.junit.After;
 import org.junit.Before;
@@ -27,14 +36,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.io.File;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TemporaryFileBuilderTest {
@@ -99,10 +100,11 @@ public class TemporaryFileBuilderTest {
     public void testFromResource() throws Throwable {
 
         // prepare
+        final String resourceName = "TemporaryFileBuilderTest_testContent.txt";
+        final URL resource = getClass().getResource(resourceName);
 
         // act
-        subject.fromResource(getClass().getResource(
-                "/io/inkstand/scribble/rules/builder/TemporaryFileBuilderTest_testContent.txt"));
+        subject.fromResource(resource);
 
         // assert
         final TemporaryFile tempFile = subject.build();

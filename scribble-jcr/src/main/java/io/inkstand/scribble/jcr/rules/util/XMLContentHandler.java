@@ -53,7 +53,7 @@ public class XMLContentHandler extends DefaultHandler {
     /**
      * Namespace the content handler uses to identify the correct elements.
      */
-    public static final String NS_INK_IMPORT = "http://inkstand.io/schemas/rules-import";
+    public static final String NS_INK_IMPORT = "http://inkstand.io/schemas/jcr-import";
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentHandler.class);
     /**

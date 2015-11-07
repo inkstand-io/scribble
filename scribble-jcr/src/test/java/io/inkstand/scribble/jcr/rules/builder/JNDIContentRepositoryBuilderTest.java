@@ -22,13 +22,15 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.jcr.Repository;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
+
+import io.inkstand.scribble.jcr.rules.JNDIContentRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,8 +39,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import io.inkstand.scribble.jcr.rules.JNDIContentRepository;
 
 /**
  * Created by <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a> on 4/16/2015
@@ -140,7 +140,8 @@ public class JNDIContentRepositoryBuilderTest {
         //prepare
         Properties properties = new Properties();
         properties.put("java.naming.factory.initial",
-                       "io.inkstand.scribble.rules.rules.builder.JNDIContentRepositoryBuilderTest$TestInitialContextFactory");
+                       "io.inkstand.scribble.jcr.rules.builder"
+                               + ".JNDIContentRepositoryBuilderTest$TestInitialContextFactory");
 
         //act
         final JNDIContentRepositoryBuilder builder = subject.withContextProperties(properties);
@@ -156,7 +157,8 @@ public class JNDIContentRepositoryBuilderTest {
 
         //act
         final JNDIContentRepositoryBuilder builder = subject.withContextProperty("java.naming.factory.initial",
-                                                                                 "io.inkstand.scribble.rules.rules.builder.JNDIContentRepositoryBuilderTest$TestInitialContextFactory");
+                                                                                 "io.inkstand.scribble.jcr.rules"
+                                                                                         + ".builder.JNDIContentRepositoryBuilderTest$TestInitialContextFactory");
 
         //assert
         assertSame(subject, builder);
@@ -169,7 +171,7 @@ public class JNDIContentRepositoryBuilderTest {
 
         //act
         final JNDIContentRepositoryBuilder builder = subject.withInitialContextFactory(
-                "io.inkstand.scribble.rules.rules.builder.JNDIContentRepositoryBuilderTest$TestInitialContextFactory");
+                "io.inkstand.scribble.jcr.rules.builder.JNDIContentRepositoryBuilderTest$TestInitialContextFactory");
 
         //assert
         assertSame(subject, builder);

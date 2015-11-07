@@ -48,20 +48,18 @@ public class TemporaryFileTest {
     private Description description;
 
     private URL getTestContentUrl() {
-        return getClass().getResource(packageToPath() +"TemporaryFileTest_testContent.txt");
-    }
 
-    private String packageToPath() {
-
-        return "/"+getClass().getPackage().toString().replaceAll("\\.", "/");
+        return getClass().getResource("TemporaryFileTest_testContent.txt");
     }
 
     private URL getEmptyTestContentUrl() {
+
         return getClass().getResource("TemporaryFileTest_emptyContent.txt");
     }
 
     @Before
     public void setUp() throws Exception {
+
         subject = new TemporaryFile(folder, TEST_FILE_NAME);
     }
 
@@ -144,6 +142,7 @@ public class TemporaryFileTest {
 
             @Override
             public void evaluate() throws Throwable {
+
                 assertTrue("Temporary file was not created", subject.getFile().exists());
                 assertEquals("testfile.txt", subject.getFile().getName());
             }

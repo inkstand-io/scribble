@@ -47,7 +47,7 @@ public class XMLContentHandlerTest {
     private static final String INK_MIXIN = "ink:mixin";
     private static final String INK_ROOT_NODE = "ink:rootNode";
     private static final String ROOT_NODE = "rootNode";
-    private static final String INKSTAND_IMPORT_NAMESPACE = "http://inkstand.io/schemas/rules-import";
+    private static final String INKSTAND_IMPORT_NAMESPACE = "http://inkstand.io/schemas/jcr-import";
     @Rule
     public final ContentRepository repository = new InMemoryContentRepository(new TemporaryFolder());
     private Session adminSession = null;
@@ -88,7 +88,7 @@ public class XMLContentHandlerTest {
         final Node rootNode = session.getNode("/root");
         assertPrimaryNodeType(rootNode, "nt:unstructured");
         assertMixinNodeType(rootNode, "mix:title");
-        assertStringPropertyEquals(rootNode, "rules:title", "TestTitle");
+        assertStringPropertyEquals(rootNode, "jcr:title", "TestTitle");
 
         Node node = subject.getRootNode();
         node.refresh(true);
@@ -120,7 +120,7 @@ public class XMLContentHandlerTest {
         subject.startElement(namespace,
                              PROPERTY,
                              INK_PROPERTY,
-                             createAttributes("name", "rules:title", "jcrType", "STRING"));
+                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
         subject.characters("TestTitle".toCharArray(), 0, 9);
         subject.endElement(namespace, PROPERTY, INK_PROPERTY);
 
@@ -182,7 +182,7 @@ public class XMLContentHandlerTest {
         subject.startElement(namespace,
                              "ignoreProperty",
                              "ink:ignoreProperty",
-                             createAttributes("name", "rules:title", "jcrType", "STRING"));
+                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
         subject.characters("TestTitle".toCharArray(), 0, 9);
         subject.endElement(namespace, "ignoreProperty", "ink:ignoreProperty");
 
@@ -202,12 +202,12 @@ public class XMLContentHandlerTest {
         final Node rootNode = session.getNode("/root");
         assertPrimaryNodeType(rootNode, "nt:unstructured");
         assertMixinNodeType(rootNode, "mix:title");
-        assertStringPropertyEquals(rootNode, "rules:title", "TestTitle");
+        assertStringPropertyEquals(rootNode, "jcr:title", "TestTitle");
 
         final Node childNode = session.getNode("/root/child");
         assertPrimaryNodeType(childNode, "nt:unstructured");
         assertMixinNodeType(childNode, "mix:title");
-        assertStringPropertyEquals(childNode, "rules:title", "ChildNode");
+        assertStringPropertyEquals(childNode, "jcr:title", "ChildNode");
     }
 
     /**
@@ -234,7 +234,7 @@ public class XMLContentHandlerTest {
         subject.startElement(namespace,
                              PROPERTY,
                              INK_PROPERTY,
-                             createAttributes("name", "rules:title", "jcrType", "STRING"));
+                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
         subject.characters("TestTitle".toCharArray(), 0, 9);
         subject.endElement(namespace, PROPERTY, INK_PROPERTY);
 
@@ -248,7 +248,7 @@ public class XMLContentHandlerTest {
         subject.startElement(namespace,
                              PROPERTY,
                              INK_PROPERTY,
-                             createAttributes("name", "rules:title", "jcrType", "STRING"));
+                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
         subject.characters("ChildNode".toCharArray(), 0, 9);
         subject.endElement(namespace, PROPERTY, INK_PROPERTY);
         subject.endElement(namespace, NODE, INK_NODE);
@@ -269,7 +269,7 @@ public class XMLContentHandlerTest {
         final Node rootNode = session.getNode("/root");
         assertPrimaryNodeType(rootNode, "nt:unstructured");
         assertMixinNodeType(rootNode, "mix:title");
-        assertStringPropertyEquals(rootNode, "rules:title", "");
+        assertStringPropertyEquals(rootNode, "jcr:title", "");
     }
 
     /**
@@ -296,7 +296,7 @@ public class XMLContentHandlerTest {
         subject.startElement(namespace,
                              PROPERTY,
                              INK_PROPERTY,
-                             createAttributes("name", "rules:title", "jcrType", "STRING"));
+                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
         //title is empty
         subject.characters("".toCharArray(), 0, 0);
         subject.endElement(namespace, PROPERTY, INK_PROPERTY);
@@ -327,7 +327,7 @@ public class XMLContentHandlerTest {
         subject.startElement(INKSTAND_IMPORT_NAMESPACE,
                              PROPERTY,
                              INK_PROPERTY,
-                             createAttributes("name", "rules:title", "jcrType", "STRING"));
+                             createAttributes("name", "jcr:title", "jcrType", "STRING"));
         subject.characters("TestTitle".toCharArray(), 0, 9);
         subject.endElement(INKSTAND_IMPORT_NAMESPACE, PROPERTY, INK_PROPERTY);
 

@@ -75,7 +75,7 @@ public class XMLContentLoaderTest {
         assertEquals(root.getPath(), rootNode.getPath());
         assertPrimaryNodeType(root, "nt:unstructured");
         assertMixinNodeType(root, "mix:title");
-        assertStringPropertyEquals(root, "rules:title", "TestTitle");
+        assertStringPropertyEquals(root, "jcr:title", "TestTitle");
     }
 
     @Test
@@ -94,7 +94,7 @@ public class XMLContentLoaderTest {
         assertEquals(root.getPath(), rootNode.getPath());
         assertPrimaryNodeType(root, "nt:unstructured");
         assertMixinNodeType(root, "mix:title");
-        assertStringPropertyEquals(root, "rules:title", "TestTitle");
+        assertStringPropertyEquals(root, "jcr:title", "TestTitle");
     }
 
     @Test
@@ -116,7 +116,7 @@ public class XMLContentLoaderTest {
         assertNodeExistByPath(verifySession, "/root");
         assertPrimaryNodeType(root, "nt:unstructured");
         assertMixinNodeType(root, "mix:title");
-        assertStringPropertyEquals(root, "rules:title", "TestTitle");
+        assertStringPropertyEquals(root, "jcr:title", "TestTitle");
     }
 
     @Test(expected = AssertionError.class)

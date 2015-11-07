@@ -358,7 +358,7 @@ public class JackrabbitContentRepositoryTest extends TestCase {
             public void evaluate() throws Throwable {
                 //prepare
                 //act
-                subject.deny("anonymous", "/", "rules:read");
+                subject.deny("anonymous", "/", "jcr:read");
 
                 //assert
                 subject.getRepository().login();

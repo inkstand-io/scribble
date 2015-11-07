@@ -436,7 +436,7 @@ public class ContentRepositoryTest {
         setupInMemoryRepository();
 
         //act
-        subject.grant("anonymous", "/", "rules:all");
+        subject.grant("anonymous", "/", "jcr:all");
 
         //assert
         assertNotNull(repository.login().getRootNode().addNode("test", "nt:unstructured"));
@@ -461,7 +461,7 @@ public class ContentRepositoryTest {
         //prepare
         setupInMemoryRepository();
         //see testGrant that this works
-        subject.grant("anonymous", "/", "rules:all");
+        subject.grant("anonymous", "/", "jcr:all");
 
         //act
         subject.clearACL("/", "anonymous");
@@ -476,7 +476,7 @@ public class ContentRepositoryTest {
         //prepare
         setupInMemoryRepository();
         //see testGrant that this works
-        subject.grant("anonymous", "/", "rules:all");
+        subject.grant("anonymous", "/", "jcr:all");
 
         //act
         subject.clearACL("/", "someoneElse");
@@ -490,7 +490,7 @@ public class ContentRepositoryTest {
         //prepare
         setupInMemoryRepository();
         //see testGrant that this works
-        subject.grant("anonymous", "/", "rules:all");
+        subject.grant("anonymous", "/", "jcr:all");
 
         //act
         subject.clearACL("/");
@@ -505,7 +505,7 @@ public class ContentRepositoryTest {
         //prepare
 
         //act
-        subject.deny("anyId", "anyPath", "rules:all");
+        subject.deny("anyId", "anyPath", "jcr:all");
 
         //assert
 

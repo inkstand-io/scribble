@@ -78,7 +78,7 @@ public class ContentLoaderTest {
 
                 //assert
                 Session session = repository.login();
-                assertStringPropertyEquals(session.getNode("/root"), "rules:title", "TestTitle");
+                assertStringPropertyEquals(session.getNode("/root"), "jcr:title", "TestTitle");
 
             }
         }, description).evaluate();
@@ -100,7 +100,7 @@ public class ContentLoaderTest {
 
                 NodeIterator nit = session.getRootNode().getNodes();
                 assertEquals(1, nit.getSize());
-                assertEquals("/rules:system", nit.nextNode().getPath());
+                assertEquals("/jcr:system", nit.nextNode().getPath());
 
             }
         }, description).evaluate();
