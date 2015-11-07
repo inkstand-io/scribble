@@ -16,6 +16,7 @@
 
 package io.inkstand.scribble.jcr.rules;
 
+import static io.inkstand.scribble.jcr.JCRAssert.assertStringPropertyEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -24,18 +25,17 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Session;
 import java.net.URL;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
-
-import io.inkstand.scribble.JCRAssert;
-import io.inkstand.scribble.Scribble;
 
 /**
  * Created by Gerald on 08.06.2015.
@@ -46,7 +46,7 @@ public class ContentLoaderTest {
     private static final Logger LOG = getLogger(ContentLoaderTest.class);
 
     @Rule
-    public InMemoryContentRepository repository = Scribble.newInMemoryContentRepository().build();
+    public InMemoryContentRepository repository = new InMemoryContentRepository(new TemporaryFolder());
 
     @Mock
     private Description description;
@@ -78,7 +78,7 @@ public class ContentLoaderTest {
 
                 //assert
                 Session session = repository.login();
-                JCRAssert.assertStringPropertyEquals(session.getNode("/root"), "rules:title", "TestTitle");
+                assertStringPropertyEquals(session.getNode("/root"), "rules:title", "TestTitle");
 
             }
         }, description).evaluate();

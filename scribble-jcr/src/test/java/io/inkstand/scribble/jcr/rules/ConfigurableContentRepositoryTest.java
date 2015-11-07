@@ -16,7 +16,7 @@
 
 package io.inkstand.scribble.jcr.rules;
 
-import static io.inkstand.scribble.JCRAssert.assertNodeTypeExists;
+import static io.inkstand.scribble.jcr.JCRAssert.assertNodeTypeExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
@@ -29,6 +29,9 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.net.URL;
+
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.BaseRuleHelper;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.junit.After;
@@ -39,9 +42,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import io.inkstand.scribble.rules.BaseRule;
-import io.inkstand.scribble.rules.BaseRuleHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurableContentRepositoryTest {

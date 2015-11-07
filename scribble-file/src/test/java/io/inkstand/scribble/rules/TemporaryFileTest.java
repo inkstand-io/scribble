@@ -16,6 +16,15 @@
 
 package io.inkstand.scribble.rules;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+import java.net.URL;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,15 +34,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.net.URL;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TemporaryFileTest {
@@ -48,7 +48,12 @@ public class TemporaryFileTest {
     private Description description;
 
     private URL getTestContentUrl() {
-        return getClass().getResource("TemporaryFileTest_testContent.txt");
+        return getClass().getResource(packageToPath() +"TemporaryFileTest_testContent.txt");
+    }
+
+    private String packageToPath() {
+
+        return "/"+getClass().getPackage().toString().replaceAll("\\.", "/");
     }
 
     private URL getEmptyTestContentUrl() {

@@ -16,10 +16,10 @@
 
 package io.inkstand.scribble.jcr.rules.util;
 
-import static io.inkstand.scribble.JCRAssert.assertMixinNodeType;
-import static io.inkstand.scribble.JCRAssert.assertNodeExistByPath;
-import static io.inkstand.scribble.JCRAssert.assertPrimaryNodeType;
-import static io.inkstand.scribble.JCRAssert.assertStringPropertyEquals;
+import static io.inkstand.scribble.jcr.JCRAssert.assertMixinNodeType;
+import static io.inkstand.scribble.jcr.JCRAssert.assertNodeExistByPath;
+import static io.inkstand.scribble.jcr.JCRAssert.assertPrimaryNodeType;
+import static io.inkstand.scribble.jcr.JCRAssert.assertStringPropertyEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -35,24 +35,21 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
+
+import io.inkstand.scribble.jcr.rules.ContentRepository;
+import io.inkstand.scribble.jcr.rules.InMemoryContentRepository;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import io.inkstand.scribble.Scribble;
-import io.inkstand.scribble.jcr.rules.ContentRepository;
-
 public class XMLContentLoaderTest {
 
-    @Rule
-    public final ContentRepository repository = Scribble.newTempFolder()
-                                                               .aroundInMemoryContentRepository()
-                                                               .build();
+    public final TemporaryFolder folder = new TemporaryFolder();
 
     @Rule
-    public TemporaryFolder folder = Scribble.newTempFolder().build();
+    public final ContentRepository repository = new InMemoryContentRepository(folder);
 
     private XMLContentLoader subject;
 

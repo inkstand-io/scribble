@@ -16,14 +16,14 @@
 
 package io.inkstand.scribble.net;
 
-import io.inkstand.scribble.matchers.TimeoutSupport;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
+
+import io.inkstand.scribble.matchers.TimeoutSupport;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 
 /**
  * Created by <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a> on 3/12/2015

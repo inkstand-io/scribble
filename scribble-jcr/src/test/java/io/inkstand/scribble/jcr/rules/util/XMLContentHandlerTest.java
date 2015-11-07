@@ -16,29 +16,26 @@
 
 package io.inkstand.scribble.jcr.rules.util;
 
-import static io.inkstand.scribble.JCRAssert.assertMixinNodeType;
-import static io.inkstand.scribble.JCRAssert.assertNodeExistByPath;
-import static io.inkstand.scribble.JCRAssert.assertNodeNotExistByPath;
-import static io.inkstand.scribble.JCRAssert.assertPrimaryNodeType;
-import static io.inkstand.scribble.JCRAssert.assertStringPropertyEquals;
+import static io.inkstand.scribble.jcr.JCRAssert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
+
+import io.inkstand.scribble.jcr.rules.ContentRepository;
+import io.inkstand.scribble.jcr.rules.InMemoryContentRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.AttributesImpl;
-
-import io.inkstand.scribble.Scribble;
-import io.inkstand.scribble.jcr.rules.ContentRepository;
 
 public class XMLContentHandlerTest {
 
@@ -52,7 +49,7 @@ public class XMLContentHandlerTest {
     private static final String ROOT_NODE = "rootNode";
     private static final String INKSTAND_IMPORT_NAMESPACE = "http://inkstand.io/schemas/rules-import";
     @Rule
-    public final ContentRepository repository = Scribble.newTempFolder().aroundInMemoryContentRepository().build();
+    public final ContentRepository repository = new InMemoryContentRepository(new TemporaryFolder());
     private Session adminSession = null;
     private XMLContentHandler subject;
 

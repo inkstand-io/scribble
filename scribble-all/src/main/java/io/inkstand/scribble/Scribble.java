@@ -16,22 +16,19 @@
 
 package io.inkstand.scribble;
 
-import org.junit.rules.RuleChain;
-import org.junit.rules.TemporaryFolder;
-
+import io.inkstand.scribble.builder.TemporaryFolderBuilder;
 import io.inkstand.scribble.inject.Injection;
-import io.inkstand.scribble.rules.BaseRule;
-import io.inkstand.scribble.rules.builder.Builder;
-import io.inkstand.scribble.rules.builder.DirectoryBuilder;
-import io.inkstand.scribble.rules.builder.DirectoryServerBuilder;
-import io.inkstand.scribble.rules.builder.GenericBuilder;
-import io.inkstand.scribble.rules.builder.InMemoryContentRepositoryBuilder;
-import io.inkstand.scribble.rules.builder.JNDIContentRepositoryBuilder;
-import io.inkstand.scribble.rules.builder.MockContentRepositoryBuilder;
-import io.inkstand.scribble.rules.builder.StandaloneContentRepositoryBuilder;
-import io.inkstand.scribble.rules.builder.TemporaryFolderBuilder;
 import io.inkstand.scribble.jcr.rules.JNDIContentRepository;
 import io.inkstand.scribble.jcr.rules.MockContentRepository;
+import io.inkstand.scribble.jcr.rules.builder.InMemoryContentRepositoryBuilder;
+import io.inkstand.scribble.jcr.rules.builder.JNDIContentRepositoryBuilder;
+import io.inkstand.scribble.jcr.rules.builder.MockContentRepositoryBuilder;
+import io.inkstand.scribble.jcr.rules.builder.StandaloneContentRepositoryBuilder;
+import io.inkstand.scribble.rules.BaseRule;
+import io.inkstand.scribble.rules.ldap.builder.DirectoryBuilder;
+import io.inkstand.scribble.rules.ldap.builder.DirectoryServerBuilder;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * Main utility class for the Inkstand test framework Scribble. <h2>Injection support</h2> Scribble allows injecting

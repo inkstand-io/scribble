@@ -16,10 +16,11 @@
 
 package io.inkstand.scribble.rules.builder;
 
+import java.net.URL;
+
+import io.inkstand.scribble.Builder;
 import io.inkstand.scribble.rules.TemporaryFile;
 import org.junit.rules.TemporaryFolder;
-
-import java.net.URL;
 
 /**
  * Builder for creating a temporary file in a temporary folder.

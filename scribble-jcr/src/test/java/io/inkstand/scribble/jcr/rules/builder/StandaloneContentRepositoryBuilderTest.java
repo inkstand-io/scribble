@@ -16,12 +16,14 @@
 
 package io.inkstand.scribble.jcr.rules.builder;
 
-import static io.inkstand.scribble.JCRAssert.assertNodeTypeExists;
+import static io.inkstand.scribble.jcr.JCRAssert.assertNodeTypeExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import javax.jcr.Session;
 import java.net.URL;
+
+import io.inkstand.scribble.jcr.rules.StandaloneContentRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,8 +33,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import io.inkstand.scribble.jcr.rules.StandaloneContentRepository;
 
 /**
  * Created by Gerald on 19.05.2015.

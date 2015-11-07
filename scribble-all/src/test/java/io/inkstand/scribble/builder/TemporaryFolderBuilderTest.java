@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package io.inkstand.scribble.rules.builder;
+package io.inkstand.scribble.builder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import io.inkstand.scribble.jcr.rules.builder.InMemoryContentRepositoryBuilder;
+import io.inkstand.scribble.jcr.rules.builder.StandaloneContentRepositoryBuilder;
+import io.inkstand.scribble.rules.TemporaryFile;
+import io.inkstand.scribble.rules.builder.TemporaryFileBuilder;
+import io.inkstand.scribble.rules.ldap.builder.DirectoryBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +35,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import io.inkstand.scribble.rules.TemporaryFile;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TemporaryFolderBuilderTest {

@@ -16,7 +16,7 @@
 
 package io.inkstand.scribble;
 
-import static io.inkstand.scribble.JCRAssert.assertNodeTypeExists;
+import static io.inkstand.scribble.jcr.JCRAssert.assertNodeTypeExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -26,6 +26,17 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.jcr.Session;
 import java.net.URL;
+
+import io.inkstand.scribble.builder.TemporaryFolderBuilder;
+import io.inkstand.scribble.inject.Injection;
+import io.inkstand.scribble.jcr.rules.InMemoryContentRepository;
+import io.inkstand.scribble.jcr.rules.StandaloneContentRepository;
+import io.inkstand.scribble.jcr.rules.builder.InMemoryContentRepositoryBuilder;
+import io.inkstand.scribble.jcr.rules.builder.JNDIContentRepositoryBuilder;
+import io.inkstand.scribble.jcr.rules.builder.MockContentRepositoryBuilder;
+import io.inkstand.scribble.jcr.rules.builder.StandaloneContentRepositoryBuilder;
+import io.inkstand.scribble.rules.ldap.Directory;
+import io.inkstand.scribble.rules.ldap.DirectoryServer;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -33,17 +44,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import io.inkstand.scribble.inject.Injection;
-import io.inkstand.scribble.rules.builder.InMemoryContentRepositoryBuilder;
-import io.inkstand.scribble.rules.builder.JNDIContentRepositoryBuilder;
-import io.inkstand.scribble.rules.builder.MockContentRepositoryBuilder;
-import io.inkstand.scribble.rules.builder.StandaloneContentRepositoryBuilder;
-import io.inkstand.scribble.rules.builder.TemporaryFolderBuilder;
-import io.inkstand.scribble.jcr.rules.InMemoryContentRepository;
-import io.inkstand.scribble.jcr.rules.StandaloneContentRepository;
-import io.inkstand.scribble.rules.ldap.Directory;
-import io.inkstand.scribble.rules.ldap.DirectoryServer;
 
 /**
  * Created by Gerald on 18.05.2015.
@@ -100,6 +100,19 @@ public class ScribbleTest {
     }
 
     @Test
+    public void testInjectInto_ValidValue_valueInjected() throws Exception {
+        //prepare
+        // create an injection with no value (null) for a config property with a default value
+        final SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        // act
+        Scribble.inject("testString").asConfigProperty("config.property.default").into(target);
+
+        // assert
+        assertEquals("testString", target.configPropertyWithDefault);
+    }
+
+    @Test
     public void testInjectAsConfigPropertyInto() throws Exception {
         //prepare
         String var = "123";
@@ -140,6 +153,31 @@ public class ScribbleTest {
 
         //assert
         assertEquals(var, target.primitiveInt);
+    }
+
+    @Test
+    public void testInjectInto_NullValue_defaultInjected() throws Exception {
+        //prepare
+        final SimpleInjectionTarget target = new SimpleInjectionTarget();
+
+        // act
+        Scribble.inject(null).asConfigProperty("config.property.default").into(target);
+
+        // assert
+        assertEquals("defaultValue", target.configPropertyWithDefault);
+    }
+
+    @Test
+    public void testInjectInto_nonConvertibleType_valueInjected() throws Exception {
+        //prepare
+        final SimpleInjectionTarget target = new SimpleInjectionTarget();
+        Object object = new Object();
+
+        // act
+        Scribble.inject(object).asConfigProperty("config.property").into(target);
+
+        // assert
+        assertEquals(object, target.nonMatchingNonAutoConvertible);
     }
 
     @Test
@@ -308,5 +346,28 @@ public class ScribbleTest {
         @Inject
         @ConfigProperty(name = "property2")
         int primitiveInt;
+
+        @ConfigProperty(name = "config.property")
+        String noInjectConfigProperty;
+
+        @Inject
+        @ConfigProperty(name = "config.property")
+        String configProperty;
+
+        @Inject
+        @ConfigProperty(name = "config.property.default",
+                        defaultValue = "defaultValue")
+        String configPropertyWithDefault;
+
+        @Inject
+        String noConfigProperty;
+
+        @Inject
+        @ConfigProperty(name = "config.property")
+        int autoConvertibleField;
+
+        @Inject
+        @ConfigProperty(name = "config.property")
+        Object nonMatchingNonAutoConvertible;
     }
 }

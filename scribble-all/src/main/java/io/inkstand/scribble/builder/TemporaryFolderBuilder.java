@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package io.inkstand.scribble.rules.builder;
+package io.inkstand.scribble.builder;
 
-import org.junit.rules.TemporaryFolder;
-
-import io.inkstand.scribble.rules.TemporaryFile;
+import io.inkstand.scribble.Builder;
 import io.inkstand.scribble.jcr.rules.InMemoryContentRepository;
 import io.inkstand.scribble.jcr.rules.StandaloneContentRepository;
+import io.inkstand.scribble.jcr.rules.builder.InMemoryContentRepositoryBuilder;
+import io.inkstand.scribble.jcr.rules.builder.StandaloneContentRepositoryBuilder;
+import io.inkstand.scribble.rules.TemporaryFile;
+import io.inkstand.scribble.rules.builder.TemporaryFileBuilder;
+import io.inkstand.scribble.rules.ldap.builder.DirectoryBuilder;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * Builder for the Temporary Folder.
