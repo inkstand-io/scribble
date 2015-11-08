@@ -57,6 +57,7 @@
 
         <!-- javax Versions -->
         <javax.jcr.version>2.0</javax.jcr.version>
+        <javax.cdi.spec.version>1.2</javax.cdi.spec.version>
         <javax.javaee-api.version>7.0</javax.javaee-api.version>
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
         <jboss.resteasy.version>3.0.10.Final</jboss.resteasy.version>
@@ -82,6 +83,11 @@
                 <groupId>javax</groupId>
                 <artifactId>javaee-api</artifactId>
                 <version>${javax.javaee-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>${javax.cdi.spec.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -128,18 +134,6 @@
                 <version>${mockito.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>1.1.5.Final</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap</groupId>
-                <artifactId>shrinkwrap-bom</artifactId>
-                <version>1.2.2</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
                 <groupId>org.jboss.arquillian.junit</groupId>
                 <artifactId>arquillian-junit-container</artifactId>
                 <version>1.1.5.Final</version>
@@ -149,16 +143,10 @@
                 <artifactId>shrinkwrap-resolver-api-maven</artifactId>
                 <version>2.1.1</version>
             </dependency>
-
             <!-- Apache Deltaspike -->
             <dependency>
                 <groupId>org.apache.deltaspike.core</groupId>
                 <artifactId>deltaspike-core-api</artifactId>
-                <version>${apache.deltaspike.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.deltaspike.core</groupId>
-                <artifactId>deltaspike-core-impl</artifactId>
                 <version>${apache.deltaspike.version}</version>
             </dependency>
             <!-- JCR Dependencies -->
@@ -178,29 +166,47 @@
                 <artifactId>jackrabbit-jcr-commons</artifactId>
                 <version>${apache.jackrabbit.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-webapp</artifactId>
-                <version>${apache.jackrabbit.version}</version>
-                <type>war</type>
-            </dependency>
             <!-- Apache DS -->
             <dependency>
                 <groupId>org.apache.directory.server</groupId>
                 <artifactId>apacheds-all</artifactId>
                 <version>${apache.ds.server.version}</version>
             </dependency>
-            <!-- Utilities -->
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>15.0</version>
-                <classifier>cdi1.0</classifier>
-            </dependency>
         </dependencies>
-
-
     </dependencyManagement>
+
+    <dependencies>
+        <!-- JUnit is required by all modules and won't be added as dependency as Scribble consumers
+             must add JUnit themselves -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- SLF4J & Log4J2 Bindings are added so that tests can produce log-output -->
+        <!-- Binding for Log4J -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Log4j API and Core implementation required for binding -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
