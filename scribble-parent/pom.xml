@@ -31,6 +31,11 @@
         <url>git@github.com:inkstand-io/scribble.git</url>
     </scm>
 
+    <issueManagement>
+        <system>Jira</system>
+        <url>https://inkstand.atlassian.net/</url>
+    </issueManagement>
+
     <developers>
         <developer>
             <name>Gerald Muecke</name>
@@ -64,14 +69,7 @@
                     <reportSet>
                         <reports>
                             <report>index</report>
-                            <report>summary</report>
                             <report>dependency-info</report>
-                            <report>dependency-management</report>
-                            <report>distribution-management</report>
-                            <report>modules</report>
-                            <report>issue-tracking</report>
-                            <report>license</report>
-                            <report>scm</report>
                         </reports>
                     </reportSet>
                 </reportSets>
@@ -291,6 +289,61 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>site.parent</id>
+            <activation>
+                <file>
+                    <exists>src/site/site.parent.marker</exists>
+                </file>
+            </activation>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                    <report>index</report>
+                                    <report>summary</report>
+                                    <report>dependency-management</report>
+                                    <report>distribution-management</report>
+                                    <report>issue-tracking</report>
+                                    <report>license</report>
+                                    <report>scm</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
+        <profile>
+            <id>site.root</id>
+            <activation>
+                <file>
+                    <exists>src/site/site.root.marker</exists>
+                </file>
+            </activation>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                    <report>index</report>
+                                    <report>summary</report>
+                                    <report>dependency-info</report>
+                                    <report>modules</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
         <profile>
             <id>development</id>
             <activation>
