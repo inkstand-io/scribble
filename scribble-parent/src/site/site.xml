@@ -10,6 +10,7 @@
         <menu name="Documentation">
             <item name="About" href="index.html"/>
             <item name="Getting Started" href="getting-started.html"/>
+            <item name="Rules" href="rules.html"/>
         </menu>
         <menu name="Modules">
             <item name="Modules" href="scribble/index.html"/>
