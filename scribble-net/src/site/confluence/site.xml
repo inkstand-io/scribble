@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bsc:site
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns:bsc='https://github.com/bsorrentino/maven-confluence-plugin'
+        xsi:schemaLocation='https://github.com/bsorrentino/maven-confluence-plugin https://raw.githubusercontent.com/bsorrentino/maven-confluence-plugin/master/schemas/site-schema-3.4.0.xsd'>
+    <home name="Network" uri="../markdown/usage.md">
+        <child name="Matchers" uri="../markdown/matchers.md"/>
+    </home>
+
+    <label>documentation</label>
+    <label>network</label>
+    <label>generated</label>
+
+</bsc:site>
