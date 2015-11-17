@@ -54,10 +54,6 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-        <site>
-            <id>sites.scribble.confluence</id>
-            <url>file:///d:/sites/scribble</url>
-        </site>
     </distributionManagement>
 
     <reporting>
@@ -310,6 +306,20 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>site.local</id>
+            <activation>
+                <file>
+                    <exists>/sites/scribble</exists>
+                </file>
+            </activation>
+            <distributionManagement>
+                <site>
+                    <id>sites.scribble.confluence</id>
+                    <url>file:///sites/scribble</url>
+                </site>
+            </distributionManagement>
+        </profile>
         <profile>
             <id>site.wiki.clear</id>
             <build>

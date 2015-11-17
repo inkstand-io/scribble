@@ -44,6 +44,7 @@ public class RemoteTcpPort extends TcpPort {
     /**
      * The hostname for the remote port
      * @return
+     *  the name of the remote host
      */
     public String getHostname() {
 
