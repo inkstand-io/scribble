@@ -10,7 +10,7 @@ To make a scribble, import the maven dependency into your project, preferrably i
     <dependency>
         <groupId>io.inkstand</groupId>
         <artifactId>scribble</artifactId>
-        <version>0.2.0</version>
+        <version>0.3.0</version>
         <scope>test</scope>
     </dependency>
 ```
@@ -18,7 +18,7 @@ To make a scribble, import the maven dependency into your project, preferrably i
 or download it manually from Maven:
 
 - STABLE: http://central.maven.org/maven2/io/inkstand/scribble/0.2.0/scribble-0.2.0.jar
-- LATEST: http://central.maven.org/maven2/io/inkstand/scribble/0.2.0/scribble-0.2.0.jar
+- LATEST: http://central.maven.org/maven2/io/inkstand/scribble/0.3.0/scribble-0.3.0.jar
 
 First Scribble
 --------------

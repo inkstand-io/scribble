@@ -3,10 +3,13 @@
         xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
         xmlns:bsc='https://github.com/bsorrentino/maven-confluence-plugin'
         xsi:schemaLocation='https://github.com/bsorrentino/maven-confluence-plugin https://raw.githubusercontent.com/bsorrentino/maven-confluence-plugin/master/schemas/site-schema-3.4.0.xsd'>
-    <home name="CDI" uri="../markdown/usage.md"/>
 
-    <label>documentation</label>
+    <home name="CDI" uri="index.confluence">
+        <child name="Usage" uri="../markdown/usage.md"/>
+    </home>
+
     <label>cdi</label>
+    <label>documentation</label>
     <label>generated</label>
 
 </bsc:site>

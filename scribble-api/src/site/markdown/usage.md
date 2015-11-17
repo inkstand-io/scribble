@@ -28,15 +28,16 @@ The external resource has a detection of the context and invokes different setup
 - afterClass
 
 As the methods are independent of each other, it is even possible to use the same rule instance as @ClassRule AND @Rule
-public MyTest {
+
+    public MyTest {
  
-    @ClassRule
-    public static ExternalResource scribbleResource = ...
-     
-    @Rule
-    public ExternalResource testResource = scribbleResource;
-     
-    ...
+        @ClassRule
+        public static ExternalResource scribbleResource = ...
+         
+        @Rule
+        public ExternalResource testResource = scribbleResource;
+         
+        ...
     }
 
 A typical use case scenario could be
