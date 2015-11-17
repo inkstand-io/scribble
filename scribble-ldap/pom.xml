@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>scribble</artifactId>
+        <groupId>io.inkstand</groupId>
+        <version>0.3.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>scribble-ldap</artifactId>
+    <name>${project.artifactId}</name>
+    <description>LDAP support, providing embedded directories and directory servers as a test rule.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.inkstand</groupId>
+            <artifactId>scribble-api</artifactId>
+            <version>0.3.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.inkstand</groupId>
+            <artifactId>scribble-net</artifactId>
+            <version>0.3.0-SNAPSHOT</version>
+        </dependency>
+        <!-- Apache DS -->
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-all</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
