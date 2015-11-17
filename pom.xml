@@ -35,14 +35,47 @@
 
 	<modules>
 		<module>scribble-api</module>
-		<module>scribble-inject</module>
-		<module>scribble-net</module>
 		<module>scribble-security</module>
+		<module>scribble-net</module>
+		<module>scribble-inject</module>
+		<module>scribble-file</module>
 		<module>scribble-jcr</module>
 		<module>scribble-ldap</module>
-		<module>scribble-file</module>
 		<module>scribble-all</module>
 		<module>scribble-parent</module>
 	</modules>
+
+	<dependencies>
+		<!-- JUnit is required by all modules and won't be added as dependency as Scribble consumers
+             must add JUnit themselves -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!-- SLF4J & Log4J2 Bindings are added so that tests can produce log-output -->
+		<!-- Binding for Log4J -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Log4j API and Core implementation required for binding -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 
 </project>
