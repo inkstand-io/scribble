@@ -28,7 +28,7 @@ import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 /**
  * Provides means to inject a value into an arbitrary object's fields.
- * <br/>
+ * <br>
  * Example:
  * <pre><code>
  *     class Target {
