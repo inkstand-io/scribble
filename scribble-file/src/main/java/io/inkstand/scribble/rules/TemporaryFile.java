@@ -89,6 +89,18 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
 
     }
 
+    @Override
+    protected void beforeClass() throws Throwable {
+
+        before();
+    }
+
+    @Override
+    protected void afterClass() {
+
+        after();
+    }
+
     /**
      * Returns the file handle of the external file
      *
