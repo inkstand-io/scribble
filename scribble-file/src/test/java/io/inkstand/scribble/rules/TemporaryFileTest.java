@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.URL;
 
@@ -148,6 +149,31 @@ public class TemporaryFileTest {
             }
 
         });
+
+        // act
+        subject.apply(base, description).evaluate();
+
+        // assert
+        verify(base).evaluate();
+
+    }
+
+    @Test
+    public void testApply_classRule() throws Throwable {
+
+        // prepare
+        final TemporaryFile subject = new TemporaryFile(new TemporaryFolder(), "testfile.txt");
+        final Statement base = spy(new Statement() {
+
+            @Override
+            public void evaluate() throws Throwable {
+
+                assertTrue("Temporary file was not created", subject.getFile().exists());
+                assertEquals("testfile.txt", subject.getFile().getName());
+            }
+
+        });
+        when(description.isSuite()).thenReturn(true);
 
         // act
         subject.apply(base, description).evaluate();
