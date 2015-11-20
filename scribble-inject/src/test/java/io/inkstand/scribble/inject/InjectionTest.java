@@ -214,6 +214,11 @@ public class InjectionTest {
     }
 
     @Test
+    public void testGetDefaultValue() throws Exception {
+        assertNull(subject.getValue());
+    }
+
+    @Test
     public void testIsMatching_nullValue_True() throws Exception {
         final Injection subject = new Injection(null);
         final Field field = SimpleInjectionTarget.class.getDeclaredField("injectionTarget3");

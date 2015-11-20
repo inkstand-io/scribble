@@ -93,6 +93,24 @@ public class Injection {
     }
 
     /**
+     * Determines the effective value for the injection into the specified field. If no value has been set,
+     * the default value is returned, which defaults to null but can be overrided with the method
+     * {@link #getDefaultValue(java.lang.reflect.Field)}
+     * @param field
+     *  the field for which the injection value should be retrieved
+     * @return
+     *  the value to be injected
+     */
+    private Object getValue(final Field field) {
+
+        final Object val = this.getValue();
+        if(val == null) {
+            return getDefaultValue(field);
+        }
+        return val;
+    }
+
+    /**
      * Prepares an injection of a {@link ConfigProperty} qualified injection point field.
      *
      * @return a {@link ConfigPropertyInjection} handle
@@ -155,24 +173,6 @@ public class Injection {
             }
         }
         assertTrue("No matching field for injection found", success);
-    }
-
-    /**
-     * Determines the effective value for the injection into the specified field. If no value has been set,
-     * the default value is returned, which defaults to null but can be overrided with the method
-     * {@link #getDefaultValue(java.lang.reflect.Field)}
-     * @param field
-     *  the field for which the injection value should be retrieved
-     * @return
-     *  the value to be injected
-     */
-    private Object getValue(final Field field) {
-
-        final Object val = this.getValue();
-        if(val == null) {
-            return getDefaultValue(field);
-        }
-        return val;
     }
 
     /**
