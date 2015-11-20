@@ -81,14 +81,14 @@ public class ConfigPropertyInjection extends CdiInjection {
         this.configPropertyName = configPropertyName;
     }
 
-    @Override
-    protected Object getValue() {
 
-        Object value = super.getValue();
-        if (value == null) {
-            value = this.defaultValue;
+    @Override
+    protected Object getDefaultValue(final Field field) {
+        final ConfigProperty configProperty = field.getAnnotation(ConfigProperty.class);
+        if (configProperty != null && this.configPropertyName.equals(configProperty.name())) {
+            return configProperty.defaultValue();
         }
-        return value;
+        return super.getDefaultValue(field);
     }
 
     @Override
@@ -156,7 +156,6 @@ public class ConfigPropertyInjection extends CdiInjection {
         }
         final ConfigProperty configProperty = field.getAnnotation(ConfigProperty.class);
         if (configProperty != null && this.configPropertyName.equals(configProperty.name())) {
-            this.defaultValue = configProperty.defaultValue();
             return true;
         }
         return false;

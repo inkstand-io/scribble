@@ -74,12 +74,22 @@ public class Injection {
     }
 
     /**
-     * The value that should be injected.
+     * The value that should be injected into the specified field
      * @return The value that should be injected.
      */
     protected Object getValue() {
 
         return this.value;
+    }
+    /**
+     * Provides the default value for the specified field.
+     * @param field
+     *  the field for which the default value should be determined
+     * @return The value that should be injected. Default value is null;
+     */
+    protected Object getDefaultValue(final Field field) {
+
+        return null;
     }
 
     /**
@@ -131,7 +141,7 @@ public class Injection {
 
         for (final Field field : this.collectFieldCandidates(target)) {
             if (this.isMatching(field)) {
-                final Object val = this.getValue();
+                Object val = getValue(field);
                 try {
                     field.setAccessible(true);
                     this.inject(target, field, val);
@@ -145,6 +155,24 @@ public class Injection {
             }
         }
         assertTrue("No matching field for injection found", success);
+    }
+
+    /**
+     * Determines the effective value for the injection into the specified field. If no value has been set,
+     * the default value is returned, which defaults to null but can be overrided with the method
+     * {@link #getDefaultValue(java.lang.reflect.Field)}
+     * @param field
+     *  the field for which the injection value should be retrieved
+     * @return
+     *  the value to be injected
+     */
+    private Object getValue(final Field field) {
+
+        final Object val = this.getValue();
+        if(val == null) {
+            return getDefaultValue(field);
+        }
+        return val;
     }
 
     /**
