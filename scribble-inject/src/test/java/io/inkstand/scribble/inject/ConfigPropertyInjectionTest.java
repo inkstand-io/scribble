@@ -145,18 +145,16 @@ public class ConfigPropertyInjectionTest {
     }
 
     @Test
-    public void testGetValue_defaultValueOfMatchingConfigProperty() throws Exception {
+    public void testGetDefaultValue_defaultValueOfMatchingConfigProperty() throws Exception {
         // prepare
         // create an injection with no value (null) for a config property with a default value
         final ConfigPropertyInjection subject = new ConfigPropertyInjection("config.property.default", null);
         assertNull(subject.getValue());
         // get the field of the config property that has a default value and matches the injection name
         final Field field = SimpleInjectionTarget.class.getDeclaredField("configPropertyWithDefault");
-        // trigger a successful match
-        subject.isMatching(field);
 
         // act
-        final String value = (String) subject.getValue();
+        final String value = (String) subject.getDefaultValue(field);
 
         // assert
         assertNotNull(value);
