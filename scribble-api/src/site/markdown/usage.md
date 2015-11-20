@@ -67,3 +67,26 @@ The Rule can easily be created by instantiating it and doesn't require further i
     @Rule
     public SystemProperties sysprops = new SystemProperties();
     
+io.inkstand.scribble.rules.SystemConsole
+----------------------------------------
+The `SystemConsole` Rule captures the output written to `System.out` and `System.err` so that it is accessible from 
+within the test case, i.e. for verifying a certain output has been written. The original streams are preserved and
+restored on teardown.
+
+The Rule can easily be created by instantiating it and doesn't require further initialization or parameters. The output
+written is accesible by getter methods.
+
+    @Rule
+    public SystemConsole console = new SystemConsole();
+    
+    @Test
+    public void outTest() {
+        System.out.print("test");
+        assertEquals("test", console.getOut());
+    }
+    
+    @Test
+    public void errTest() {
+        System.err.print("test");
+        assertEquals("test", console.getErr());
+    }
