@@ -4,10 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
 import io.inkstand.scribble.rules.ldap.builder.DirectoryBuilder;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -17,6 +20,8 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 
 /**
+ * This example shows how to setup and connect to the ldap server. The suite contains two tests simply to prove,
+ * the rule is re-usable as classrule without having to restart.
  * Created by Gerald Muecke on 23.11.2015.
  */
 public class DirectoryServerExample {
@@ -36,7 +41,22 @@ public class DirectoryServerExample {
 
 
     @Test
-    public void testLookup() throws Exception {
+    public void testLookup_one() throws Exception {
+
+        doTest();
+
+    }
+
+    @Test
+    public void testLookup_two() throws Exception {
+        //prepare
+        doTest();
+
+    }
+
+    private void doTest()
+            throws LdapException, org.apache.directory.api.ldap.model.cursor.CursorException, IOException {
+
         //prepare
         final LdapConnection connection = new LdapNetworkConnection("localhost", ldap.getTcpPort());
 
@@ -56,7 +76,6 @@ public class DirectoryServerExample {
         } finally {
             connection.close();
         }
-
     }
 
 }
