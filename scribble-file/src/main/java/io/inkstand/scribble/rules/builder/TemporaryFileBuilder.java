@@ -29,17 +29,23 @@ import org.junit.rules.TemporaryFolder;
  */
 public class TemporaryFileBuilder extends Builder<TemporaryFile> {
 
-    private final TemporaryFile temporaryFile;
+    private final TemporaryFolder folder;
+    private final String filename;
+    private URL content;
+    private boolean forceContent;
 
     public TemporaryFileBuilder(final TemporaryFolder folder, final String fileName) {
-
-        temporaryFile = new TemporaryFile(folder, fileName);
+        this.folder = folder;
+        this.filename = fileName;
     }
 
     @Override
     public TemporaryFile build() {
 
-        return temporaryFile;
+        final TemporaryFile file = new TemporaryFile(folder, filename);
+        file.setForceContent(this.forceContent);
+        file.setContentUrl(this.content);
+        return file;
     }
 
     /**
@@ -59,20 +65,19 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
         if (contentUrl == null) {
             contentUrl = getClass().getResource(pathToResource);
         }
-        temporaryFile.setContentUrl(contentUrl);
+        this.content = contentUrl;
         return this;
     }
 
     /**
      * Defines the resource by URL from where the content of the file should be retrieved
-     * 
+     *
      * @param resource
      *            the resource whose content will be used for the temporary file as content
      * @return the builder
      */
     public TemporaryFileBuilder fromResource(final URL resource) {
-
-        temporaryFile.setContentUrl(resource);
+        this.content = resource;
         return this;
     }
 
@@ -83,9 +88,17 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      * @return the builder
      */
     public TemporaryFileBuilder withContent() {
-
-        temporaryFile.setForceContent(true);
+        this.forceContent = true;
         return this;
     }
 
+    /**
+     * Indicates the content for the file should be zipped. If only one content reference is provided, the zip
+     * will only contain this file.
+     * @return
+     *  the builder
+     */
+    public ZipFileBuilder asZip() {
+        return new ZipFileBuilder(this);
+    }
 }
