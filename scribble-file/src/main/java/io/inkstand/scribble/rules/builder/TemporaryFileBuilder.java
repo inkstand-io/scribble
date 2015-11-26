@@ -20,6 +20,7 @@ import java.net.URL;
 
 import io.inkstand.scribble.Builder;
 import io.inkstand.scribble.rules.TemporaryFile;
+import io.inkstand.scribble.util.ResourceResolver;
 import org.junit.rules.TemporaryFolder;
 
 /**
@@ -56,16 +57,7 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      * @return the builder
      */
     public TemporaryFileBuilder fromClasspathResource(final String pathToResource) {
-
-        final ClassLoader ccl = Thread.currentThread().getContextClassLoader();
-        URL contentUrl = null;
-        if (ccl != null) {
-            contentUrl = ccl.getResource(pathToResource);
-        }
-        if (contentUrl == null) {
-            contentUrl = getClass().getResource(pathToResource);
-        }
-        this.content = contentUrl;
+        this.content = new ResourceResolver().resolve(pathToResource, getClass());
         return this;
     }
 
@@ -99,6 +91,7 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      *  the builder
      */
     public ZipFileBuilder asZip() {
-        return new ZipFileBuilder(this);
+        return new ZipFileBuilder(folder, filename);
     }
+
 }

@@ -33,9 +33,9 @@ public final class CallStack {
         } catch (ClassNotFoundException e) {
             LOG.debug("Could not determine caller class", e);
             return null;
-
         }
     }
+
 
     /**
      * Loads the class specified by name using the Thread's context class loader - if defined - otherwise the

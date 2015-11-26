@@ -18,6 +18,7 @@ package io.inkstand.scribble.rules;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -70,16 +71,49 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
     @Override
     protected void before() throws Throwable {
 
-        file = folder.newFile(filename);
+        createTempFile();
+    }
+
+    /**
+     * The filename of the temporary file
+     * @return
+     *  the name of the file
+     */
+    protected String getFilename() {
+        return filename;
+    }
+
+    /**
+     * Creates a new empty file in the temporary folder.
+     * @return
+     *  the file handle to the empty file
+     * @throws IOException
+     */
+    protected File newFile() throws IOException {
+
+        return folder.newFile(filename);
+    }
+
+    /**
+     * Creates the file including content. Override this method to implement a custom mechanism to create the temporary
+     * file
+     * @return
+     *  the file handle to the newly created file
+     * @throws IOException
+     */
+    protected File createTempFile() throws IOException {
+
+        final File file = newFile();
         if (forceContent && contentUrl == null) {
             throw new AssertionError("ContentUrl is not set");
         } else if (contentUrl != null) {
             try (InputStream is = contentUrl.openStream();
-                    OutputStream os = new FileOutputStream(file)) {
+                 OutputStream os = new FileOutputStream(file)) {
                 IOUtils.copy(is, os);
             }
 
         }
+        return file;
     }
 
     @Override
