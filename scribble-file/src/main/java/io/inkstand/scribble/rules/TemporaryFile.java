@@ -17,13 +17,11 @@
 package io.inkstand.scribble.rules;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.rules.TemporaryFolder;
 
 /**
@@ -84,14 +82,16 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
     }
 
     /**
-     * Creates a new empty file in the temporary folder.
+     * Creates a new empty file in the temporary folder. The file is the FS file on that is represented by this
+     * TemporaryFile rule.
      * @return
      *  the file handle to the empty file
      * @throws IOException
      */
     protected File newFile() throws IOException {
 
-        return folder.newFile(filename);
+        this.file = new File(folder.getRoot(), filename);
+        return this.file;
     }
 
     /**
@@ -107,9 +107,8 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
         if (forceContent && contentUrl == null) {
             throw new AssertionError("ContentUrl is not set");
         } else if (contentUrl != null) {
-            try (InputStream is = contentUrl.openStream();
-                 OutputStream os = new FileOutputStream(file)) {
-                IOUtils.copy(is, os);
+            try (InputStream is = contentUrl.openStream()) {
+                Files.copy(is, file.toPath());
             }
 
         }

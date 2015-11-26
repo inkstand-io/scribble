@@ -40,6 +40,8 @@ public class ZipFileBuilder extends Builder<TemporaryFile> {
      * @param zipEntryPath
      *  the path of the entry in the zip file. If the path denotes a path (ends with '/') the resource is
      *  put under its own name on that location. If it denotes a file, it will be put as this file into the zip.
+     *  Note that even if the path ist defined absolute, starting with a '/', the created entry in the zip file
+     *  won't start with a '/'
      * @param pathToResource
      *  the path to the resource in the classpath
      * @return
