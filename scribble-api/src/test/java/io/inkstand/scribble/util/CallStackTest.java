@@ -36,11 +36,13 @@ public class CallStackTest {
         //prepare
 
         //act
-        Class<?> cls = CallStack.getCallerClass();
+        Class<?> cls = new MockClass().callingMethod();
 
         //assert
-        assertEquals(this.getClass(), cls);
+        assertEquals(MockClass.class, cls);
     }
+
+
     @Test
     public void testGetCallerClass_contextClassLoader() throws Exception {
 
@@ -57,5 +59,9 @@ public class CallStackTest {
 
     public static class MockClass extends CallStackTest {
 
+        private Class<?> callingMethod() {
+
+            return CallStack.getCallerClass();
+        }
     }
 }

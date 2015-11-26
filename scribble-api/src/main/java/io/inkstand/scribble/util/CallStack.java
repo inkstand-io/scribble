@@ -28,7 +28,7 @@ public final class CallStack {
     public static Class<?> getCallerClass(){
         final StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
         try {
-            StackTraceElement caller = stElements[2];
+            StackTraceElement caller = stElements[3];
             return loadClass(caller.getClassName());
         } catch (ClassNotFoundException e) {
             LOG.debug("Could not determine caller class", e);
