@@ -40,14 +40,17 @@ public final class CallStack {
         //we start with 1 as 0 is always java.lang.Thread itself
         for(int i = 1, len = stElements.length-1; i < len; i++){
             final StackTraceElement ste = stElements[i];
-            if(ste.getMethodName().matches("access\\$/d+")
-                || CallStack.class.getName().equals(ste.getClassName())){
+            if(CallStack.class.getName().equals(ste.getClassName())){
                 continue;
-            } else {
-                //we dont want the caller of the getCallerClass Method (i+1) but the caller of
-                //the method which call getCallerClass
+            } else if(stElements[i+1].getMethodName().matches("access\\$\\d+")){
+                //there might be an accessor method between, ignore it
                 return stElements[i+2];
+            } else {
+                //we dont want the caller of the getCallerClass Method (i) but the caller of
+                //the method which call getCallerClass (i+1)
+                return stElements[i+1];
             }
+
         }
         return stElements[stElements.length-1];
     }
