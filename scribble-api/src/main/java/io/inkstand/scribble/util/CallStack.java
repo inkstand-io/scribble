@@ -28,7 +28,7 @@ public final class CallStack {
     public static Class<?> getCallerClass(){
         final StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
         try {
-            StackTraceElement caller = stElements[3];
+            final StackTraceElement caller = findCaller(stElements);
             return loadClass(caller.getClassName());
         } catch (ClassNotFoundException e) {
             LOG.debug("Could not determine caller class", e);
@@ -36,6 +36,21 @@ public final class CallStack {
         }
     }
 
+    private static StackTraceElement findCaller(final StackTraceElement[] stElements) {
+        //we start with 1 as 0 is always java.lang.Thread itself
+        for(int i = 1, len = stElements.length-1; i < len; i++){
+            final StackTraceElement ste = stElements[i];
+            if(ste.getMethodName().matches("access\\$/d+")
+                || CallStack.class.getName().equals(ste.getClassName())){
+                continue;
+            } else {
+                //we dont want the caller of the getCallerClass Method (i+1) but the caller of
+                //the method which call getCallerClass
+                return stElements[i+2];
+            }
+        }
+        return stElements[stElements.length-1];
+    }
 
     /**
      * Loads the class specified by name using the Thread's context class loader - if defined - otherwise the

@@ -36,10 +36,10 @@ public class CallStackTest {
         //prepare
 
         //act
-        Class<?> cls = new MockClass().callingMethod();
+        Class<?> cls = new CallingClass().callingMethod();
 
         //assert
-        assertEquals(MockClass.class, cls);
+        assertEquals(CallStackTest.class, cls);
     }
 
 
@@ -51,17 +51,23 @@ public class CallStackTest {
         Thread.currentThread().setContextClassLoader(classLoader);
 
         //act
-        Class<?> cls = CallStack.getCallerClass();
+        Class<?> cls = new CallingClass().callingMethod();
 
         //assert
         assertEquals(MockClass.class, cls);
     }
 
-    public static class MockClass extends CallStackTest {
-
+    /**
+     * Placeholder for a class that wants to get the caller of the calling method.
+     */
+    public static class CallingClass {
         private Class<?> callingMethod() {
 
             return CallStack.getCallerClass();
         }
+    }
+
+    public static class MockClass extends CallStackTest {
+
     }
 }
