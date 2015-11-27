@@ -110,7 +110,8 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
             try (InputStream is = contentUrl.openStream()) {
                 Files.copy(is, file.toPath());
             }
-
+        } else {
+            file.createNewFile();
         }
         return file;
     }
