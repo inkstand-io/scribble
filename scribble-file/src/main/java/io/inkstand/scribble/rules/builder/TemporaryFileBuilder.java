@@ -16,6 +16,8 @@
 
 package io.inkstand.scribble.rules.builder;
 
+import static io.inkstand.scribble.util.CallStack.getCallerClass;
+
 import java.net.URL;
 
 import io.inkstand.scribble.Builder;
@@ -59,7 +61,8 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      * @return the builder
      */
     public TemporaryFileBuilder fromClasspathResource(final String pathToResource) {
-        this.content = getResolver().resolve(pathToResource, getClass());
+        final Class<?> callerClass = getCallerClass();
+        this.content = getResolver().resolve(pathToResource, callerClass);
         return this;
     }
 

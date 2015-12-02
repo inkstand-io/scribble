@@ -1,6 +1,7 @@
 package io.inkstand.scribble.rules;
 
-import static org.junit.Assert.assertNotNull;
+import static io.inkstand.scribble.rules.ZipAssert.assertZipContent;
+import static io.inkstand.scribble.rules.ZipAssert.assertZipFolderExists;
 
 import java.util.zip.ZipFile;
 
@@ -18,11 +19,14 @@ public class TemporaryZipFileExample {
     public TemporaryFolder folder = new TemporaryFolder();
 
     //@formatter:off
-    public TemporaryFile file = new TemporaryFileBuilder(folder, "example.zip").asZip()
-                                       .addFolder("/emptyFolder")
-                                       .addClasspathResource("/text1.txt","exampleTestContent1.txt")
-                                       .addClasspathResource("/test/text2.txt","exampleTestContent2.txt")
-                                       .build();
+    public TemporaryFile file = new TemporaryFileBuilder(folder, "example.zip")
+                                        .withContent().fromClasspathResource("exampleTestContent1.txt")
+                                        .asZip()
+                                        .addFolder("/emptyFolder")
+                                        .addClasspathResource("/text1.txt","exampleTestContent1.txt")
+                                        .addClasspathResource("/test/text2.txt","exampleTestContent2.txt")
+                                        .build();
+
     //@formatter:on
 
     @Rule
@@ -36,9 +40,10 @@ public class TemporaryZipFileExample {
         ZipFile zf = new ZipFile(file.getFile());
 
         //assert
-        assertNotNull(zf.getEntry("emptyFolder"));
-        assertNotNull(zf.getEntry("text1.txt"));
-        assertNotNull(zf.getEntry("test/text2.txt"));
+        assertZipFolderExists(zf, "emptyFolder");
+        assertZipContent(zf, "exampleTestContent1.txt", "content1\r\n");
+        assertZipContent(zf, "text1.txt", "content1\r\n");
+        assertZipContent(zf, "test/text2.txt", "content2\r\n");
 
     }
 }
