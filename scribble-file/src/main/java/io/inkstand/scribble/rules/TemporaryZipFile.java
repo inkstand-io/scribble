@@ -39,31 +39,89 @@ public class TemporaryZipFile extends TemporaryFile {
         this.contentMap = content;
     }
 
-
     @Override
     protected File createTempFile() throws IOException {
-        File file = newFile();
+        final File file = newFile();
+        try(FileSystem zipFs = newZipFileSystem(file)) {
+            addEntries(zipFs);
+        }
+        return file;
+    }
+
+    /**
+     * Adds the entries to the zip file, that have been defined by the builder.
+     * @param zipFs
+     *  the zip file system that represents the new zip file.
+     * @throws IOException
+     */
+    private void addEntries(final FileSystem zipFs) throws IOException {
+
+        for(Map.Entry<String, URL> entry : contentMap.entrySet()){
+            final Path pathToFile = zipFs.getPath(entry.getKey());
+            final URL resource = entry.getValue();
+            addResource(pathToFile, resource);
+        }
+    }
+
+    /**
+     * Creates a new zip file and exposes the zip file as a filesystem to which paths and files can be added.
+     * @param file
+     *  the file handle that denotes the zip file
+     * @return
+     *  the FileSystem that represents the zip file
+     * @throws IOException
+     */
+    private FileSystem newZipFileSystem(final File file) throws IOException {
         final Map<String, String> env = new HashMap<String, String>() {{
             put("create", "true");
         }};
+        return newFileSystem(URI.create("jar:" + file.toURI()), env);
+    }
 
-        try(FileSystem zipFs = newFileSystem(URI.create("jar:" + file.toURI()), env)) {
-            for(Map.Entry<String, URL> entry : contentMap.entrySet()){
-                final Path pathToFile = zipFs.getPath(entry.getKey());
-                final URL resource = entry.getValue();
-                if(resource == null) {
-                    createDirectories(pathToFile);
-                } else {
-                    if(pathToFile.getParent() != null) {
-                        createDirectories(pathToFile.getParent());
-                    }
-                    try (InputStream is = entry.getValue().openStream()){
-                        Files.copy(is, pathToFile);
-                    }
-                }
-            }
+    /**
+     * Adds a resource respectively it's content to the filesystem at the position specified by the pathToFile
+     * @param pathToFile
+     *  the path to the file or folder to which the resource's content should be written
+     * @param resource
+     *  the resource providing the content for the entry. If the resource is null, a folder will be created
+     * @throws IOException
+     */
+    private void addResource(final Path pathToFile, final URL resource) throws IOException {
+
+        if(resource == null) {
+            addFolder(pathToFile);
+        } else {
+            addEntry(pathToFile, resource);
         }
-        return file;
+    }
+
+    /**
+     * Adds a folder entry for the specified path.
+     * @param pathToFile
+     *  the path to the folder
+     * @throws IOException
+     */
+    private void addFolder(final Path pathToFile) throws IOException {
+
+        createDirectories(pathToFile);
+    }
+
+    /**
+     * Creates an entry under the specifeid path with the content from the provided resource.
+     * @param pathToFile
+     *  the path to the file in the zip file.
+     * @param resource
+     *  the resource providing the content for the file. Must not be null.
+     * @throws IOException
+     */
+    private void addEntry(final Path pathToFile, final URL resource) throws IOException {
+
+        if(pathToFile.getParent() != null) {
+            addFolder(pathToFile.getParent());
+        }
+        try (InputStream is = resource.openStream()){
+            Files.copy(is, pathToFile);
+        }
     }
 
 }
