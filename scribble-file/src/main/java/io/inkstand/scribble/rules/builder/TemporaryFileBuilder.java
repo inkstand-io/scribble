@@ -34,10 +34,12 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
     private final String filename;
     private URL content;
     private boolean forceContent;
+    private ResourceResolver resolver;
 
     public TemporaryFileBuilder(final TemporaryFolder folder, final String fileName) {
         this.folder = folder;
         this.filename = fileName;
+        this.resolver = new ResourceResolver(true);
     }
 
     @Override
@@ -57,12 +59,14 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      * @return the builder
      */
     public TemporaryFileBuilder fromClasspathResource(final String pathToResource) {
-        this.content = new ResourceResolver().resolve(pathToResource, getClass());
+        this.content = getResolver().resolve(pathToResource, getClass());
         return this;
     }
 
     /**
-     * Defines the resource by URL from where the content of the file should be retrieved
+     * Defines the resource by URL from where the content of the file should be retrieved. If the method {@link #asZip()}
+     * is invoked after invoking this method, the content file will be added to the zip as element at root-level,
+     * named exactly as the the resource file.
      *
      * @param resource
      *            the resource whose content will be used for the temporary file as content
@@ -91,7 +95,34 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      *  the builder
      */
     public ZipFileBuilder asZip() {
-        return new ZipFileBuilder(folder, filename);
+        final ZipFileBuilder zfb = new ZipFileBuilder(folder, filename);
+        if(this.content != null) {
+            zfb.addResource(getContenFileName(), this.content);
+        }
+        return zfb;
     }
 
+    /**
+     * Extracts the name of the resource from the url itself. The filename from the path-part of the URL is extracted.
+     *
+     * @return
+     *  the name of the resource that provided the content
+     */
+    private String getContenFileName() {
+        final String file  = this.content.getPath();
+        if(file.indexOf('/') != -1){
+            return file.substring(file.lastIndexOf('/'));
+        }
+        return file;
+    }
+
+    /**
+     * The resource resolver helps locating resources in the classpath so that resources for building temporary
+     * files can be declared more conveniently.
+     * @return
+     *  resource resolver for this builder.
+     */
+    protected ResourceResolver getResolver() {
+        return resolver;
+    }
 }

@@ -50,9 +50,16 @@ public class TemporaryZipFile extends TemporaryFile {
         try(FileSystem zipFs = newFileSystem(URI.create("jar:" + file.toURI()), env)) {
             for(Map.Entry<String, URL> entry : contentMap.entrySet()){
                 final Path pathToFile = zipFs.getPath(entry.getKey());
-                createDirectories(pathToFile.getParent());
-                try (InputStream is = entry.getValue().openStream()){
-                    Files.copy(is, pathToFile);
+                final URL resource = entry.getValue();
+                if(resource == null) {
+                    createDirectories(pathToFile);
+                } else {
+                    if(pathToFile.getParent() != null) {
+                        createDirectories(pathToFile.getParent());
+                    }
+                    try (InputStream is = entry.getValue().openStream()){
+                        Files.copy(is, pathToFile);
+                    }
                 }
             }
         }
