@@ -22,6 +22,8 @@ import org.mockito.InjectMocks;
  */
 public class TemporaryZipFileTest {
 
+    private static final String NEWLINE = System.getProperty("line.separator");
+
     /**
      * The class under test
      */
@@ -52,8 +54,8 @@ public class TemporaryZipFileTest {
         assertTrue(file.exists());
 
         final ZipFile zf = new ZipFile(file);
-        assertZipContent(zf, "file2.txt", "content2\r\n");
-        assertZipContent(zf, "folder/file1.txt", "content1\r\n");
+        assertZipContent(zf, "file2.txt", "content2"+NEWLINE);
+        assertZipContent(zf, "folder/file1.txt", "content1"+NEWLINE);
         assertZipFolderExists(zf, "emptyFolder/");
     }
 
