@@ -20,7 +20,7 @@ public class TemporaryZipFileExample {
 
     //@formatter:off
     public TemporaryFile file = new TemporaryFileBuilder(folder, "example.zip")
-                                        .withContent().fromClasspathResource("exampleTestContent1.txt")
+                                        .fromClasspathResource("exampleTestContent1.txt")
                                         .asZip()
                                         .addFolder("/emptyFolder")
                                         .addClasspathResource("/text1.txt","exampleTestContent1.txt")
