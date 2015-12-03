@@ -34,7 +34,7 @@
 	</description>
 
 	<modules>
-		<module>scribble-api</module>
+		<module>scribble-core</module>
 		<module>scribble-security</module>
 		<module>scribble-net</module>
 		<module>scribble-inject</module>
