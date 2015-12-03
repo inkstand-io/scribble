@@ -16,10 +16,13 @@
 
 package io.inkstand.scribble.rules.builder;
 
+import static io.inkstand.scribble.util.CallStack.getCallerClass;
+
 import java.net.URL;
 
 import io.inkstand.scribble.Builder;
 import io.inkstand.scribble.rules.TemporaryFile;
+import io.inkstand.scribble.util.ResourceResolver;
 import org.junit.rules.TemporaryFolder;
 
 /**
@@ -29,17 +32,25 @@ import org.junit.rules.TemporaryFolder;
  */
 public class TemporaryFileBuilder extends Builder<TemporaryFile> {
 
-    private final TemporaryFile temporaryFile;
+    private final TemporaryFolder folder;
+    private final String filename;
+    private URL content;
+    private boolean forceContent;
+    private ResourceResolver resolver;
 
     public TemporaryFileBuilder(final TemporaryFolder folder, final String fileName) {
-
-        temporaryFile = new TemporaryFile(folder, fileName);
+        this.folder = folder;
+        this.filename = fileName;
+        this.resolver = new ResourceResolver(true);
     }
 
     @Override
     public TemporaryFile build() {
 
-        return temporaryFile;
+        final TemporaryFile file = new TemporaryFile(folder, filename);
+        file.setForceContent(this.forceContent);
+        file.setContentUrl(this.content);
+        return file;
     }
 
     /**
@@ -50,29 +61,22 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      * @return the builder
      */
     public TemporaryFileBuilder fromClasspathResource(final String pathToResource) {
-
-        final ClassLoader ccl = Thread.currentThread().getContextClassLoader();
-        URL contentUrl = null;
-        if (ccl != null) {
-            contentUrl = ccl.getResource(pathToResource);
-        }
-        if (contentUrl == null) {
-            contentUrl = getClass().getResource(pathToResource);
-        }
-        temporaryFile.setContentUrl(contentUrl);
+        final Class<?> callerClass = getCallerClass();
+        this.content = getResolver().resolve(pathToResource, callerClass);
         return this;
     }
 
     /**
-     * Defines the resource by URL from where the content of the file should be retrieved
-     * 
+     * Defines the resource by URL from where the content of the file should be retrieved. If the method {@link #asZip()}
+     * is invoked after invoking this method, the content file will be added to the zip as element at root-level,
+     * named exactly as the the resource file.
+     *
      * @param resource
      *            the resource whose content will be used for the temporary file as content
      * @return the builder
      */
     public TemporaryFileBuilder fromResource(final URL resource) {
-
-        temporaryFile.setContentUrl(resource);
+        this.content = resource;
         return this;
     }
 
@@ -83,9 +87,45 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
      * @return the builder
      */
     public TemporaryFileBuilder withContent() {
-
-        temporaryFile.setForceContent(true);
+        this.forceContent = true;
         return this;
     }
 
+    /**
+     * Indicates the content for the file should be zipped. If only one content reference is provided, the zip
+     * will only contain this file.
+     * @return
+     *  the builder
+     */
+    public ZipFileBuilder asZip() {
+        final ZipFileBuilder zfb = new ZipFileBuilder(folder, filename);
+        if(this.content != null) {
+            zfb.addResource(getContenFileName(), this.content);
+        }
+        return zfb;
+    }
+
+    /**
+     * Extracts the name of the resource from the url itself. The filename from the path-part of the URL is extracted.
+     *
+     * @return
+     *  the name of the resource that provided the content
+     */
+    private String getContenFileName() {
+        final String file  = this.content.getPath();
+        if(file.indexOf('/') != -1){
+            return file.substring(file.lastIndexOf('/'));
+        }
+        return file;
+    }
+
+    /**
+     * The resource resolver helps locating resources in the classpath so that resources for building temporary
+     * files can be declared more conveniently.
+     * @return
+     *  resource resolver for this builder.
+     */
+    protected ResourceResolver getResolver() {
+        return resolver;
+    }
 }

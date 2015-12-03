@@ -17,12 +17,11 @@
 package io.inkstand.scribble.rules;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.rules.TemporaryFolder;
 
 /**
@@ -70,16 +69,51 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
     @Override
     protected void before() throws Throwable {
 
-        file = folder.newFile(filename);
+        createTempFile();
+    }
+
+    /**
+     * The filename of the temporary file
+     * @return
+     *  the name of the file
+     */
+    protected String getFilename() {
+        return filename;
+    }
+
+    /**
+     * Creates a new empty file in the temporary folder. The file is the FS file on that is represented by this
+     * TemporaryFile rule.
+     * @return
+     *  the file handle to the empty file
+     * @throws IOException
+     */
+    protected File newFile() throws IOException {
+
+        this.file = new File(folder.getRoot(), filename);
+        return this.file;
+    }
+
+    /**
+     * Creates the file including content. Override this method to implement a custom mechanism to create the temporary
+     * file
+     * @return
+     *  the file handle to the newly created file
+     * @throws IOException
+     */
+    protected File createTempFile() throws IOException {
+
+        final File file = newFile();
         if (forceContent && contentUrl == null) {
             throw new AssertionError("ContentUrl is not set");
         } else if (contentUrl != null) {
-            try (InputStream is = contentUrl.openStream();
-                    OutputStream os = new FileOutputStream(file)) {
-                IOUtils.copy(is, os);
+            try (InputStream is = contentUrl.openStream()) {
+                Files.copy(is, file.toPath());
             }
-
+        } else {
+            file.createNewFile();
         }
+        return file;
     }
 
     @Override
