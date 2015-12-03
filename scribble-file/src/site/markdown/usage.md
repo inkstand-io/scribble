@@ -11,6 +11,7 @@ the file is properly cleaned up on exit.
 
 ### Creating an empty file
 
+```java
     public TemporaryFolder folder = new TemporaryFolder();
     
     public TemporaryFile file = new TemporaryFileBuilder(folder, "example.txt").build();
@@ -23,10 +24,11 @@ the file is properly cleaned up on exit.
         File f = file.getFile();
         assertTrue(f.exists());
     }
-
+```
             
 ### Creating a file with content
 
+```java
     public TemporaryFolder folder = new TemporaryFolder();
     
     //external resource
@@ -50,6 +52,7 @@ the file is properly cleaned up on exit.
             assertEquals("example content from contentfile.txt", content);
         }
     }
+```
             
 The method `withContent()` on the `TemporaryFileBuilder` ensures that the content URL is set. If using a classpath
 resource, the call can be ommitted as classpath resources are checked for existence and the test will fail, if the
@@ -65,6 +68,7 @@ the test.
 
 ### Creating a Zip from a TemporaryFile
  
+```java
     public TemporaryFolder folder = new TemporaryFolder();
 
     public TemporaryFile file = new TemporaryFileBuilder(folder, "example.zip")
@@ -80,6 +84,7 @@ the test.
         ZipFile zf = new ZipFile(file.getFile());
         assertNotNull(zf.getEntry("exampleTestContent1.txt"));
     }
+```
     
 Creating a zip directly from the `TemporaryFileBuilder` will create a zip with the resource specified. The file
 will have the same name as the resource and will be located in the root of the zip. More files can be added
@@ -87,6 +92,7 @@ to the zip using the fluid api.
 
 ### Creating a Zip with an empty folder
 
+```java
     public TemporaryFolder folder = new TemporaryFolder();
 
     public TemporaryFile file = new TemporaryFileBuilder(folder, "example.zip")
@@ -104,6 +110,7 @@ to the zip using the fluid api.
         assertNotNull(entry);
         assertTrue(entry.isDirectory());
     }
+```
 
 Note that the name of the folder being added differs from the folder being checked in the test. The reason is, inside
 the zip, every entry - regardless of being a file or a folder - starts without a leading '/' and still denotes an
@@ -116,6 +123,7 @@ directory.
 
 ### Creating a Zip with multiple files in folders
 
+```java
     public TemporaryFolder folder = new TemporaryFolder();
 
     public TemporaryFile file = new TemporaryFileBuilder(folder, "example.zip")
@@ -133,6 +141,7 @@ directory.
         assertNotNull(zf.getEntry("text1.txt"));
         assertNotNull(zf.getEntry("/test/text2.txt"));
     }
+```
     
 Resources in the classpath are resolved either as absolute resources or relative to the class itself, including relative
 subfolders. The paths to the files are created automatically, its not necessary to create them explicitly.
