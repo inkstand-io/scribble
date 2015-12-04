@@ -41,9 +41,9 @@ public class TemporaryZipFileExample {
 
         //assert
         assertZipFolderExists(zf, "emptyFolder");
-        assertZipContent(zf, "exampleTestContent1.txt", "content1\r\n");
-        assertZipContent(zf, "text1.txt", "content1\r\n");
-        assertZipContent(zf, "test/text2.txt", "content2\r\n");
+        assertZipContent(zf, "exampleTestContent1.txt", "content1");
+        assertZipContent(zf, "text1.txt", "content1");
+        assertZipContent(zf, "test/text2.txt", "content2");
 
     }
 }
