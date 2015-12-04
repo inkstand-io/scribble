@@ -29,6 +29,7 @@ The external resource has a detection of the context and invokes different setup
 
 As the methods are independent of each other, it is even possible to use the same rule instance as @ClassRule AND @Rule
 
+```java
     public MyTest {
  
         @ClassRule
@@ -39,6 +40,7 @@ As the methods are independent of each other, it is even possible to use the sam
          
         ...
     }
+```
 
 A typical use case scenario could be
 
@@ -64,8 +66,10 @@ Its a tool for cleaning up the JVM so it's less likely that following test fill 
 system properties. 
 The Rule can easily be created by instantiating it and doesn't require further initialization or parameters.
 
+```java
     @Rule
     public SystemProperties sysprops = new SystemProperties();
+```
     
 io.inkstand.scribble.rules.SystemConsole
 ----------------------------------------
@@ -76,6 +80,7 @@ restored on teardown.
 The Rule can easily be created by instantiating it and doesn't require further initialization or parameters. The output
 written is accesible by getter methods.
 
+```java
     @Rule
     public SystemConsole console = new SystemConsole();
     
@@ -90,3 +95,14 @@ written is accesible by getter methods.
         System.err.print("test");
         assertEquals("test", console.getErr());
     }
+```
+
+io.inkstand.scribble.matchers.DateFormatMatcher
+-----------------------------------------------
+
+The DateFormatMatcher can be used to verify that a Date String matches a certain format using the verbose `assertThat`
+syntax.
+
+```java
+    assertThat("2015-31-12", matchesDateFormat("YYYY-MM-DD"));
+```
