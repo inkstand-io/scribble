@@ -2,11 +2,10 @@ package io.inkstand.scribble.http.rules;
 
 import static io.inkstand.scribble.net.NetworkMatchers.isAvailable;
 import static io.inkstand.scribble.net.NetworkMatchers.port;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
+import io.inkstand.scribble.rules.TemporaryFile;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -60,7 +59,7 @@ public class HttpServerBuilderTest {
 
         //assert
         assertNotNull(server);
-        assertEquals("localhost", server.getHostname());
+        assertEquals("someHost", server.getHostname());
         assertTrue(server.getPort() > 1024);
         assertThat(port(server.getPort()), isAvailable());
     }
@@ -79,4 +78,38 @@ public class HttpServerBuilderTest {
         assertEquals(55555, server.getPort());
     }
 
+    @Test
+    public void testContentFromZip_resourceExists() throws Exception {
+        //prepare
+
+        //act
+        HttpServerBuilder builder = subject.contentFromZip("/", "HttpServerBuilderTest_testZipContent.zip");
+
+        //assert
+        assertSame(subject, builder);
+
+    }
+    @Test(expected = AssertionError.class)
+    public void testContentFromZip_resourceNotExists_fail() throws Exception {
+        //prepare
+
+        //act
+        HttpServerBuilder builder = subject.contentFromZip("/", "nonExisting");
+
+        //assert
+        assertSame(subject, builder);
+
+    }
+    @Test
+    public void testContentFromZip_temporaryFile() throws Exception {
+        //prepare
+        TemporaryFile file = mock(TemporaryFile.class);
+
+        //act
+        HttpServerBuilder builder = subject.contentFromZip("/", file);
+
+        //assert
+        assertSame(subject, builder);
+
+    }
 }
