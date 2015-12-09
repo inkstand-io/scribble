@@ -88,6 +88,7 @@
         <!-- Test lib versions -->
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
+        <htmlunit.version>2.19</htmlunit.version>
 
         <!-- javax Versions -->
         <javax.jcr.version>2.0</javax.jcr.version>
@@ -167,6 +168,11 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.htmlunit</groupId>
+                <artifactId>htmlunit</artifactId>
+                <version>${htmlunit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian.junit</groupId>

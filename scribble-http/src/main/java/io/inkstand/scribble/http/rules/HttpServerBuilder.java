@@ -26,7 +26,7 @@ public class HttpServerBuilder extends Builder<HttpServer> {
         if(port < 0){
             port = NetworkUtils.findAvailablePort();
         }
-        return new HttpServer(hostname, port);
+        return new HttpServer(hostname, port, resources);
     }
 
     public HttpServerBuilder port(final int port) {
