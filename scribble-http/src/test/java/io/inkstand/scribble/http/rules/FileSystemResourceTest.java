@@ -6,15 +6,20 @@ import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
@@ -23,6 +28,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
+import io.undertow.connector.ByteBufferPool;
+import io.undertow.connector.PooledByteBuffer;
+import io.undertow.io.IoCallback;
+import io.undertow.io.Sender;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.server.ServerConnection;
 import io.undertow.server.handlers.resource.Resource;
 import io.undertow.util.MimeMappings;
 import org.junit.Before;
@@ -58,12 +69,26 @@ public class FileSystemResourceTest {
     @Mock
     private BasicFileAttributes basicFileAttributes;
 
-
     @Mock
     private MimeMappings mimeMappings;
 
     @Mock
     private DirectoryStream<Path> directoryStream;
+
+    @Mock
+    private Sender sender;
+
+    @Mock
+    private ServerConnection serverConnection;
+
+    @Mock
+    private ByteBufferPool byteBufferPool;
+
+    @Mock
+    private PooledByteBuffer pooledByteBuffer;
+
+    @Mock
+    private IoCallback ioCallback;
 
     @Before
     public void setUp() throws Exception {
@@ -240,15 +265,43 @@ public class FileSystemResourceTest {
     }
 
     @Test
-    public void testServe() throws Exception {
-
+    public void testServe_noException() throws Exception {
         //prepare
+        final ByteBuffer buffer = ByteBuffer.allocate(8);
+        final HttpServerExchange exchange = new HttpServerExchange(serverConnection);
+        when(serverConnection.getByteBufferPool()).thenReturn(byteBufferPool);
+        when(byteBufferPool.allocate()).thenReturn(pooledByteBuffer);
+        when(pooledByteBuffer.getBuffer()).thenReturn(buffer);
+        final InputStream is = new ByteArrayInputStream("Test".getBytes());
+        when(fileSystemProvider.newInputStream(eq(path), (OpenOption[]) anyVararg())).thenReturn(is);
 
         //act
-        fail();
-
+        subject.serve(sender, exchange, ioCallback);
 
         //assert
+        verify(ioCallback).onComplete(exchange, sender);
+        buffer.rewind();
+        byte[] data = new byte[4];
+        buffer.get(data);
+        assertEquals("Test", new String(data));
+
+    }
+
+    @Test
+    public void testServe_withException() throws Exception {
+        //prepare
+        final ByteBuffer buffer = ByteBuffer.allocate(8);
+        final HttpServerExchange exchange = new HttpServerExchange(serverConnection);
+        when(serverConnection.getByteBufferPool()).thenReturn(byteBufferPool);
+        when(byteBufferPool.allocate()).thenReturn(pooledByteBuffer);
+        when(pooledByteBuffer.getBuffer()).thenReturn(buffer);
+        when(fileSystemProvider.newInputStream(eq(path), (OpenOption[]) anyVararg())).thenThrow(IOException.class);
+
+        //act
+        subject.serve(sender, exchange, ioCallback);
+
+        //assert
+        verify(ioCallback).onException(eq(exchange), eq(sender), any(IOException.class));
     }
 
     @Test
