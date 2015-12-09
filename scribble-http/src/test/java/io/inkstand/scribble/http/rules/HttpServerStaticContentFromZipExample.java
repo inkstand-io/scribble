@@ -5,26 +5,16 @@ import static org.junit.Assert.assertTrue;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import io.inkstand.scribble.rules.TemporaryFile;
-import io.inkstand.scribble.rules.builder.TemporaryFileBuilder;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TemporaryFolder;
 
 /**
  * Created by Gerald Muecke on 04.12.2015.
  */
-public class HttpServerStaticContentExample {
+public class HttpServerStaticContentFromZipExample {
 
-    public TemporaryFolder folder = new TemporaryFolder();
-    public TemporaryFile content = new TemporaryFileBuilder(folder, "content.zip")
-                                            .asZip()
-                                            .addClasspathResource("/index.html","index.html")
-                                            .build();
-    public HttpServer server = new HttpServerBuilder().contentFromZip("/", content).build();
     @Rule
-    public RuleChain rule = RuleChain.outerRule(folder).around(content).around(server);
+    public HttpServer server = new HttpServerBuilder().contentFromZip("/", "example.zip").build();
 
     @Test
     public void testHttpServerGet() throws Exception {

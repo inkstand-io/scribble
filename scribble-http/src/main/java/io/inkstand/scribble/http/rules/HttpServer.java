@@ -3,10 +3,10 @@ package io.inkstand.scribble.http.rules;
 import static java.nio.file.FileSystems.newFileSystem;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.util.Collections;
@@ -65,15 +65,12 @@ public class HttpServer extends ExternalResource {
     @Override
     protected void before() throws Throwable {
 
-        LOG.info("Crating http server {}:{}", getHostname(), getPort());
+        LOG.info("Creating http server {}:{}", getHostname(), getPort());
         final PathHandler pathHandler = new PathHandler();
         for (Map.Entry<String, Object> entry : this.resources.entrySet()) {
             final String path = entry.getKey();
             final Object resource = entry.getValue();
-            if (resource instanceof TemporaryZipFile) {
-                final ResourceHandler handler = createZipResourceHandler((TemporaryZipFile) resource);
-                pathHandler.addPrefixPath(path, handler);
-            }
+            addResource(pathHandler, path, resource);
         }
         this.server = Undertow.builder().addHttpListener(this.port, this.hostname).setHandler(pathHandler).build();
         LOG.info("Starting HTTP server");
@@ -81,11 +78,23 @@ public class HttpServer extends ExternalResource {
         LOG.info("HTTP Server running");
     }
 
-    private ResourceHandler createZipResourceHandler(final TemporaryZipFile resource) throws IOException {
+    private void addResource(final PathHandler pathHandler, final String path, final Object resource)
+            throws IOException, URISyntaxException {
 
-        final File zipFile = resource.getFile();
-        final FileSystem fs = newFileSystem(URI.create("jar:" + zipFile.toURI()),
-                                            Collections.<String, Object>emptyMap());
+        if (resource instanceof TemporaryZipFile) {
+            final URI uri = ((TemporaryZipFile) resource).getFile().toURI();
+            pathHandler.addPrefixPath(path, createZipResourceHandler(uri));
+        } else if (resource instanceof URL) {
+            final URI uri = ((URL) resource).toURI();
+            if(uri.getPath().endsWith(".zip")) {
+                pathHandler.addPrefixPath(path, createZipResourceHandler(uri));
+            }
+        }
+    }
+
+    private ResourceHandler createZipResourceHandler(final URI zipFile) throws IOException {
+
+        final FileSystem fs = newFileSystem(URI.create("jar:" + zipFile), Collections.<String, Object>emptyMap());
         final ResourceManager resMgr = new FileSystemResourceManager(fs);
         return new ResourceHandler(resMgr);
     }
