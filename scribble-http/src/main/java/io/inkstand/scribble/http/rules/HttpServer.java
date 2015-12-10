@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
@@ -17,8 +18,10 @@ import io.inkstand.scribble.rules.ExternalResource;
 import io.inkstand.scribble.rules.TemporaryZipFile;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.handlers.resource.ResourceHandler;
 import io.undertow.server.handlers.resource.ResourceManager;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 
 /**
@@ -124,6 +127,9 @@ public class HttpServer extends ExternalResource {
         if (resource instanceof TemporaryZipFile) {
             final URI uri = ((TemporaryZipFile) resource).getFile().toURI();
             pathHandler.addPrefixPath(path, createZipResourceHandler(uri));
+        } else if(resource instanceof TemporaryFolder){
+            final Path resourcePath = ((TemporaryFolder)resource).getRoot().toPath();
+            pathHandler.addPrefixPath(path, new ResourceHandler(new PathResourceManager(resourcePath, 1024)));
         } else if (resource instanceof URL) {
             final URI uri = ((URL) resource).toURI();
             if(uri.getPath().endsWith(".zip")) {

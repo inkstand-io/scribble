@@ -22,7 +22,7 @@ public class HttpServerStaticContentGeneratedZipExample {
                                             .asZip()
                                             .addClasspathResource("/index.html","index.html")
                                             .build();
-    public HttpServer server = new HttpServerBuilder().contentFromZip("/", content).build();
+    public HttpServer server = new HttpServerBuilder().contentFrom("/", content).build();
     @Rule
     public RuleChain rule = RuleChain.outerRule(folder).around(content).around(server);
 

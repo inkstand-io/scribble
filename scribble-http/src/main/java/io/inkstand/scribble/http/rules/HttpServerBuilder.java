@@ -9,6 +9,7 @@ import io.inkstand.scribble.net.NetworkUtils;
 import io.inkstand.scribble.rules.TemporaryFile;
 import io.inkstand.scribble.util.CallStack;
 import io.inkstand.scribble.util.ResourceResolver;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * A Builder for creating an embedded HTTP server. Hostname and port can be optionally specified and which resources
@@ -59,30 +60,48 @@ public class HttpServerBuilder extends Builder<HttpServer> {
      * Defines a ZIP resource on the classpath that provides the static content the server should host.
      * @param contextRoot
      *  the root path to the content
-     * @param zipContent
-     *  the name of the classpath resource denoting a zip file containing the content. The paht may be absolute or
-     *  relative to the caller of the method.
+     * @param contentResource
+     *  the name of the classpath resource denoting a file that should be hosted. If the file denotes a zip file, its
+     *  content is hosted instead of the file itself.
+     *  The path may be absolute or relative to the caller of the method.
      * @return
      *  this builder
      */
-    public HttpServerBuilder contentFromZip(String contextRoot, String zipContent){
-        URL resource = resolver.resolve(zipContent,CallStack.getCallerClass());
+    public HttpServerBuilder contentFrom(String contextRoot, String contentResource){
+        URL resource = resolver.resolve(contentResource,CallStack.getCallerClass());
         resources.put(contextRoot, resource);
         return this;
     }
 
     /**
-     * Defines a ZIP resource that is dynamically created for the test using the {@link io.inkstand.scribble.rules.TemporaryFile}
+     * Defines a file resource that is dynamically created for the test using the {@link io.inkstand.scribble.rules
+     * .TemporaryFile}
      * rule.
      * @param contextRoot
      *  the root path to the content
-     * @param zipContent
-     *  the rule that creates the temporary zip file containing the resource to be hosted by the rule
+     * @param contentFile
+     *  the rule that creates the temporary file that should be hosted by the http server. If the file is a zip
+     *  file, it's contents are hosted, not the file itself
      * @return
      *  this builder
      */
-    public HttpServerBuilder contentFromZip(String contextRoot, TemporaryFile zipContent){
-        resources.put(contextRoot, zipContent);
+    public HttpServerBuilder contentFrom(String contextRoot, TemporaryFile contentFile){
+        resources.put(contextRoot, contentFile);
+        return this;
+    }
+
+    /**
+     * Defines a folder  resource whose content fill be hosted
+     * rule.
+     * @param contextRoot
+     *  the root path to the content
+     * @param folder
+     *  the rule that creates the temporary folder that should be hosted by the http server.
+     * @return
+     *  this builder
+     */
+    public HttpServerBuilder contentFrom(final String contextRoot, final TemporaryFolder folder) {
+        resources.put(contextRoot, folder);
         return this;
     }
 }

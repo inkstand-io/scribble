@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 
 import io.inkstand.scribble.rules.TemporaryFile;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -64,7 +65,6 @@ public class HttpServerBuilderTest {
         assertThat(port(server.getPort()), isAvailable());
     }
 
-
     @Test
     public void testBuild_withPort_and_Hostname() throws Exception {
         //prepare
@@ -79,34 +79,48 @@ public class HttpServerBuilderTest {
     }
 
     @Test
-    public void testContentFromZip_resourceExists() throws Exception {
+    public void testContentFrom_resourceExists() throws Exception {
         //prepare
 
         //act
-        HttpServerBuilder builder = subject.contentFromZip("/", "HttpServerBuilderTest_testZipContent.zip");
+        HttpServerBuilder builder = subject.contentFrom("/", "HttpServerBuilderTest_testZipContent.zip");
 
         //assert
         assertSame(subject, builder);
 
     }
+
     @Test(expected = AssertionError.class)
-    public void testContentFromZip_resourceNotExists_fail() throws Exception {
+    public void testContentFrom_resourceNotExists_fail() throws Exception {
         //prepare
 
         //act
-        HttpServerBuilder builder = subject.contentFromZip("/", "nonExisting");
+        HttpServerBuilder builder = subject.contentFrom("/", "nonExisting");
+
+        //assert
+        assertSame(subject, builder);
+
+    }
+
+    @Test
+    public void testContentFrom_temporaryFile() throws Exception {
+        //prepare
+        TemporaryFile file = mock(TemporaryFile.class);
+
+        //act
+        HttpServerBuilder builder = subject.contentFrom("/", file);
 
         //assert
         assertSame(subject, builder);
 
     }
     @Test
-    public void testContentFromZip_temporaryFile() throws Exception {
+    public void testContentFrom_temporaryFolder() throws Exception {
         //prepare
-        TemporaryFile file = mock(TemporaryFile.class);
+        TemporaryFolder folder = mock(TemporaryFolder.class);
 
         //act
-        HttpServerBuilder builder = subject.contentFromZip("/", file);
+        HttpServerBuilder builder = subject.contentFrom("/", folder);
 
         //assert
         assertSame(subject, builder);
