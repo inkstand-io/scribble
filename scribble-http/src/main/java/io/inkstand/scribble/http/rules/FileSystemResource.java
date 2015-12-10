@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
@@ -89,14 +88,9 @@ public class FileSystemResource implements Resource {
         if (Files.isDirectory(path)) {
             result = new ArrayList<>();
             try {
-                Files.newDirectoryStream(path).forEach(new Consumer<Path>() {
-
-                    @Override
-                    public void accept(final Path path) {
-
-                        result.add(new FileSystemResource(path));
-                    }
-                });
+                for(Path child : Files.newDirectoryStream(path)){
+                    result.add(new FileSystemResource(child));
+                }
             } catch (IOException e) {
                 LOG.error("Could not read directory", e);
             }
