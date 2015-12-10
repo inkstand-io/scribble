@@ -23,15 +23,21 @@ import io.undertow.util.MimeMappings;
 import org.slf4j.Logger;
 
 /**
- * Created by Gerald Muecke on 08.12.2015.
+ * A resource inside a {@link java.nio.file.FileSystem}. This resource uses the java.nio Files API which makes it
+ * flexible for hosting files from various types of filesystems, such as ZipFileSystem. Created by Gerald Muecke on
+ * 08.12.2015.
  */
 public class FileSystemResource implements Resource {
 
     private static final Logger LOG = getLogger(FileSystemResource.class);
 
-   private final Path path;
+    private final Path path;
 
-
+    /**
+     * Creates a FileSystemResource for the specified Path.
+     * @param path
+     *  the path to the resource in the filesystem
+     */
     public FileSystemResource(Path path) {
 
         this.path = path;
@@ -88,7 +94,7 @@ public class FileSystemResource implements Resource {
         if (Files.isDirectory(path)) {
             result = new ArrayList<>();
             try {
-                for(Path child : Files.newDirectoryStream(path)){
+                for (Path child : Files.newDirectoryStream(path)) {
                     result.add(new FileSystemResource(child));
                 }
             } catch (IOException e) {
@@ -114,6 +120,7 @@ public class FileSystemResource implements Resource {
 
     @Override
     public void serve(final Sender sender, final HttpServerExchange httpServerExchange, final IoCallback ioCallback) {
+
         httpServerExchange.startBlocking();
         final OutputStream outStream = httpServerExchange.getOutputStream();
         try {
