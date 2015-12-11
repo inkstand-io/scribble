@@ -39,6 +39,7 @@ public class HttpServer extends ExternalResource {
     private final int port;
     private final Map<String, Object> resources;
     private Undertow server;
+    private PathHandler pathHandler;
 
     /**
      * Creates a http server on localhost, running on an available tcp port. The server won't server any static content.
@@ -92,11 +93,11 @@ public class HttpServer extends ExternalResource {
     protected void before() throws Throwable {
 
         LOG.info("Creating http server {}:{}", getHostname(), getPort());
-        final PathHandler pathHandler = new PathHandler();
+        this.pathHandler = new PathHandler();
         for (Map.Entry<String, Object> entry : this.resources.entrySet()) {
             final String path = entry.getKey();
             final Object resource = entry.getValue();
-            addResource(pathHandler, path, resource);
+            addResource(path, resource);
         }
         this.server = Undertow.builder().addHttpListener(this.port, this.hostname).setHandler(pathHandler).build();
         LOG.info("Starting HTTP server");
@@ -122,25 +123,30 @@ public class HttpServer extends ExternalResource {
      * @throws IOException
      * @throws URISyntaxException
      */
-    private void addResource(final PathHandler pathHandler, final String path, final Object resource)
-            throws IOException, URISyntaxException {
+    void addResource(final String path, final Object resource) {
 
-        if (resource instanceof TemporaryZipFile) {
-            final URL url = ((TemporaryZipFile) resource).getFile().toURI().toURL();
-            pathHandler.addPrefixPath(path, createZipResourceHandler(url));
-        } else if(resource instanceof TemporaryFolder){
-            final Path resourcePath = ((TemporaryFolder)resource).getRoot().toPath();
-            pathHandler.addPrefixPath(path, new ResourceHandler(new PathResourceManager(resourcePath, 1024)));
-        } else if (resource instanceof TemporaryFile){
-            final Path resourcePath = ((TemporaryFile)resource).getFile().toPath();
-            pathHandler.addExactPath(path, new PathResourceHandler(resourcePath));
-        } else if (resource instanceof URL) {
-            final URL url = ((URL) resource);
-            if(url.getPath().endsWith(".zip")) {
-                pathHandler.addPrefixPath(path, createZipResourceHandler(url));
-            } else {
-                pathHandler.addExactPath(path, new UrlResourceHandler(url));
+        try {
+            if (resource instanceof TemporaryZipFile) {
+                final URL url = ((TemporaryZipFile) resource).getFile().toURI().toURL();
+                this.pathHandler.addPrefixPath(path, createZipResourceHandler(url));
+            } else if (resource instanceof TemporaryFolder) {
+                final Path resourcePath = ((TemporaryFolder) resource).getRoot().toPath();
+                this.pathHandler.addPrefixPath(path, new ResourceHandler(new PathResourceManager(resourcePath, 1024)));
+            } else if (resource instanceof TemporaryFile) {
+                final Path resourcePath = ((TemporaryFile) resource).getFile().toPath();
+                this.pathHandler.addExactPath(path, new PathResourceHandler(resourcePath));
+            } else if (resource instanceof URL) {
+                final URL url = ((URL) resource);
+                if (url.getPath().endsWith(".zip")) {
+                    this.pathHandler.addPrefixPath(path, createZipResourceHandler(url));
+                } else {
+                    this.pathHandler.addExactPath(path, new UrlResourceHandler(url));
+                }
+            } else if (resource instanceof byte[]) {
+                this.pathHandler.addExactPath(path, new ByteArrayHandler((byte[]) resource));
             }
+        }catch(IOException e){
+            throw new AssertionError("Could not add Resource", e);
         }
     }
 
@@ -190,7 +196,7 @@ public class HttpServer extends ExternalResource {
 
     public GetResponseStubbing onGet(final String resource) {
 
-        return new GetResponseStubbing();
+        return new GetResponseStubbing(this).resource(resource);
     }
 
     /**

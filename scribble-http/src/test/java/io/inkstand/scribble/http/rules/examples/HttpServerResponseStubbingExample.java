@@ -1,5 +1,9 @@
 package io.inkstand.scribble.http.rules.examples;
 
+import static org.junit.Assert.assertEquals;
+
+import com.gargoylesoftware.htmlunit.TextPage;
+import com.gargoylesoftware.htmlunit.WebClient;
 import io.inkstand.scribble.http.rules.HttpServer;
 import io.inkstand.scribble.http.rules.HttpServerBuilder;
 import org.junit.Rule;
@@ -17,11 +21,17 @@ public class HttpServerResponseStubbingExample {
     @Test
     public void testHttpServerGet() throws Exception {
         //prepare
-        server.onGet("some URI").respond("someContent");
+        server.onGet("/index.html").respond("someContent");
 
         //act
+        try (final WebClient webClient = new WebClient()) {
 
-        //assert
+            final TextPage page = webClient.getPage(server.getBaseUrl() + "/index.html");
+            final String pageAsText = page.getContent();
+
+            //assert
+            assertEquals("someContent", pageAsText);
+        }
 
     }
 }
