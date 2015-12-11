@@ -1,10 +1,12 @@
-package io.inkstand.scribble.http.rules;
+package io.inkstand.scribble.http.rules.examples;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import io.inkstand.scribble.http.rules.HttpServer;
+import io.inkstand.scribble.http.rules.HttpServerBuilder;
 import io.inkstand.scribble.rules.TemporaryFile;
 import io.inkstand.scribble.rules.builder.TemporaryFileBuilder;
 import org.junit.Rule;

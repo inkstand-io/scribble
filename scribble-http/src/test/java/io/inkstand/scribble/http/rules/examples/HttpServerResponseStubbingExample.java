@@ -1,5 +1,7 @@
-package io.inkstand.scribble.http.rules;
+package io.inkstand.scribble.http.rules.examples;
 
+import io.inkstand.scribble.http.rules.HttpServer;
+import io.inkstand.scribble.http.rules.HttpServerBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 
