@@ -77,7 +77,7 @@ public class HttpServerBuilder extends Builder<HttpServer> {
      * Defines a file resource that is dynamically created for the test using the {@link io.inkstand.scribble.rules
      * .TemporaryFile}
      * rule.
-     * @param contextRoot
+     * @param path
      *  the root path to the content
      * @param contentFile
      *  the rule that creates the temporary file that should be hosted by the http server. If the file is a zip
@@ -85,8 +85,8 @@ public class HttpServerBuilder extends Builder<HttpServer> {
      * @return
      *  this builder
      */
-    public HttpServerBuilder contentFrom(String contextRoot, TemporaryFile contentFile){
-        resources.put(contextRoot, contentFile);
+    public HttpServerBuilder contentFrom(String path, TemporaryFile contentFile){
+        resources.put(path, contentFile);
         return this;
     }
 
@@ -102,6 +102,20 @@ public class HttpServerBuilder extends Builder<HttpServer> {
      */
     public HttpServerBuilder contentFrom(final String contextRoot, final TemporaryFolder folder) {
         resources.put(contextRoot, folder);
+        return this;
+    }
+
+    /**
+     * Defines a file to be hosted on the specified path. The file's content is provided by the specified URL.
+     * @param path
+     *  the path where the file is accessible from the server
+     * @param resource
+     *  the resource providing the content for the file
+     * @return
+     *  this builder
+     */
+    public HttpServerBuilder contentFrom(final String path, final URL resource) {
+        resources.put(path, resource);
         return this;
     }
 }

@@ -15,16 +15,14 @@ import org.junit.rules.TemporaryFolder;
 /**
  * Created by Gerald Muecke on 04.12.2015.
  */
-public class HttpServerStaticContentGeneratedZipExample {
+public class HttpServerContentFromTemporaryFileExample {
 
     public TemporaryFolder folder = new TemporaryFolder();
-    public TemporaryFile content = new TemporaryFileBuilder(folder, "content.zip")
-                                            .asZip()
-                                            .addClasspathResource("/index.html","index.html")
-                                            .build();
-    public HttpServer server = new HttpServerBuilder().contentFrom("/", content).build();
+    public TemporaryFile file = new TemporaryFileBuilder(folder, "index.html").fromClasspathResource("index.html").build();
+
+    public HttpServer server = new HttpServerBuilder().contentFrom("/index.html", file).build();
     @Rule
-    public RuleChain rule = RuleChain.outerRule(folder).around(content).around(server);
+    public RuleChain rule = RuleChain.outerRule(folder).around(file).around(server);
 
     @Test
     public void testHttpServerGet() throws Exception {

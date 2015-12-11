@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,9 +23,9 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 import io.undertow.connector.ByteBufferPool;
 import io.undertow.connector.PooledByteBuffer;
@@ -41,9 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 /**
  * Created by Gerald Muecke on 08.12.2015.
@@ -213,17 +210,7 @@ public class FileSystemResourceTest {
         when(basicFileAttributes.isDirectory()).thenReturn(true);
         when(fileSystemProvider.newDirectoryStream(eq(path), any(DirectoryStream.Filter.class))).thenReturn(
                 directoryStream);
-        doAnswer(new Answer() {
-
-            @Override
-            public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                Consumer<Path> consumer = (Consumer<Path>) invocationOnMock.getArguments()[0];
-                consumer.accept(child1);
-                consumer.accept(child2);
-                return null;
-            }
-        }).when(directoryStream).forEach(any(Consumer.class));
-
+        when(directoryStream.iterator()).thenReturn(Arrays.asList(child1,child2).iterator());
 
         //act
         List<Resource> result = subject.list();

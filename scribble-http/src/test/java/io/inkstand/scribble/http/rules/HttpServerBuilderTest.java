@@ -5,6 +5,8 @@ import static io.inkstand.scribble.net.NetworkMatchers.port;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
+import java.net.URL;
+
 import io.inkstand.scribble.rules.TemporaryFile;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -121,6 +123,19 @@ public class HttpServerBuilderTest {
 
         //act
         HttpServerBuilder builder = subject.contentFrom("/", folder);
+
+        //assert
+        assertSame(subject, builder);
+
+    }
+
+    @Test
+    public void testContentFrom_url() throws Exception {
+        //prepare
+        URL url = new URL("file:///");
+
+        //act
+        HttpServerBuilder builder = subject.contentFrom("/", url);
 
         //assert
         assertSame(subject, builder);

@@ -16,7 +16,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * Created by Gerald Muecke on 10.12.2015.
  */
-public class HttpServerStaticFromTempfolderExample {
+public class HttpServerContentFromTempfolderExample {
 
     public TemporaryFolder folder = new TemporaryFolder();
     public HttpServer server = new HttpServerBuilder().contentFrom("/", folder).build();
@@ -27,7 +27,7 @@ public class HttpServerStaticFromTempfolderExample {
     public void testHttpServerGet() throws Exception {
         //prepare
         //create a file in the tempfolder
-        try(InputStream is = HttpServerStaticFromTempfolderExample.class.getResourceAsStream("index.html")) {
+        try(InputStream is = HttpServerContentFromTempfolderExample.class.getResourceAsStream("index.html")) {
             Files.copy(is, folder.getRoot().toPath().resolve("index.html"));
         }
 

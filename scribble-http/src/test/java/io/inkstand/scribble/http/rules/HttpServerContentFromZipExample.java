@@ -11,7 +11,7 @@ import org.junit.Test;
 /**
  * Created by Gerald Muecke on 04.12.2015.
  */
-public class HttpServerStaticContentFromZipExample {
+public class HttpServerContentFromZipExample {
 
     @Rule
     public HttpServer server = new HttpServerBuilder().contentFrom("/", "example.zip").build();

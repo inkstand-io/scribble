@@ -15,6 +15,7 @@ import java.util.Map;
 
 import io.inkstand.scribble.net.NetworkUtils;
 import io.inkstand.scribble.rules.ExternalResource;
+import io.inkstand.scribble.rules.TemporaryFile;
 import io.inkstand.scribble.rules.TemporaryZipFile;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
@@ -125,15 +126,20 @@ public class HttpServer extends ExternalResource {
             throws IOException, URISyntaxException {
 
         if (resource instanceof TemporaryZipFile) {
-            final URI uri = ((TemporaryZipFile) resource).getFile().toURI();
-            pathHandler.addPrefixPath(path, createZipResourceHandler(uri));
+            final URL url = ((TemporaryZipFile) resource).getFile().toURI().toURL();
+            pathHandler.addPrefixPath(path, createZipResourceHandler(url));
         } else if(resource instanceof TemporaryFolder){
             final Path resourcePath = ((TemporaryFolder)resource).getRoot().toPath();
             pathHandler.addPrefixPath(path, new ResourceHandler(new PathResourceManager(resourcePath, 1024)));
+        } else if (resource instanceof TemporaryFile){
+            final Path resourcePath = ((TemporaryFile)resource).getFile().toPath();
+            pathHandler.addExactPath(path, new PathResourceHandler(resourcePath));
         } else if (resource instanceof URL) {
-            final URI uri = ((URL) resource).toURI();
-            if(uri.getPath().endsWith(".zip")) {
-                pathHandler.addPrefixPath(path, createZipResourceHandler(uri));
+            final URL url = ((URL) resource);
+            if(url.getPath().endsWith(".zip")) {
+                pathHandler.addPrefixPath(path, createZipResourceHandler(url));
+            } else {
+                pathHandler.addExactPath(path, new UrlResourceHandler(url));
             }
         }
     }
@@ -146,7 +152,7 @@ public class HttpServer extends ExternalResource {
      *  the resource handler to handle requests to files in the zip
      * @throws IOException
      */
-    private ResourceHandler createZipResourceHandler(final URI zipFile) throws IOException {
+    private ResourceHandler createZipResourceHandler(final URL zipFile) throws IOException {
 
         final FileSystem fs = newFileSystem(URI.create("jar:" + zipFile), Collections.<String, Object>emptyMap());
         final ResourceManager resMgr = new FileSystemResourceManager(fs);
@@ -184,7 +190,7 @@ public class HttpServer extends ExternalResource {
 
     public GetResponseStubbing onGet(final String resource) {
 
-        return null;
+        return new GetResponseStubbing();
     }
 
     /**
