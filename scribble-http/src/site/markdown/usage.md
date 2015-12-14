@@ -38,8 +38,8 @@ The server has several options for the defining the response content.
 - the content from a `TemporaryZipFile` created dynamically during test execution
 - the content of a String defined a fluent stubbing API
 
-Following are two example, more examples can be found in the test sources of the project, in the package `io
-.inkstand.scribble.http.rules.examples` 
+Following are two example, more examples can be found in the test sources of the project, in the package 
+`io.inkstand.scribble.http.rules.examples` 
 
 ###Definition via TemporaryZipFile
 Defining the content via zip file creates a zip file using the `TemporaryFile` rule. The root of the zip file matches
@@ -75,20 +75,20 @@ If the server is created with the constructor and not with the builder, the prov
 using the stubbing API. 
 
 ```java
-        @Rule
-        HttpServer http = new HttpServer();
+    @Rule
+    HttpServer http = new HttpServer();
+    
+    @Test
+    public void testHttpServerGet() throws Exception {
+        //define content via stubbing
+        http.onGet("/index.html").respond("someContent");
         
-        @Test
-        public void testHttpServerGet() throws Exception {
-                //define content via stubbing
-                http.onGet("/index.html").respond("someContent");
-                
-                //test using html unit
-                try (final WebClient webClient = new WebClient()) {
-                    final TextPage page = webClient.getPage(http.getBaseUrl() + "/index.html");
-                    assertEquals("someContent", page.getContent());
-                }
+        //test using html unit
+        try (final WebClient webClient = new WebClient()) {
+            final TextPage page = webClient.getPage(http.getBaseUrl() + "/index.html");
+            assertEquals("someContent", page.getContent());
         }
+    }
 ``` 
 
 ### Limitations
