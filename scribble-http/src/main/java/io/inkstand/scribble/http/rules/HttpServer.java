@@ -114,8 +114,6 @@ public class HttpServer extends ExternalResource {
      *     <li>{@link java.net.URL} pointing to a zip resource, same as the TemporaryZipFile but the zip has to
      *     be predined</li>
      * </ul>
-     * @param pathHandler
-     *  the path handler that is used to dispatch requests to the right resource depending on the path
      * @param path
      *  the path to the resource
      * @param resource
@@ -194,6 +192,13 @@ public class HttpServer extends ExternalResource {
         return port;
     }
 
+    /**
+     * Entry point for fluently defining response for http GET requests.
+     * @param resource
+     *  the resource that should be retrieved via http GET.
+     * @return
+     *  a stubbing defining what to respond on a get request on the specified resource.
+     */
     public GetResponseStubbing onGet(final String resource) {
 
         return new GetResponseStubbing(this).resource(resource);
