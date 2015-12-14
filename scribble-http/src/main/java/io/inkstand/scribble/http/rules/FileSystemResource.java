@@ -55,7 +55,9 @@ public class FileSystemResource implements Resource {
      *  the path to the resource in the filesystem
      */
     public FileSystemResource(Path path) {
-
+        if(path == null) {
+            throw new IllegalArgumentException("Path must not be null");
+        }
         this.path = path;
     }
 

@@ -114,6 +114,18 @@ public class FileSystemResourceTest {
 
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void test_constructorWithNull_exception() throws Exception {
+        //prepare
+
+        //act
+        new FileSystemResource(null);
+
+        //assert
+
+    }
+
+
     @Test
     public void testGetPath() throws Exception {
         //prepare
