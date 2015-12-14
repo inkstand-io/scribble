@@ -43,6 +43,7 @@
 		<module>scribble-ldap</module>
 		<module>scribble-all</module>
 		<module>scribble-parent</module>
+		<module>scribble-http</module>
 	</modules>
 
 	<dependencies>

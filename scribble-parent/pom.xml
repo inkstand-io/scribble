@@ -88,13 +88,15 @@
         <!-- Test lib versions -->
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
+        <htmlunit.version>2.19</htmlunit.version>
 
         <!-- javax Versions -->
         <javax.jcr.version>2.0</javax.jcr.version>
         <javax.cdi.spec.version>1.2</javax.cdi.spec.version>
         <javax.javaee-api.version>7.0</javax.javaee-api.version>
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
-        <jboss.resteasy.version>3.0.10.Final</jboss.resteasy.version>
+        <!-- JBoss dependencies -->
+        <io.undertow.version>1.3.6.Final</io.undertow.version>
 
         <!-- Apache Library Version -->
         <apache.commons.io.version>2.4</apache.commons.io.version>
@@ -166,6 +168,11 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.htmlunit</groupId>
+                <artifactId>htmlunit</artifactId>
+                <version>${htmlunit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian.junit</groupId>
@@ -310,6 +317,12 @@
                 <groupId>org.apache.directory.server</groupId>
                 <artifactId>apacheds-xdbm-partition</artifactId>
                 <version>${apache.ds.server.version}</version>
+            </dependency>
+            <!-- Undertow Web Server-->
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-core</artifactId>
+                <version>${io.undertow.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
