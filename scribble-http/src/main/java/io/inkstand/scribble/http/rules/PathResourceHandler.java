@@ -1,30 +1,30 @@
 package io.inkstand.scribble.http.rules;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
-
 /**
+ * ResourceHandler that serves resources from a FileSystem {@link java.nio.file.Path}. The path may be of a physical
+ * {@link java.nio.file.FileSystem} or a virtual one, such as a ZipFileSystem.
  * Created by Gerald Muecke on 11.12.2015.
  */
-public class PathResourceHandler implements HttpHandler {
+public class PathResourceHandler extends ResourceHttpHandler {
 
     private final Path path;
 
+    /**
+     * Creates a resource handler for the specified path.
+     * @param resourcePath
+     *  the path to the resource in the filesystem.
+     */
     public PathResourceHandler(final Path resourcePath) {
         this.path = resourcePath;
     }
 
     @Override
-    public void handleRequest(final HttpServerExchange exchange) throws Exception {
-        if(exchange.isInIoThread()){
-            exchange.dispatch(this);
-        } else{
-            exchange.startBlocking();
-            Files.copy(path, exchange.getOutputStream());
-
-        }
+    protected void writeResource(final OutputStream outputStream) throws IOException {
+            Files.copy(path, outputStream);
     }
 }

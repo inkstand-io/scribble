@@ -1,0 +1,35 @@
+package io.inkstand.scribble.http.rules;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
+
+/**
+ * A base class for serving the content of a single resource via Undertow HTTP. <br> This Undertow {@link
+ * io.undertow.server.HttpHandler} that dispatches an incoming thread and writes data to the response's output stream.
+ * Implementing classes have to implement the {@link #writeResource(java.io.OutputStream)} method in order to write the
+ * resource content to the stream. Created by Gerald Muecke on 14.12.2015.
+ */
+public abstract class ResourceHttpHandler implements HttpHandler {
+
+    @Override
+    public void handleRequest(final HttpServerExchange exchange) throws Exception {
+
+        if (exchange.isInIoThread()) {
+            exchange.dispatch(this);
+        } else {
+            exchange.startBlocking();
+            writeResource(exchange.getOutputStream());
+        }
+    }
+
+    /**
+     * Writes the resource's content onto the output stream.
+     *
+     * @param outputStream
+     *         the response's outputstream onto which the resource content can be written.
+     */
+    protected abstract void writeResource(final OutputStream outputStream) throws IOException;
+}

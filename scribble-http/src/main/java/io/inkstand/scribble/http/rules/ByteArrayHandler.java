@@ -1,13 +1,13 @@
 package io.inkstand.scribble.http.rules;
 
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Handler for serving data from a byte array.
  * Created by Gerald Muecke on 11.12.2015.
  */
-public class ByteArrayHandler implements HttpHandler {
+public class ByteArrayHandler extends ResourceHttpHandler {
 
     private final byte[] data;
 
@@ -23,12 +23,7 @@ public class ByteArrayHandler implements HttpHandler {
     }
 
     @Override
-    public void handleRequest(final HttpServerExchange exchange) throws Exception {
-        if(exchange.isInIoThread()){
-            exchange.dispatch(this);
-        } else {
-            exchange.startBlocking();
-            exchange.getOutputStream().write(data, 0, data.length);
-        }
+    protected void writeResource(final OutputStream outputStream) throws IOException {
+        outputStream.write(data, 0, data.length);
     }
 }
