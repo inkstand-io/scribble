@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 public final class CallStack {
 
     private static final Logger LOG = getLogger(CallStack.class);
+    private static final String THIS_NAME = CallStack.class.getName();
 
     private CallStack(){}
 
@@ -56,7 +57,7 @@ public final class CallStack {
         //we start with 1 as 0 is always java.lang.Thread itself
         for(int i = 1, len = stElements.length-1; i < len; i++){
             final StackTraceElement ste = stElements[i];
-            if(CallStack.class.getName().equals(ste.getClassName())){
+            if(THIS_NAME.equals(ste.getClassName())){
                 continue;
             } else if(stElements[i+1].getMethodName().matches("access\\$\\d+")){
                 //there might be an accessor method between, ignore it

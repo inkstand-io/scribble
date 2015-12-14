@@ -131,9 +131,9 @@ public class TemporaryZipFile extends TemporaryFile {
      * @throws IOException
      */
     private void addEntry(final Path pathToFile, final URL resource) throws IOException {
-
-        if(pathToFile.getParent() != null) {
-            addFolder(pathToFile.getParent());
+        final Path parent = pathToFile.getParent();
+        if(parent != null) {
+            addFolder(parent);
         }
         try (InputStream is = resource.openStream()){
             Files.copy(is, pathToFile);
