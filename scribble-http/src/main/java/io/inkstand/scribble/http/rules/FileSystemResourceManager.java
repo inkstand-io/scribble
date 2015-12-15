@@ -56,12 +56,12 @@ public class FileSystemResourceManager implements ResourceManager {
 
     @Override
     public void registerResourceChangeListener(final ResourceChangeListener resourceChangeListener) {
-
+        //not supported
     }
 
     @Override
     public void removeResourceChangeListener(final ResourceChangeListener resourceChangeListener) {
-
+        //not supported
     }
 
     @Override
