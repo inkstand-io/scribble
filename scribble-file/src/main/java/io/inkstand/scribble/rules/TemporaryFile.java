@@ -94,17 +94,17 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
      */
     protected File createTempFile() throws IOException {
 
-        final File file = newFile();
+        final File tempFile = newFile();
         if (forceContent && contentUrl == null) {
             throw new AssertionError("ContentUrl is not set");
         } else if (contentUrl == null) {
-            file.createNewFile();
+            tempFile.createNewFile();
         } else {
             try (InputStream inputStream = contentUrl.openStream()) {
-                Files.copy(inputStream, file.toPath());
+                Files.copy(inputStream, tempFile.toPath());
             }
         }
-        return file;
+        return tempFile;
     }
 
     @Override
