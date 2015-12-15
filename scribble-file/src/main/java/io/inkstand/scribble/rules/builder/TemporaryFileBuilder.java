@@ -34,9 +34,9 @@ public class TemporaryFileBuilder extends Builder<TemporaryFile> {
 
     private final TemporaryFolder folder;
     private final String filename;
+    private final ResourceResolver resolver;
     private URL content;
     private boolean forceContent;
-    private ResourceResolver resolver;
 
     public TemporaryFileBuilder(final TemporaryFolder folder, final String fileName) {
         this.folder = folder;
