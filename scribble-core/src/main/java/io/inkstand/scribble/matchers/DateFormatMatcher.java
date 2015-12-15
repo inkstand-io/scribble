@@ -19,6 +19,7 @@ package io.inkstand.scribble.matchers;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -34,7 +35,7 @@ public class DateFormatMatcher extends BaseMatcher<String>{
     public DateFormatMatcher(final String dateFormatPattern) {
         try {
             this.strDateFormat = dateFormatPattern;
-            this.dateFormat = new SimpleDateFormat(dateFormatPattern);
+            this.dateFormat = new SimpleDateFormat(dateFormatPattern, Locale.getDefault());
         } catch (IllegalArgumentException e){
             throw new AssertionError("Invalid Date Format " + dateFormatPattern,e);
         }
