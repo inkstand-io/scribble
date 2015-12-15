@@ -66,6 +66,6 @@ public class DateFormatMatcher extends BaseMatcher<String>{
 
     @Override
     public void describeTo(final Description description) {
-        description.appendText("matches format " + strDateFormat.toString());
+        description.appendText("matches format " + strDateFormat);
     }
 }
