@@ -32,7 +32,7 @@ import org.hamcrest.Description;
  */
 public class EndpointMatcher extends BaseMatcher<TcpPort> implements TimeoutSupport{
 
-    private long timeout = 0;
+    private long timeout;
 
 
     @Override
