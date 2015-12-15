@@ -74,7 +74,7 @@ public class SystemConsole implements TestRule {
      */
     private static class RecordingPrintStream extends PrintStream {
 
-        private final StringBuffer buf = new StringBuffer(64);
+        private final StringBuilder buf = new StringBuilder(64);
 
         public RecordingPrintStream(final OutputStream out) {
             super(out);
