@@ -144,16 +144,16 @@ public class FileSystemResource implements Resource {
     }
 
     @Override
-    public void serve(final Sender sender, final HttpServerExchange httpServerExchange, final IoCallback ioCallback) {
+    public void serve(final Sender sender, final HttpServerExchange exchange, final IoCallback ioCallback) {
 
-        httpServerExchange.startBlocking();
-        final OutputStream outStream = httpServerExchange.getOutputStream();
+        exchange.startBlocking();
+        final OutputStream outStream = exchange.getOutputStream();
         try {
             Files.copy(path, outStream);
-            ioCallback.onComplete(httpServerExchange, sender);
+            ioCallback.onComplete(exchange, sender);
         } catch (IOException e) {
             LOG.error("Could not serve content file", e);
-            ioCallback.onException(httpServerExchange, sender, e);
+            ioCallback.onException(exchange, sender, e);
         }
     }
 
