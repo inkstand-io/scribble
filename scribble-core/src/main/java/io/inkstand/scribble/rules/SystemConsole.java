@@ -72,7 +72,7 @@ public class SystemConsole implements TestRule {
     /**
      * Proxy that records all written bytes into a StringBuffer that can
      */
-    private class RecordingPrintStream extends PrintStream {
+    private static class RecordingPrintStream extends PrintStream {
 
         private final StringBuffer buf = new StringBuffer(64);
 
