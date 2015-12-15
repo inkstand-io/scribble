@@ -131,7 +131,7 @@ public class ResourceInjection extends Injection {
         private String description = "";
 
         ResourceLiteral() {
-
+            //empty
         }
 
         ResourceLiteral(final String name, final String lookup, final String mappedName,
