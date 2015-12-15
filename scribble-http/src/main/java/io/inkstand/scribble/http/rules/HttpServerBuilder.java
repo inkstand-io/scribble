@@ -17,8 +17,8 @@
 package io.inkstand.scribble.http.rules;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.inkstand.scribble.Builder;
 import io.inkstand.scribble.net.NetworkUtils;
@@ -28,24 +28,24 @@ import io.inkstand.scribble.util.ResourceResolver;
 import org.junit.rules.TemporaryFolder;
 
 /**
- * A Builder for creating an embedded HTTP server. Hostname and port can be optionally specified and which resources
+ * A Builder for creating an embedded HTTP server. Hostname and tcpPort can be optionally specified and which resources
  * the server should host.
  * Created by Gerald Muecke on 07.12.2015.
  */
 public class HttpServerBuilder extends Builder<HttpServer> {
 
-    private int port  = -1;
-    private String hostname = "localhost";
+    private int tcpPort = -1;
+    private String serverHostname = "localhost";
     private ResourceResolver resolver = new ResourceResolver(true);
-    private Map<String, Object> resources = new HashMap<>();
+    private Map<String, Object> resources = new ConcurrentHashMap<>();
 
     @Override
     public HttpServer build() {
-        int port = this.port;
+        int port = this.tcpPort;
         if(port < 0){
             port = NetworkUtils.findAvailablePort();
         }
-        return new HttpServer(hostname, port, resources);
+        return new HttpServer(serverHostname, port, resources);
     }
 
     /**
@@ -56,7 +56,7 @@ public class HttpServerBuilder extends Builder<HttpServer> {
      *  this builder
      */
     public HttpServerBuilder port(final int port) {
-        this.port = port;
+        this.tcpPort = port;
         return this;
     }
 
@@ -68,7 +68,7 @@ public class HttpServerBuilder extends Builder<HttpServer> {
      *  this builder
      */
     public HttpServerBuilder hostname(final String hostname) {
-        this.hostname = hostname;
+        this.serverHostname = hostname;
         return this;
     }
 

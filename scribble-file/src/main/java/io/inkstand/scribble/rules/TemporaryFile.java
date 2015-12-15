@@ -73,15 +73,6 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
     }
 
     /**
-     * The filename of the temporary file
-     * @return
-     *  the name of the file
-     */
-    protected String getFilename() {
-        return filename;
-    }
-
-    /**
      * Creates a new empty file in the temporary folder. The file is the FS file on that is represented by this
      * TemporaryFile rule.
      * @return

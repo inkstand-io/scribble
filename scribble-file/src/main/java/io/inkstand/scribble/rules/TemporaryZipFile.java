@@ -33,6 +33,7 @@ import java.util.Map;
 import org.junit.rules.TemporaryFolder;
 
 /**
+ * A zip file that is created for a test execution and deleted afterwards with content from resources.
  * Created by Gerald Muecke on 25.11.2015.
  */
 public class TemporaryZipFile extends TemporaryFile {
