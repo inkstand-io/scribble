@@ -62,10 +62,6 @@ public class ConfigPropertyInjection extends CdiInjection {
      * The name of the {@link ConfigProperty} into which the value should be injected.
      */
     private final transient String configPropertyName;
-    /**
-     * The default value if it is set on the matching annotation.
-     */
-    private transient Object defaultValue;
 
     /**
      * Constructor for a config property injection, accepting the property name and the value.
