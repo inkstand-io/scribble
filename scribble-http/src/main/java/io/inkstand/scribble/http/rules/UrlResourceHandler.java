@@ -38,8 +38,8 @@ public class UrlResourceHandler extends ResourceHttpHandler{
 
     @Override
     protected void writeResource(final OutputStream outputStream) throws IOException {
-            try(InputStream is = resource.openStream()){
-                IOUtils.copy(is, outputStream);
+            try(InputStream inputStream = resource.openStream()){
+                IOUtils.copy(inputStream, outputStream);
             }
     }
 }

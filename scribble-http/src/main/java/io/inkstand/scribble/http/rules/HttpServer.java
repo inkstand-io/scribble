@@ -174,8 +174,8 @@ public class HttpServer extends ExternalResource {
      */
     private ResourceHandler createZipResourceHandler(final URL zipFile) throws IOException {
 
-        final FileSystem fs = newFileSystem(URI.create("jar:" + zipFile), Collections.<String, Object>emptyMap());
-        final ResourceManager resMgr = new FileSystemResourceManager(fs);
+        final FileSystem fileSystem = newFileSystem(URI.create("jar:" + zipFile), Collections.<String, Object>emptyMap());
+        final ResourceManager resMgr = new FileSystemResourceManager(fileSystem);
         return new ResourceHandler(resMgr);
     }
 

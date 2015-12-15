@@ -81,9 +81,9 @@ public class SystemConsole implements TestRule {
         }
 
         @Override
-        public void write(final int b) {
-            buf.append((char)b);
-            super.write(b);
+        public void write(final int aByte) {
+            buf.append((char)aByte);
+            super.write(aByte);
         }
 
         @Override

@@ -31,21 +31,21 @@ import io.undertow.server.handlers.resource.ResourceManager;
  */
 public class FileSystemResourceManager implements ResourceManager {
 
-    private final FileSystem fs;
+    private final FileSystem fileSystem;
 
     /**
      * Creates a ResourceManager on the specified FileSytem.
-     * @param fs
+     * @param fileSystem
      *  the filesystem containing the resources to be hosted by Undertow.
      */
-    public FileSystemResourceManager(FileSystem fs){
-        this.fs = fs;
+    public FileSystemResourceManager(FileSystem fileSystem){
+        this.fileSystem = fileSystem;
     }
 
     @Override
     public Resource getResource(final String s) throws IOException {
 
-        return new FileSystemResource(fs.getPath(s));
+        return new FileSystemResource(fileSystem.getPath(s));
     }
 
     @Override
@@ -66,6 +66,6 @@ public class FileSystemResourceManager implements ResourceManager {
 
     @Override
     public void close() throws IOException {
-        fs.close();
+        fileSystem.close();
     }
 }

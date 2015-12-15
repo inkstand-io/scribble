@@ -135,8 +135,8 @@ public class TemporaryZipFile extends TemporaryFile {
         if(parent != null) {
             addFolder(parent);
         }
-        try (InputStream is = resource.openStream()){
-            Files.copy(is, pathToFile);
+        try (InputStream inputStream = resource.openStream()){
+            Files.copy(inputStream, pathToFile);
         }
     }
 

@@ -45,9 +45,9 @@ public class DateFormatMatcher extends BaseMatcher<String>{
     }
 
     @Override
-    public boolean matches(final Object o) {
-        if(o instanceof String){
-            return matchesDateString((String)o);
+    public boolean matches(final Object object) {
+        if(object instanceof String){
+            return matchesDateString((String)object);
         }
         return false;
     }
