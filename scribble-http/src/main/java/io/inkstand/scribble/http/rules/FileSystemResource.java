@@ -95,8 +95,12 @@ public class FileSystemResource implements Resource {
 
     @Override
     public String getName() {
+        final Path filename = path.getFileName();
+        if(filename == null){
+            return null;
+        }
+        return filename.toString();
 
-        return path.getFileName().toString();
     }
 
     @Override
@@ -127,13 +131,16 @@ public class FileSystemResource implements Resource {
 
     @Override
     public String getContentType(final MimeMappings mimeMappings) {
-
-        String filename = path.getFileName().toString();
-        int separator = filename.lastIndexOf('.');
-        if (separator != -1) {
-            return mimeMappings.getMimeType(filename.substring(separator + 1));
+        final Path filenamePath = path.getFileName();
+        if(filenamePath == null) {
+            return null;
         }
-        return null;
+        final String filename = filenamePath.toString();
+        final int separator = filename.lastIndexOf('.');
+        if (separator == -1) {
+            return null;
+        }
+        return mimeMappings.getMimeType(filename.substring(separator + 1));
     }
 
     @Override
@@ -180,8 +187,11 @@ public class FileSystemResource implements Resource {
 
     @Override
     public File getResourceManagerRoot() {
-
-        return path.getRoot().toFile();
+        final Path root = path.getRoot();
+        if(root == null) {
+            return null;
+        }
+        return root.toFile();
     }
 
     @Override

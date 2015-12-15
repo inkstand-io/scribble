@@ -194,6 +194,19 @@ public class FileSystemResourceTest {
     }
 
     @Test
+    public void testGetName_noFilename_null() throws Exception {
+        //prepare
+        when(path.getFileName()).thenReturn(null);
+
+        //act
+        String name = subject.getName();
+
+        //assert
+        assertNull(name);
+
+    }
+
+    @Test
     public void testIsDirectory_true() throws Exception {
         //prepare
         when(basicFileAttributes.isDirectory()).thenReturn(true);
@@ -248,6 +261,18 @@ public class FileSystemResourceTest {
         assertFalse(result.isEmpty());
         assertEquals(child1, result.get(0).getFilePath());
         assertEquals(child2, result.get(1).getFilePath());
+    }
+
+    @Test
+    public void testGetContentType_noFilename_null() throws Exception {
+        //prepare
+        when(path.getFileName()).thenReturn(null);
+
+        //act
+        String contentType = subject.getContentType(mimeMappings);
+
+        //assert
+        assertNull(contentType);
     }
 
     @Test
@@ -389,6 +414,19 @@ public class FileSystemResourceTest {
         //assert
         assertEquals(rootFile, result);
     }
+
+    @Test
+    public void testGetResourceManagerRoot_noRoot_null() throws Exception {
+        //prepare
+        when(path.getRoot()).thenReturn(null);
+
+        //act
+        File result = subject.getResourceManagerRoot();
+
+        //assert
+        assertNull(result);
+    }
+
 
     @Test
     public void testGetResourceManagerRootPath() throws Exception {
