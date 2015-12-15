@@ -150,7 +150,7 @@ public class HttpServer extends ExternalResource {
                 final Path resourcePath = ((TemporaryFile) resource).getFile().toPath();
                 this.pathHandler.addExactPath(path, new PathResourceHandler(resourcePath));
             } else if (resource instanceof URL) {
-                final URL url = ((URL) resource);
+                final URL url = (URL) resource;
                 if (url.getPath().endsWith(".zip")) {
                     this.pathHandler.addPrefixPath(path, createZipResourceHandler(url));
                 } else {
