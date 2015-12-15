@@ -97,12 +97,12 @@ public class TemporaryFile extends ExternalResource<TemporaryFolder> {
         final File file = newFile();
         if (forceContent && contentUrl == null) {
             throw new AssertionError("ContentUrl is not set");
-        } else if (contentUrl != null) {
+        } else if (contentUrl == null) {
+            file.createNewFile();
+        } else {
             try (InputStream inputStream = contentUrl.openStream()) {
                 Files.copy(inputStream, file.toPath());
             }
-        } else {
-            file.createNewFile();
         }
         return file;
     }
