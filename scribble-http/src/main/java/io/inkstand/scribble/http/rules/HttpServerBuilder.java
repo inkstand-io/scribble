@@ -36,8 +36,8 @@ public class HttpServerBuilder extends Builder<HttpServer> {
 
     private int tcpPort = -1;
     private String serverHostname = "localhost";
-    private ResourceResolver resolver = new ResourceResolver(true);
-    private Map<String, Object> resources = new ConcurrentHashMap<>();
+    private final ResourceResolver resolver = new ResourceResolver(true);
+    private final Map<String, Object> resources = new ConcurrentHashMap<>();
 
     @Override
     public HttpServer build() {

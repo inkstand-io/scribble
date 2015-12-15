@@ -43,9 +43,9 @@ public class FileSystemResourceManager implements ResourceManager {
     }
 
     @Override
-    public Resource getResource(final String s) throws IOException {
+    public Resource getResource(final String path) throws IOException {
 
-        return new FileSystemResource(fileSystem.getPath(s));
+        return new FileSystemResource(fileSystem.getPath(path));
     }
 
     @Override
