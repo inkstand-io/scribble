@@ -33,8 +33,8 @@ import java.util.Map;
 import org.junit.rules.TemporaryFolder;
 
 /**
- * A zip file that is created for a test execution and deleted afterwards with content from resources.
- * Created by Gerald Muecke on 25.11.2015.
+ * A zip file that is created for a test execution and deleted afterwards with content from resources. Created by Gerald
+ * Muecke on 25.11.2015.
  */
 public class TemporaryZipFile extends TemporaryFile {
 
@@ -44,22 +44,24 @@ public class TemporaryZipFile extends TemporaryFile {
      * Creates an ExternalFile in the specified temporary folder with the specified filename
      *
      * @param folder
-     *  the temporary folder to create the file in
+     *         the temporary folder to create the file in
      * @param filename
-     *  the name of the zip file
+     *         the name of the zip file
      * @param content
-     *  the content for the zip file. The map contains a mapping for path names in the zip file to the URL containing
-     *  the content for that entry
+     *         the content for the zip file. The map contains a mapping for path names in the zip file to the URL
+     *         containing the content for that entry
      */
     public TemporaryZipFile(final TemporaryFolder folder, final String filename, Map<String, URL> content) {
+
         super(folder, filename);
         this.contentMap = content;
     }
 
     @Override
     protected File createTempFile() throws IOException {
+
         final File file = newFile();
-        try(FileSystem zipFs = newZipFileSystem(file)) {
+        try (FileSystem zipFs = newZipFileSystem(file)) {
             addEntries(zipFs);
         }
         return file;
@@ -67,13 +69,15 @@ public class TemporaryZipFile extends TemporaryFile {
 
     /**
      * Adds the entries to the zip file, that have been defined by the builder.
+     *
      * @param zipFs
-     *  the zip file system that represents the new zip file.
+     *         the zip file system that represents the new zip file.
+     *
      * @throws IOException
      */
     private void addEntries(final FileSystem zipFs) throws IOException {
 
-        for(Map.Entry<String, URL> entry : contentMap.entrySet()){
+        for (Map.Entry<String, URL> entry : contentMap.entrySet()) {
             final Path pathToFile = zipFs.getPath(entry.getKey());
             final URL resource = entry.getValue();
             addResource(pathToFile, resource);
@@ -82,30 +86,34 @@ public class TemporaryZipFile extends TemporaryFile {
 
     /**
      * Creates a new zip file and exposes the zip file as a filesystem to which paths and files can be added.
+     *
      * @param file
-     *  the file handle that denotes the zip file
-     * @return
-     *  the FileSystem that represents the zip file
+     *         the file handle that denotes the zip file
+     *
+     * @return the FileSystem that represents the zip file
+     *
      * @throws IOException
      */
     private FileSystem newZipFileSystem(final File file) throws IOException {
-        final Map<String, String> env = new HashMap<String, String>() {{
-            put("create", "true");
-        }};
+
+        final Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
         return newFileSystem(URI.create("jar:" + file.toURI()), env);
     }
 
     /**
      * Adds a resource respectively it's content to the filesystem at the position specified by the pathToFile
+     *
      * @param pathToFile
-     *  the path to the file or folder to which the resource's content should be written
+     *         the path to the file or folder to which the resource's content should be written
      * @param resource
-     *  the resource providing the content for the entry. If the resource is null, a folder will be created
+     *         the resource providing the content for the entry. If the resource is null, a folder will be created
+     *
      * @throws IOException
      */
     private void addResource(final Path pathToFile, final URL resource) throws IOException {
 
-        if(resource == null) {
+        if (resource == null) {
             addFolder(pathToFile);
         } else {
             addEntry(pathToFile, resource);
@@ -114,8 +122,10 @@ public class TemporaryZipFile extends TemporaryFile {
 
     /**
      * Adds a folder entry for the specified path.
+     *
      * @param pathToFile
-     *  the path to the folder
+     *         the path to the folder
+     *
      * @throws IOException
      */
     private void addFolder(final Path pathToFile) throws IOException {
@@ -125,18 +135,21 @@ public class TemporaryZipFile extends TemporaryFile {
 
     /**
      * Creates an entry under the specifeid path with the content from the provided resource.
+     *
      * @param pathToFile
-     *  the path to the file in the zip file.
+     *         the path to the file in the zip file.
      * @param resource
-     *  the resource providing the content for the file. Must not be null.
+     *         the resource providing the content for the file. Must not be null.
+     *
      * @throws IOException
      */
     private void addEntry(final Path pathToFile, final URL resource) throws IOException {
+
         final Path parent = pathToFile.getParent();
-        if(parent != null) {
+        if (parent != null) {
             addFolder(parent);
         }
-        try (InputStream inputStream = resource.openStream()){
+        try (InputStream inputStream = resource.openStream()) {
             Files.copy(inputStream, pathToFile);
         }
     }
