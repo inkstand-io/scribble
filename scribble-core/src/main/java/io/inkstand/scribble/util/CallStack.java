@@ -51,7 +51,7 @@ public final class CallStack {
         }
     }
 
-    private static StackTraceElement findCaller(final StackTraceElement[] stElements) {
+    private static StackTraceElement findCaller(final StackTraceElement[] stElements) { //NOSONAR
         //we start with 1 as 0 is always java.lang.Thread itself
         for (int i = 1,
              len = stElements.length - 1; i < len; i++) {
