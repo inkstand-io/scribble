@@ -262,7 +262,7 @@ public class RemoteContentRepository extends ContentRepository {
         return contextRoot;
     }
 
-    private class ArquillianLaunchVariableResolver implements XPathVariableResolver {
+    private static class ArquillianLaunchVariableResolver implements XPathVariableResolver {
 
         private final String qualifier;
 
