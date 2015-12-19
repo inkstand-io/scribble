@@ -476,7 +476,7 @@
                                 </phase>
                                 <configuration>
                                     <parentPageTitle>Scribble Home</parentPageTitle>
-                                    <title>Documentation (generated)</title>
+                                    <title>Documentation</title>
                                     <recursive>true</recursive>
                                 </configuration>
                             </execution>
@@ -534,7 +534,7 @@
                                 </goals>
                                 <configuration>
                                     <parentPageTitle>Scribble Home</parentPageTitle>
-                                    <title>Documentation (generated)</title>
+                                    <title>Documentation</title>
                                     <siteDescriptor>null</siteDescriptor>
                                     <templateWiki>${basedir}/src/site/confluence/rootTemplate.confluence</templateWiki>
                                 </configuration>
@@ -546,7 +546,7 @@
                                     <goal>delete</goal>
                                 </goals>
                                 <configuration>
-                                    <parentPageTitle>Documentation (generated)</parentPageTitle>
+                                    <parentPageTitle>Documentation</parentPageTitle>
                                     <title>${project.version}</title>
                                     <recursive>true</recursive>
                                 </configuration>
@@ -558,7 +558,7 @@
                                     <goal>deploy</goal>
                                 </goals>
                                 <configuration>
-                                    <parentPageTitle>Documentation (generated)</parentPageTitle>
+                                    <parentPageTitle>Documentation</parentPageTitle>
                                     <title>${project.version}</title>
                                     <siteDescriptor>null</siteDescriptor>
                                 </configuration>
