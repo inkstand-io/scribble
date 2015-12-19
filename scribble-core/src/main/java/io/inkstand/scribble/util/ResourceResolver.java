@@ -84,6 +84,17 @@ public class ResourceResolver {
         return contentUrl;
     }
 
+    /**
+     * Resolves a resource relative to a consumer class. If the resource path starts with a '/', it will be used as
+     * is, because it does not denote a relative path. If the resource path is a relative path, it will be resolved
+     * relative to the package of the consumer class.
+     * @param resource
+     *  the path to the resource to resolve. It may be absolute or relative.
+     * @param consumer
+     *  the consumer that denotes the base to resolve a relative path.
+     * @return
+     *  an absolute path to the resource
+     */
     private String resolvePath(final String resource, final Class consumer) {
 
         if(resource.startsWith("/")) {
@@ -95,13 +106,4 @@ public class ResourceResolver {
            .append('/').append(resource);
         return buf.toString();
     }
-
-    private String getRelativePath(final String resource) {
-
-        if(resource.indexOf('/') != -1) {
-            return resource.substring(resource.lastIndexOf('/'));
-        }
-        return resource;
-    }
-
 }
