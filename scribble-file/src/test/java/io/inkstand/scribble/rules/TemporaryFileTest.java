@@ -110,7 +110,7 @@ public class TemporaryFileTest {
     }
 
     @Test
-    public void testBefore_withEmptyContentWithForce() throws Throwable {
+     public void testBefore_withEmptyContentWithForce() throws Throwable {
         // prepare
         subject.setForceContent(true);
         subject.setContentUrl(getEmptyTestContentUrl());
@@ -120,6 +120,18 @@ public class TemporaryFileTest {
         assertNotNull(subject.getFile());
         assertTrue(subject.getFile().exists());
         assertEquals(0, subject.getFile().length());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testBefore_withEmptyContent_couldnotCreateFile() throws Throwable {
+        // prepare
+        //create a new file so that the rule will fail on creating a file with the same name
+        folder.newFile("testfile");
+        subject = new TemporaryFile(folder, "testfile");
+        subject.setForceContent(false);
+        subject.setContentUrl(null);
+        // act
+        subject.before();
     }
 
     @Test
