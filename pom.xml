@@ -28,10 +28,7 @@
 	<packaging>pom</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>A testing framework for developing unit tests that required
-	a JCR repository. The framework contains mock repositories, assertion
-	and other helper classes.
-	</description>
+	<description>The scribble root module</description>
 
 	<modules>
 		<module>scribble-core</module>
