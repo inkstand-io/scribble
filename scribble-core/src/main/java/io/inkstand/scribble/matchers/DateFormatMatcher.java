@@ -16,6 +16,8 @@
 
 package io.inkstand.scribble.matchers;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,11 +25,14 @@ import java.util.Locale;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.slf4j.Logger;
 
 /**
  * Created by Gerald Muecke on 03.12.2015.
  */
 public class DateFormatMatcher extends BaseMatcher<String>{
+
+    private static final Logger LOG = getLogger(DateFormatMatcher.class);
 
     private final DateFormat dateFormat;
     private final String strDateFormat;
@@ -59,7 +64,7 @@ public class DateFormatMatcher extends BaseMatcher<String>{
             dateFormat.parse(dateString);
             return true;
         } catch (ParseException e) {
-            System.err.println(e.getMessage());
+            LOG.warn("{}", e);
             return false;
         }
     }

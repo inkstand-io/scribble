@@ -43,8 +43,8 @@ public class SystemConsole implements TestRule {
 
             @Override
             public void evaluate() throws Throwable {
-                final PrintStream originalOut = System.out;
-                final PrintStream originalErr = System.err;
+                final PrintStream originalOut = System.out; //NOSONAR
+                final PrintStream originalErr = System.err; //NOSONAR
                 try {
                     out = new RecordingPrintStream(originalOut);
                     err = new RecordingPrintStream(originalErr);
