@@ -109,7 +109,7 @@ public abstract class ExternalResource<T extends TestRule> extends BaseRule<T> {
     /**
      * Override to tear down your specific external resource after all tests of a suite have been executed.
      */
-    protected void afterClass() {
+    protected void afterClass() { //NOSONAR
         // do nothing
     }
 
@@ -126,7 +126,7 @@ public abstract class ExternalResource<T extends TestRule> extends BaseRule<T> {
     /**
      * Override to tear down your specific external resource.
      */
-    protected void after() {
+    protected void after() { //NOSONAR
         // do nothing
     }
 }
