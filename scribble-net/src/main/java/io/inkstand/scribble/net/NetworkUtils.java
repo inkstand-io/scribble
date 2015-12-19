@@ -89,7 +89,8 @@ public final class NetworkUtils {
         do {
             randomPort = randomPort();
             portAvailable = isPortAvailable(randomPort);
-        } while (retries++ < maxRetries && !portAvailable);
+            retries++;
+        } while (retries <= maxRetries && !portAvailable);
         assumeTrue("no open port found", portAvailable);
         return randomPort;
     }
