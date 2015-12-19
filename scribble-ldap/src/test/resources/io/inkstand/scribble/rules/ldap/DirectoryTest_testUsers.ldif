@@ -1,0 +1,31 @@
+dn: dc=scribble
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: inkstand.io
+
+dn: ou=groups,dc=scribble
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=testgroup,ou=groups,dc=scribble
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: testusers
+uniqueMember: uid=testuser,ou=users,dc=scribble
+
+dn: ou=users,dc=scribble
+objectClass: organizationalUnit
+ou: users
+
+dn: uid=testuser,ou=users,dc=scribble
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: test
+sn: user
+uid: tu1
+userPassword: Password1
+mail: test.user1@scribble.inkstand.io
+
