@@ -137,18 +137,7 @@ public final class Scribble {
         return new Injection(value);
     }
 
-    /**
-     * Extension mechanism to create custom rules instances with Scribble's builder pattern.
-     *
-     * @param ruleType
-     *            the type of the rule to instantiate
-     * @return a {@link GenericBuilder} for that rule.
-     */
-    public static <T extends BaseRule<?>, B extends GenericBuilder<T>> B newRule(final Class<T> ruleType) {
-        throw new UnsupportedOperationException("newRule is not yet supported");
-    }
-
-    /**
+   /**
      * Creates a new {@link Builder} for a {@link MockContentRepository}.
      *
      * @return a {@link MockContentRepositoryBuilder}
