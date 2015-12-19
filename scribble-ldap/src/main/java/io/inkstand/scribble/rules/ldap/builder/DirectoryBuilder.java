@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
  * settings so that the entire rule can be set up with chained method calls. <p/> <p> Created by Gerald on 29.05.2015.
  * </p>
  */
-public class DirectoryBuilder extends Builder<Directory> {
+public class DirectoryBuilder implements Builder<Directory> {
 
     private transient final TemporaryFolder temporaryFolder;
 

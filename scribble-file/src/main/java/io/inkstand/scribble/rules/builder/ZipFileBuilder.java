@@ -31,7 +31,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * A builder to build a temporary zip file from resources. Created by Gerald Muecke on 24.11.2015.
  */
-public class ZipFileBuilder extends Builder<TemporaryFile> {
+public class ZipFileBuilder implements Builder<TemporaryFile> {
 
     private final TemporaryFolder folder;
     private final String filename;

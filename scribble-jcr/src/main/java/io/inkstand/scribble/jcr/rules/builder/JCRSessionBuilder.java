@@ -25,7 +25,7 @@ import io.inkstand.scribble.jcr.rules.ContentRepository;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class JCRSessionBuilder extends Builder<ActiveSession> {
+public class JCRSessionBuilder implements Builder<ActiveSession> {
 
     private final ActiveSession jcrSession;
 

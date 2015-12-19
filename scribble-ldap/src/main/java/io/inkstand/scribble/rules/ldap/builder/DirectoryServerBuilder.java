@@ -25,7 +25,7 @@ import io.inkstand.scribble.rules.ldap.DirectoryServer;
  * for test.
  * Created by Gerald on 29.05.2015.
  */
-public class DirectoryServerBuilder extends Builder<DirectoryServer> {
+public class DirectoryServerBuilder implements Builder<DirectoryServer> {
 
     /**
      * The {@link Directory} rule that provides the ldap content for the ldap server.

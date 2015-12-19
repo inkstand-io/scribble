@@ -30,7 +30,7 @@ import org.junit.rules.TemporaryFolder;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class TemporaryFileBuilder extends Builder<TemporaryFile> {
+public class TemporaryFileBuilder implements Builder<TemporaryFile> {
 
     private final TemporaryFolder folder;
     private final String filename;

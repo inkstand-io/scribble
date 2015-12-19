@@ -30,7 +30,7 @@ import io.inkstand.scribble.jcr.rules.ContentRepository;
  * @param <T>
  *            the Type of the {@link ContentRepository}
  */
-public abstract class ContentRepositoryBuilder<T extends ContentRepository> extends Builder<T> {
+public abstract class ContentRepositoryBuilder<T extends ContentRepository> implements Builder<T> {
 
     private transient URL cndModelResource;
 

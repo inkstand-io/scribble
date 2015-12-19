@@ -23,7 +23,7 @@ import io.inkstand.scribble.rules.BaseRule;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public abstract class GenericBuilder<T extends BaseRule<?>> extends Builder<T> {
+public abstract class GenericBuilder<T extends BaseRule<?>> implements Builder<T> {
 
     public <R extends BaseRule<?>, B extends GenericBuilder<R>> B around(final Class<R> ruleType) {
         throw new UnsupportedOperationException("around is not yet supported");

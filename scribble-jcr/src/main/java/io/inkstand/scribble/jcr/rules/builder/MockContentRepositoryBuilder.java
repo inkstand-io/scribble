@@ -24,7 +24,7 @@ import io.inkstand.scribble.jcr.rules.MockContentRepository;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class MockContentRepositoryBuilder extends Builder<MockContentRepository> {
+public class MockContentRepositoryBuilder implements Builder<MockContentRepository> {
 
     @Override
     public MockContentRepository build() {

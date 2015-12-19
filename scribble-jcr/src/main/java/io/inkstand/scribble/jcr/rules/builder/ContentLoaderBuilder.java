@@ -28,7 +28,7 @@ import io.inkstand.scribble.jcr.rules.ContentRepository;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class ContentLoaderBuilder extends Builder<ContentLoader> {
+public class ContentLoaderBuilder implements Builder<ContentLoader> {
 
     private final ContentLoader contentLoader;
 

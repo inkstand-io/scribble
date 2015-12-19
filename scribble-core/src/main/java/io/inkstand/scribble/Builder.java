@@ -26,8 +26,13 @@ import org.junit.rules.TestRule;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public abstract class Builder<T extends TestRule> {
+public interface Builder<T extends TestRule> {
 
-    public abstract T build();
+    /**
+     * Builds the test rule instance.
+     * @return
+     *  an instance of the test rule of type T
+     */
+    T build();
 
 }

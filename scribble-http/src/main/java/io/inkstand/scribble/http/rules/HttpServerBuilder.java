@@ -32,7 +32,7 @@ import org.junit.rules.TemporaryFolder;
  * the server should host.
  * Created by Gerald Muecke on 07.12.2015.
  */
-public class HttpServerBuilder extends Builder<HttpServer> {
+public class HttpServerBuilder implements Builder<HttpServer> {
 
     private int tcpPort = -1;
     private String serverHostname = "localhost";
