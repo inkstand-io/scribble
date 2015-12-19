@@ -16,8 +16,9 @@
 
 package io.inkstand.scribble.jcr;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
@@ -29,9 +30,8 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Assertion for writing unit tests against a JCR repository.
@@ -171,8 +171,8 @@ public final class JCRAssert {
      * @throws RepositoryException
      */
     public static void assertPrimaryNodeType(final Node node, final String nodeType) throws RepositoryException {
-        final NodeType nt = node.getPrimaryNodeType();
-        assertEquals(nodeType, nt.getName());
+        final NodeType primaryNodeType = node.getPrimaryNodeType();
+        assertEquals(nodeType, primaryNodeType.getName());
     }
 
     /**
