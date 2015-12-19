@@ -193,17 +193,17 @@ public class RemoteContentRepository extends ContentRepository {
      */
     private String getActiveArquillianHost(final URL arquillianXml, final String arquillianLaunch) {
 
-        final XPath xp = XPathFactory.newInstance().newXPath();
+        final XPath xPath = XPathFactory.newInstance().newXPath();
         final String xpExpr = "//container[@qualifier=$containerQualifier]/protocol/property[@name='host']";
         try {
             final Document document = parseDocument(arquillianXml);
 
             //SCRIB-23 adding a variable resolver that returns only sanitized input values
-            xp.setXPathVariableResolver(new ArquillianLaunchVariableResolver(arquillianLaunch));
+            xPath.setXPathVariableResolver(new ArquillianLaunchVariableResolver(arquillianLaunch));
             // with the sanity check the already unlikely chance of maliciously injecting statements into
             // the xpath expression becomes impossible. As the sonar rule still indicating this as
             // an error, the NOSONAR marker is set
-            return xp.evaluate(xpExpr, document);//NOSONAR
+            return xPath.evaluate(xpExpr, document);//NOSONAR
         } catch (SAXException | IOException | ParserConfigurationException e) {
             LOG.error("Could not parse arquilian.xml", e);
             throw new AssertionError("Could not parse arquilian.xml:" + e.getMessage(), e);
