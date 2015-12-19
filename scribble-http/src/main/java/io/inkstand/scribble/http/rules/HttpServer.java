@@ -74,7 +74,7 @@ public class HttpServer extends ExternalResource {
      */
     public HttpServer(String hostname, int port) {
 
-        this(hostname, port, Collections.EMPTY_MAP);
+        this(hostname, port, Collections.<String, Object>emptyMap());
     }
 
     /**
