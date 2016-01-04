@@ -16,10 +16,12 @@
 
 package io.inkstand.scribble.inject;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 
 /**
@@ -71,9 +73,10 @@ public class ConfigPropertyInjection extends CdiInjection {
      * @param injectedValue
      *         the value to be injected. May be null.
      */
-    public ConfigPropertyInjection(final String configPropertyName, final Object injectedValue) {
+    public ConfigPropertyInjection(final String configPropertyName, final Object injectedValue, Class<? extends
+            Annotation>... qualifiers) {
 
-        super(injectedValue);
+        super(injectedValue, qualifiers);
         this.configPropertyName = configPropertyName;
     }
 

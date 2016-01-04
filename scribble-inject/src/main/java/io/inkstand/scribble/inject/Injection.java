@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import javax.annotation.Resource;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,9 +126,9 @@ public class Injection {
      * for type compatibility, using this method mandates the presence of the {@code @Inject} annotation.
      @return a {@link CdiInjection} handle
      */
-    public CdiInjection asQualifyingInstance(){
+    public CdiInjection asQualifyingInstance(Class<? extends Annotation>... qualifiers){
 
-        return new CdiInjection(this.getValue());
+        return new CdiInjection(this.getValue(), qualifiers);
     }
 
     /**
