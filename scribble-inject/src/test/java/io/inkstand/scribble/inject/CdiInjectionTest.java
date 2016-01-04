@@ -16,12 +16,16 @@
 
 package io.inkstand.scribble.inject;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import javax.inject.Inject;
+import javax.inject.Qualifier;
+import java.lang.annotation.Retention;
 import java.lang.reflect.Field;
+
 import org.junit.Test;
 
 /**
@@ -59,6 +63,56 @@ public class CdiInjectionTest {
         //assert
         assertTrue(result);
 
+    }
+
+    @Test
+    public void testIsMatching_matchingTypeAndNoQualifiedInjectPresent() throws Exception {
+
+
+        //prepare
+        String value = "123";
+        CdiInjection subject = new CdiInjection(value);
+
+        //act
+        Field field = QualifiedInjectField.class.getDeclaredField("field");
+        Field qualifiedField = QualifiedInjectField.class.getDeclaredField("qualifiedField");
+        Field additionalField = QualifiedInjectField.class.getDeclaredField("additionalField");
+        //assert
+        assertTrue(subject.isMatching(field));
+        assertTrue(subject.isMatching(qualifiedField));
+        assertTrue(subject.isMatching(additionalField));
+    }
+
+    @Test
+    public void testIsMatching_matchingTypeAndOneQualifiedInjectPresent() throws Exception {
+        //prepare
+        String value = "123";
+        CdiInjection subject = new CdiInjection(value, AQualifier.class);
+
+        //act
+        Field field = QualifiedInjectField.class.getDeclaredField("field");
+        Field qualifiedField = QualifiedInjectField.class.getDeclaredField("qualifiedField");
+        Field additionalField = QualifiedInjectField.class.getDeclaredField("additionalField");
+        //assert
+        assertFalse(subject.isMatching(field));
+        assertTrue(subject.isMatching(qualifiedField));
+        assertTrue(subject.isMatching(additionalField));
+    }
+
+    @Test
+    public void testIsMatching_matchingTypeAndManyQualifiedInjectPresent() throws Exception {
+        //prepare
+        String value = "123";
+        CdiInjection subject = new CdiInjection(value, AQualifier.class, BQualifier.class);
+
+        //act
+        Field field = QualifiedInjectField.class.getDeclaredField("field");
+        Field qualifiedField = QualifiedInjectField.class.getDeclaredField("qualifiedField");
+        Field additionalField = QualifiedInjectField.class.getDeclaredField("additionalField");
+        //assert
+        assertFalse(subject.isMatching(field));
+        assertFalse(subject.isMatching(qualifiedField));
+        assertTrue(subject.isMatching(additionalField));
     }
 
     @Test
@@ -113,5 +167,28 @@ public class CdiInjectionTest {
         @Inject
         private Integer field;
     }
+
+    static class QualifiedInjectField {
+
+        @Inject
+        private String field;
+
+        @AQualifier
+        @Inject
+        private String qualifiedField;
+
+        @AQualifier
+        @BQualifier
+        @Inject
+        private String additionalField;
+    }
+
+    @Qualifier
+    @Retention(RUNTIME)
+    @interface AQualifier {}
+
+    @Qualifier
+    @Retention(RUNTIME)
+    @interface BQualifier {}
 
 }
