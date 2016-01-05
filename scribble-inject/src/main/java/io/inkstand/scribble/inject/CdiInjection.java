@@ -75,12 +75,12 @@ public class CdiInjection extends Injection{
 
     private Set<Class<? extends Annotation>> collectQualifiers(final Field field) {
 
-        final Set<Class<? extends Annotation>> qualifiers = new HashSet<>();
+        final Set<Class<? extends Annotation>> result = new HashSet<>();
         for(Annotation an : field.getDeclaredAnnotations()){
             if(an.annotationType().getAnnotation(Qualifier.class) != null) {
-                qualifiers.add(an.annotationType());
+                result.add(an.annotationType());
             }
         }
-        return qualifiers;
+        return result;
     }
 }
