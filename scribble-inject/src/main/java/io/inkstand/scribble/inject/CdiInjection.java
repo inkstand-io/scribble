@@ -17,7 +17,13 @@
 package io.inkstand.scribble.inject;
 
 import javax.inject.Inject;
+import javax.inject.Qualifier;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Injection support for injecting {@link javax.inject.Inject} annotated fields. The field can be of any
@@ -28,15 +34,19 @@ import java.lang.reflect.Field;
  */
 public class CdiInjection extends Injection{
 
+    private final List<Class<? extends Annotation>> qualifiers;
+
     /**
      * Creates a new Injection helper for the target object and the object to be injected.
      *
      * @param injectedValue
      *         the object to be injected
+     * @param qualifiers
      */
-    public CdiInjection(final Object injectedValue) {
+    public CdiInjection(final Object injectedValue, final Class<? extends Annotation>... qualifiers) {
 
         super(injectedValue);
+        this.qualifiers = Arrays.asList(qualifiers);
     }
 
     @Override
@@ -47,6 +57,30 @@ public class CdiInjection extends Injection{
         if (!matches || !isInject) {
             return false;
         }
+        return matchQualifiers(field);
+    }
+
+    private boolean matchQualifiers(final Field field) {
+        if(qualifiers.isEmpty()){
+            return true;
+        }
+        final Set<Class<? extends Annotation>> fieldQualifiers = collectQualifiers(field);
+        for(Class<? extends Annotation> qualifierClass : this.qualifiers){
+            if(!fieldQualifiers.contains(qualifierClass)){
+                return false;
+            }
+        }
         return true;
+    }
+
+    private Set<Class<? extends Annotation>> collectQualifiers(final Field field) {
+
+        final Set<Class<? extends Annotation>> result = new HashSet<>();
+        for(Annotation an : field.getDeclaredAnnotations()){
+            if(an.annotationType().getAnnotation(Qualifier.class) != null) {
+                result.add(an.annotationType());
+            }
+        }
+        return result;
     }
 }

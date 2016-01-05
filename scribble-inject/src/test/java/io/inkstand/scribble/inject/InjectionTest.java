@@ -16,10 +16,13 @@
 
 package io.inkstand.scribble.inject;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.when;
 
+import javax.inject.Qualifier;
+import java.lang.annotation.Retention;
 import java.lang.reflect.Field;
 
 import org.junit.Before;
@@ -77,9 +80,17 @@ public class InjectionTest {
     }
 
     @Test
-    public void testAsQualifyingInstace() throws Exception {
+    public void testAsQualifyingInstace_noQualifier() throws Exception {
 
         assertNotNull(subject.asQualifyingInstance());
+        //see CdiInjectionTest for more details
+
+    }
+
+    @Test
+    public void testAsQualifyingInstance_withQualifier() throws Exception {
+
+        assertNotNull(subject.asQualifyingInstance(TestQualifier.class));
         //see CdiInjectionTest for more details
 
     }
@@ -326,6 +337,12 @@ public class InjectionTest {
         float primitiveFloat;
         double primitiveDouble;
         char primitiveChar;
+    }
+
+    @Qualifier
+    @Retention(RUNTIME)
+    @interface TestQualifier{
+
     }
 
 }

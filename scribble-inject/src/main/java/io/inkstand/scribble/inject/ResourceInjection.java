@@ -105,7 +105,19 @@ public class ResourceInjection extends Injection {
             return false;
         }
 
-        for (final Resource expectedResources : matchingResources) {
+        return matchesResourceAnnotation(resourceAnnotation);
+    }
+
+    /**
+     * Verifies, if the specified resource annotation matches any of the resource specification for this injection.
+     * @param resourceAnnotation
+     *  the resource annotation of a potential injection target field
+     * @return
+     *  <code>true</code> if any of the resource specifications of this injection matches the field
+     */
+    private boolean matchesResourceAnnotation(final Resource resourceAnnotation) {
+
+        for (final Resource expectedResources : this.matchingResources) {
             if (expectedResources.equals(resourceAnnotation)) {
                 return true;
             }
