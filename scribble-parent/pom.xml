@@ -121,6 +121,7 @@
         <apache.commons.codec.version>1.10</apache.commons.codec.version>
         <apache.deltaspike.version>1.1.0</apache.deltaspike.version>
         <apache.jackrabbit.version>2.8.0</apache.jackrabbit.version>
+        <apache.pdfbox.version>1.8.10</apache.pdfbox.version>
         <apache.ds.server.version>2.0.0-M20</apache.ds.server.version>
         <apache.ds.server.jdbm1.version>2.0.0-M3</apache.ds.server.jdbm1.version>
 
@@ -175,6 +176,12 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${apache.commons.codec.version}</version>
+            </dependency>
+            <!-- Apache PDF -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${apache.pdfbox.version}</version>
             </dependency>
             <!-- Test libraries -->
             <dependency>
@@ -430,7 +437,7 @@
                     <!-- see https://github.com/bsorrentino/maven-confluence-plugin -->
                     <groupId>org.bsc.maven</groupId>
                     <artifactId>confluence-reporting-maven-plugin</artifactId>
-                    <version>4.4.1</version>
+                    <version>4.4.3</version>
                     <configuration>
                         <serverId>sites.scribble.confluence</serverId>
                         <endPoint>${confluence.home}/rpc/xmlrpc</endPoint>
@@ -715,6 +722,7 @@
                     <plugin>
                         <groupId>org.pitest</groupId>
                         <artifactId>pitest-maven</artifactId>
+                        <version>1.1.3</version>
                         <configuration>
                             <targetClasses>
                                 <param>io.inkstand.scribble.*</param>
