@@ -44,7 +44,8 @@ public class PDFMatchers {
                     PDDocument.load(is);
                     return true;
                 } catch (IOException e) {
-                    throw new RuntimeException("Could not read " + path, e);
+                    //ommit exception
+                    return false;
                 }
             }
 
