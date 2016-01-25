@@ -27,10 +27,16 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
- *
+ * Library containing hamcrest matchers for operating with PDF files.
  */
 public class PDFMatchers {
 
+    /**
+     * Creates a matcher that verifies, if a file identified by a {@link java.nio.file.Path}
+     * is a valid PDF document.
+     * @return
+     *  a matcher verifying a file to be a PDF
+     */
     public static Matcher<? super Path> isPdf() {
 
         return new BaseMatcher<Path>() {
