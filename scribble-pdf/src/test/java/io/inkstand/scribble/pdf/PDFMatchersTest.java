@@ -16,73 +16,32 @@
 
 package io.inkstand.scribble.pdf;
 
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.net.URL;
 
-import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 /**
  *
  */
 public class PDFMatchersTest {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-    private Path validPdf;
-    private Path invalidPdf;
-
-    @Before
-    public void setUp() throws Exception {
-        File file = folder.newFile("test.pdf");
-        try(InputStream is = PDFMatchersTest.class.getResourceAsStream("PDFMatchersTest.pdf")){
-            Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        }
-        this.validPdf = file.toPath();
-        this.invalidPdf = folder.newFile("noPdf.txt").toPath();
-    }
-
     @Test
-    public void testIsPdf_valid_true() throws Exception {
+    public void testIsPdf() throws Exception {
+
         //prepare
+        PDF pdf = PDF.of(resource("BasePDFMatchers_isPDFTest.pdf"));
 
         //act
-        assertThat(validPdf, PDFMatchers.isPdf());
+        assertThat(pdf, PDFMatchers.isPdf());
 
         //assert
 
     }
 
+    private URL resource(final String resource) {
 
-    @Test
-    public void testIsPdf_invalid_false() throws Exception {
-        //prepare
-
-        //act
-        assertThat(invalidPdf, not(PDFMatchers.isPdf()));
-
-        //assert
-
-    }
-
-
-    @Test
-    public void testIsPdf_noPath_false() throws Exception {
-        //prepare
-
-        //act
-        assertThat(new Object(), not((Matcher<? super Object>) PDFMatchers.isPdf()));
-
-        //assert
-
+        return PDFMatchersTest.class.getResource(resource);
     }
 }

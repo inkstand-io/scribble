@@ -16,20 +16,14 @@
 
 package io.inkstand.scribble.pdf;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
  * Library containing hamcrest matchers for operating with PDF files.
  */
-public class PDFMatchers {
+public final class PDFMatchers {
+
+    private PDFMatchers(){}
 
     /**
      * Creates a matcher that verifies, if a file identified by a {@link java.nio.file.Path}
@@ -37,28 +31,10 @@ public class PDFMatchers {
      * @return
      *  a matcher verifying a file to be a PDF
      */
-    public static Matcher<? super Path> isPdf() {
-
-        return new BaseMatcher<Path>() {
-            @Override
-            public boolean matches(Object o) {
-                if (!(o instanceof Path)) {
-                    return false;
-                }
-                Path path = (Path) o;
-                try (InputStream is = Files.newInputStream(path)) {
-                    PDDocument.load(is);
-                    return true;
-                } catch (IOException e) {
-                    //ommit exception
-                    return false;
-                }
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("is a PDF document");
-            }
-        };
+    public static Matcher<? super PDF> isPdf() {
+        return new BasePDFMatcher();
     }
+
+
+
 }
