@@ -16,6 +16,9 @@
 
 package io.inkstand.scribble.pdf;
 
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.activation.URLDataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -24,9 +27,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.activation.URLDataSource;
+
 import org.apache.pdfbox.preflight.utils.ByteArrayDataSource;
 
 /**
@@ -41,7 +42,8 @@ public class PDF {
     }
 
     private PDF(final byte[] bytes) {
-        this.source = bytes;
+        this.source = new  byte[bytes.length];
+        System.arraycopy(bytes, 0, this.source, 0, bytes.length);
     }
 
     private PDF(final URL url) {
@@ -105,8 +107,6 @@ public class PDF {
      *  the PDF handle for the data
      */
     public static PDF of(byte[] data){
-        byte[] bytes = new  byte[data.length];
-        System.arraycopy(data, 0, bytes, 0, data.length);
         return new PDF(data);
     }
 
@@ -165,4 +165,8 @@ public class PDF {
         throw new IllegalArgumentException("PDF source is null");
     }
 
+    @Override
+    public String toString() {
+        return this.source.toString();
+    }
 }

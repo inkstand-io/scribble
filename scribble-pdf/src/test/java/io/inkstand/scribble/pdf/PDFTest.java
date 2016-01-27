@@ -16,6 +16,7 @@
 
 package io.inkstand.scribble.pdf;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
@@ -47,6 +48,7 @@ public class PDFTest {
 
         assertNotNull(pdf);
         assertNotNull(pdf.toDataSource());
+        assertEquals(this.file.toString(),pdf.toString());
         try(InputStream is = pdf.openStream()){
             assertNotNull(is);
         }
@@ -59,6 +61,7 @@ public class PDFTest {
 
         assertNotNull(pdf);
         assertNotNull(pdf.toDataSource());
+        assertEquals(this.file.toPath().toString(),pdf.toString());
         try(InputStream is = pdf.openStream()){
             assertNotNull(is);
         }

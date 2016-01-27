@@ -16,16 +16,21 @@
 
 package io.inkstand.scribble.pdf;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.slf4j.Logger;
 
 /**
  * Base class for matchers based on PDFBox.
  */
 class BasePDFMatcher extends BaseMatcher<PDF> {
+
+    private static final Logger LOG = getLogger(BasePDFMatcher.class);
 
     @Override
     public boolean matches(final Object o) {
@@ -51,7 +56,7 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
             final PDDocument doc = PDDocument.load(is);
             return matchesPDF(doc);
         } catch (IOException e) {
-            //ommit exception
+            LOG.debug("Could not load PDF document", e);
             return false;
         }
     }

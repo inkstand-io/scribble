@@ -16,6 +16,8 @@
 
 package io.inkstand.scribble.pdf;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.preflight.PreflightDocument;
@@ -23,11 +25,14 @@ import org.apache.pdfbox.preflight.ValidationResult;
 import org.apache.pdfbox.preflight.parser.PreflightParser;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.slf4j.Logger;
 
 /**
  * Library containing hamcrest matchers for operating with PDF files.
  */
 public final class PDFMatchers {
+
+    private static final Logger LOG = getLogger(PDFMatchers.class);
 
     private PDFMatchers(){}
 
@@ -100,6 +105,7 @@ public final class PDFMatchers {
                     this.validationResult = result;
                     return result.isValid();
                 } catch (IOException e) {
+                    LOG.debug("Could not read PDF",e );
                     return false;
                 }
             }
