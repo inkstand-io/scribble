@@ -41,6 +41,7 @@
 		<module>scribble-all</module>
 		<module>scribble-parent</module>
 		<module>scribble-http</module>
+		<module>scribble-pdf</module>
 	</modules>
 
 	<dependencies>
