@@ -16,7 +16,11 @@
 
 package io.inkstand.scribble.pdf;
 
+import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.preflight.PreflightDocument;
+import org.apache.pdfbox.preflight.ValidationResult;
+import org.apache.pdfbox.preflight.parser.PreflightParser;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
@@ -60,5 +64,29 @@ public final class PDFMatchers {
             }
 
         };
+    }
+
+    public static Matcher<? super PDF> conformsTo(final PDFAConformance conformanceLevel) {
+        return new BasePDFMatcher() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("is a valid " + conformanceLevel.getFormat().toString() + " document");
+            }
+
+            @Override
+            protected boolean matches(PDF pdf) {
+                try {
+                    final PreflightParser parser = new PreflightParser(pdf.toDataSource());
+                    parser.parse(conformanceLevel.getFormat());
+                    final PreflightDocument doc = parser.getPreflightDocument();
+                    final ValidationResult result = doc.getResult();
+                    return result.isValid();
+                } catch (IOException e) {
+                    return false;
+                }
+            }
+
+        };
+
     }
 }

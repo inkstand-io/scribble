@@ -24,6 +24,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.activation.URLDataSource;
+import org.apache.pdfbox.preflight.utils.ByteArrayDataSource;
 
 /**
  * An abstract handle of a PDF file to be used with matchers.
@@ -136,6 +140,19 @@ public class PDF {
         }
         if(this.source instanceof InputStream){
             return (InputStream)this.source;
+        }
+        throw new IllegalArgumentException("PDF source is null");
+    }
+
+    public DataSource toDataSource() throws IOException {
+        if (this.source instanceof byte[] || this.source instanceof InputStream) {
+            return new ByteArrayDataSource(openStream());
+        }
+        if (this.source instanceof Path) {
+            return new FileDataSource(((Path) this.source).toFile());
+        }
+        if (this.source instanceof URL) {
+            return new URLDataSource((URL) this.source);
         }
         throw new IllegalArgumentException("PDF source is null");
     }

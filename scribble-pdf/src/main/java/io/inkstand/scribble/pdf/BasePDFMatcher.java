@@ -18,7 +18,6 @@ package io.inkstand.scribble.pdf;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -34,7 +33,12 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
         if (!(o instanceof PDF)) {
             return false;
         }
-        try (InputStream is = ((PDF)o).openStream()) {
+        final PDF pdf = (PDF) o;
+        return matches(pdf);
+    }
+
+    protected boolean matches(PDF pdf) {
+        try (InputStream is = (pdf.openStream())) {
             final PDDocument doc = PDDocument.load(is);
             return matchesPDF(doc);
         } catch (IOException e) {
@@ -58,7 +62,7 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
     @Override
     public void describeTo(Description description) {
 
-        description.appendText("is a PDF document");
+        description.appendText("is a valid PDF document");
     }
 
 }

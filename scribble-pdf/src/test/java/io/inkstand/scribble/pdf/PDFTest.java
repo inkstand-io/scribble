@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,9 +46,11 @@ public class PDFTest {
         PDF pdf = PDF.of(this.file);
 
         assertNotNull(pdf);
+        assertNotNull(pdf.toDataSource());
         try(InputStream is = pdf.openStream()){
             assertNotNull(is);
         }
+
     }
 
     @Test
@@ -57,6 +58,7 @@ public class PDFTest {
         PDF pdf = PDF.of(this.file.toPath());
 
         assertNotNull(pdf);
+        assertNotNull(pdf.toDataSource());
         try(InputStream is = pdf.openStream()){
             assertNotNull(is);
         }
@@ -67,6 +69,7 @@ public class PDFTest {
         PDF pdf = PDF.of(this.file.getAbsolutePath());
 
         assertNotNull(pdf);
+        assertNotNull(pdf.toDataSource());
         try(InputStream is = pdf.openStream()){
             assertNotNull(is);
         }
@@ -77,6 +80,7 @@ public class PDFTest {
         PDF pdf = PDF.of(this.file.toURL());
 
         assertNotNull(pdf);
+        assertNotNull(pdf.toDataSource());
         try(InputStream is = pdf.openStream()){
             assertNotNull(is);
         }
@@ -87,6 +91,7 @@ public class PDFTest {
         PDF pdf = PDF.of(new byte[0]);
 
         assertNotNull(pdf);
+        assertNotNull(pdf.toDataSource());
         try(InputStream is = pdf.openStream()){
             assertNotNull(is);
         }
@@ -97,6 +102,7 @@ public class PDFTest {
         PDF pdf = PDF.of(new ByteArrayInputStream(new byte[0]));
 
         assertNotNull(pdf);
+        assertNotNull(pdf.toDataSource());
         try(InputStream is = pdf.openStream()){
             assertNotNull(is);
         }

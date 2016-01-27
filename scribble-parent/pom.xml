@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -121,13 +122,13 @@
         <apache.commons.codec.version>1.10</apache.commons.codec.version>
         <apache.deltaspike.version>1.1.0</apache.deltaspike.version>
         <apache.jackrabbit.version>2.8.0</apache.jackrabbit.version>
-        <apache.pdfbox.version>1.8.10</apache.pdfbox.version>
+        <apache.pdfbox.version>1.8.11</apache.pdfbox.version>
         <apache.ds.server.version>2.0.0-M20</apache.ds.server.version>
         <apache.ds.server.jdbm1.version>2.0.0-M3</apache.ds.server.jdbm1.version>
 
         <!-- Properties for Jacoco and Sonar -->
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <surefireArgLine />
+        <surefireArgLine/>
         <skipTests>false</skipTests>
     </properties>
 
@@ -181,6 +182,11 @@
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
+                <version>${apache.pdfbox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>preflight</artifactId>
                 <version>${apache.pdfbox.version}</version>
             </dependency>
             <!-- Test libraries -->
@@ -639,7 +645,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <surefireArgLine />
+                <surefireArgLine/>
                 <tests.json.strict.validation.disabled>false</tests.json.strict.validation.disabled>
             </properties>
         </profile>
@@ -758,7 +764,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <surefireArgLine />
+                <surefireArgLine/>
             </properties>
             <build>
                 <plugins>
