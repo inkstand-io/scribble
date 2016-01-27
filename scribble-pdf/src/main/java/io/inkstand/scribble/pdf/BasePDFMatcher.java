@@ -37,6 +37,15 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
         return matches(pdf);
     }
 
+    /**
+     * Is invoked by the matches method when the type of the target object is verified. Override this method to add
+     * verifications on the raw data instead of a loaded document.
+     *
+     * @param pdf
+     *         the handle for the PDF data
+     *
+     * @return <code>true</code> if the pdf document is a valid PDF document.
+     */
     protected boolean matches(PDF pdf) {
         try (InputStream is = (pdf.openStream())) {
             final PDDocument doc = PDDocument.load(is);
@@ -48,9 +57,10 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
     }
 
     /**
-     * Override this method to provide additional pDF verification logic
+     * Override this method to provide additional PDF verification logic on the loaded PDF document.
      *
      * @param doc
+     *  a PDF document (Apache PDFbox API)
      *
      * @return <code>true</code> if the PDF document matches the criteria
      */

@@ -145,10 +145,11 @@ public class PDF {
     }
 
     /**
-     * Creates a datasource on the PDF source so that it's input stream can be obtained. Not all sources support to
-     * open an output stream.
-     * @return
-     *  a datasource for the PDF document.
+     * Creates a datasource on the PDF source so that it's input stream can be obtained. Not all sources support to open
+     * an output stream.
+     *
+     * @return a datasource for the PDF document.
+     *
      * @throws IOException
      */
     public DataSource toDataSource() throws IOException {
