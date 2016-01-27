@@ -27,21 +27,29 @@ import org.junit.Test;
  */
 public class PDFMatchersTest {
 
+    private URL resource(final String resource) {
+
+        return PDFMatchersTest.class.getResource(resource);
+    }
+
     @Test
     public void testIsPdf() throws Exception {
 
         //prepare
         PDF pdf = PDF.of(resource("BasePDFMatchers_isPDFTest.pdf"));
 
-        //act
+        //act & assert
         assertThat(pdf, PDFMatchers.isPdf());
-
-        //assert
-
     }
 
-    private URL resource(final String resource) {
+    @Test
+    public void testHasPages_3() throws Exception {
+        //prepare
 
-        return PDFMatchersTest.class.getResource(resource);
+        PDF pdf = PDF.of(resource("BasePDFMatchers_hasPagesTest.pdf"));
+        //act & assert
+        assertThat(pdf, PDFMatchers.hasPages(3));
     }
+
+
 }

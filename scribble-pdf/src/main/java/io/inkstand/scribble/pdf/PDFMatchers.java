@@ -16,6 +16,8 @@
 
 package io.inkstand.scribble.pdf;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
@@ -35,6 +37,28 @@ public final class PDFMatchers {
         return new BasePDFMatcher();
     }
 
+    /**
+     * Creates a matcher that verifies, if a PDF has a specific number of pages
+     * @param pageCount
+     *  the number of expected pages
+     * @return
+     *  a matcher verifying the pages of a PDF
+     */
+    public static Matcher<? super PDF> hasPages(final int pageCount) {
 
+        return new BasePDFMatcher(){
 
+            @Override
+            protected boolean matchesPDF(final PDDocument doc) {
+
+                return doc.getNumberOfPages() == pageCount;
+            }
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("Expected " + pageCount + " pages");
+            }
+
+        };
+    }
 }
