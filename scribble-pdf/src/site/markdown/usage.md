@@ -29,3 +29,7 @@ import static io.inkstand.scribble.pdf.PDFMatchers.*;
 ```java
     assertThat(PDF.of(source), hasPages(3));
 ```
+
+```java
+    assertThat(PDF.of(source), conformsTo(PDFALevel.PDFA_1B));
+```

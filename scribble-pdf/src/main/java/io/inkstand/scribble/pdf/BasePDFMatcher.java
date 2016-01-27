@@ -62,7 +62,11 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
     @Override
     public void describeTo(Description description) {
 
-        description.appendText("is a valid PDF document");
+        description.appendText("a valid PDF document");
     }
 
+    @Override
+    public void describeMismatch(Object item, Description description) {
+        description.appendText("not a PDF document");
+    }
 }

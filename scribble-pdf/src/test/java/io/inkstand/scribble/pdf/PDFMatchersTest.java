@@ -16,10 +16,10 @@
 
 package io.inkstand.scribble.pdf;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.net.URL;
-
 import org.junit.Test;
 
 /**
@@ -49,6 +49,24 @@ public class PDFMatchersTest {
         PDF pdf = PDF.of(resource("BasePDFMatchers_hasPagesTest.pdf"));
         //act & assert
         assertThat(pdf, PDFMatchers.hasPages(3));
+    }
+
+    @Test
+    public void testConformsToPDFA_true() throws Exception {
+        //prepare
+
+        PDF pdf = PDF.of(resource("BasePDFMatchers_conformsToPDFA_valid.pdf"));
+        //act & assert
+        assertThat(pdf, PDFMatchers.conformsTo(PDFALevel.PDFA_1A));
+    }
+
+    @Test
+    public void testConformsToPDFA_false() throws Exception {
+        //prepare
+
+        PDF pdf = PDF.of(resource("BasePDFMatchers_conformsToPDFA_invalid.pdf"));
+        //act & assert
+        assertThat(pdf, not(PDFMatchers.conformsTo(PDFALevel.PDFA_1A)));
     }
 
 

@@ -52,25 +52,41 @@ public final class PDFMatchers {
 
         return new BasePDFMatcher(){
 
+            public int actualNumPages;
+
             @Override
             protected boolean matchesPDF(final PDDocument doc) {
-
+                this.actualNumPages = doc.getNumberOfPages();
                 return doc.getNumberOfPages() == pageCount;
             }
 
             @Override
             public void describeTo(final Description description) {
-                description.appendText("Expected " + pageCount + " pages");
+                description.appendText(pageCount + " pages");
             }
 
+            @Override
+            public void describeMismatch(Object item, Description description) {
+                description.appendText(this.actualNumPages + " pages");
+            }
         };
     }
 
-    public static Matcher<? super PDF> conformsTo(final PDFAConformance conformanceLevel) {
+    /**
+     * Creates a matcher for verifying if a document is valid against a PDF/A conformance level.
+     *
+     * @param conformanceLevel
+     *         the expected conformance level
+     *
+     * @return a matcher verifying the PDF/A conformance
+     */
+    public static Matcher<? super PDF> conformsTo(final PDFALevel conformanceLevel) {
         return new BasePDFMatcher() {
+            public ValidationResult validationResult;
+
             @Override
             public void describeTo(Description description) {
-                description.appendText("is a valid " + conformanceLevel.getFormat().toString() + " document");
+                description.appendText("a valid " + conformanceLevel.getFormat().toString() + " document");
             }
 
             @Override
@@ -79,13 +95,22 @@ public final class PDFMatchers {
                     final PreflightParser parser = new PreflightParser(pdf.toDataSource());
                     parser.parse(conformanceLevel.getFormat());
                     final PreflightDocument doc = parser.getPreflightDocument();
+                    doc.validate();
                     final ValidationResult result = doc.getResult();
+                    this.validationResult = result;
                     return result.isValid();
                 } catch (IOException e) {
                     return false;
                 }
             }
 
+            @Override
+            public void describeMismatch(Object item, Description description) {
+                description.appendText("document does not conform to " + conformanceLevel.toString() + ", because:\n");
+                for (ValidationResult.ValidationError error : this.validationResult.getErrorsList()) {
+                    description.appendText("-").appendText(error.getDetails()).appendText("\n");
+                }
+            }
         };
 
     }
