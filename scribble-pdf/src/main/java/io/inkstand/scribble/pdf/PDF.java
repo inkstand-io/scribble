@@ -50,8 +50,8 @@ public class PDF {
         this.source = url;
     }
 
-    public PDF(final InputStream is) {
-        this.source = is;
+    public PDF(final InputStream inStream) {
+        this.source = inStream;
     }
 
     /**

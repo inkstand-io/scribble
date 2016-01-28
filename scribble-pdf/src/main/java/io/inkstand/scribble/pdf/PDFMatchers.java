@@ -16,65 +16,38 @@
 
 package io.inkstand.scribble.pdf;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.io.IOException;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.preflight.PreflightDocument;
-import org.apache.pdfbox.preflight.ValidationResult;
-import org.apache.pdfbox.preflight.parser.PreflightParser;
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.slf4j.Logger;
 
 /**
  * Library containing hamcrest matchers for operating with PDF files.
  */
 public final class PDFMatchers {
 
-    private static final Logger LOG = getLogger(PDFMatchers.class);
+    private PDFMatchers() {
 
-    private PDFMatchers(){}
+    }
 
     /**
-     * Creates a matcher that verifies, if a file identified by a {@link java.nio.file.Path}
-     * is a valid PDF document.
-     * @return
-     *  a matcher verifying a file to be a PDF
+     * Creates a matcher that verifies, if a file identified by a {@link java.nio.file.Path} is a valid PDF document.
+     *
+     * @return a matcher verifying a file to be a PDF
      */
     public static Matcher<? super PDF> isPdf() {
+
         return new BasePDFMatcher();
     }
 
     /**
      * Creates a matcher that verifies, if a PDF has a specific number of pages
+     *
      * @param pageCount
-     *  the number of expected pages
-     * @return
-     *  a matcher verifying the pages of a PDF
+     *         the number of expected pages
+     *
+     * @return a matcher verifying the pages of a PDF
      */
     public static Matcher<? super PDF> hasPages(final int pageCount) {
 
-        return new BasePDFMatcher(){
-
-            private int actualNumPages;
-
-            @Override
-            protected boolean matchesPDF(final PDDocument doc) {
-                this.actualNumPages = doc.getNumberOfPages();
-                return doc.getNumberOfPages() == pageCount;
-            }
-
-            @Override
-            public void describeTo(final Description description) {
-                description.appendText(pageCount + " pages");
-            }
-
-            @Override
-            public void describeMismatch(Object item, Description description) {
-                description.appendText(this.actualNumPages + " pages");
-            }
-        };
+        return new PageCountMatcher(pageCount);
     }
 
     /**
@@ -86,38 +59,8 @@ public final class PDFMatchers {
      * @return a matcher verifying the PDF/A conformance
      */
     public static Matcher<? super PDF> conformsTo(final PDFALevel conformanceLevel) {
-        return new BasePDFMatcher() {
-            private ValidationResult validationResult;
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("a valid " + conformanceLevel.getFormat().toString() + " document");
-            }
-
-            @Override
-            protected boolean matches(PDF pdf) {
-                try {
-                    final PreflightParser parser = new PreflightParser(pdf.toDataSource());
-                    parser.parse(conformanceLevel.getFormat());
-                    final PreflightDocument doc = parser.getPreflightDocument();
-                    doc.validate();
-                    final ValidationResult result = doc.getResult();
-                    this.validationResult = result;
-                    return result.isValid();
-                } catch (IOException e) {
-                    LOG.debug("Could not read PDF",e );
-                    return false;
-                }
-            }
-
-            @Override
-            public void describeMismatch(Object item, Description description) {
-                description.appendText("document does not conform to " + conformanceLevel.toString() + ", because:\n");
-                for (ValidationResult.ValidationError error : this.validationResult.getErrorsList()) {
-                    description.appendText("-").appendText(error.getDetails()).appendText("\n");
-                }
-            }
-        };
-
+        return new PDFAConformanceMatcher(conformanceLevel);
     }
+
 }
