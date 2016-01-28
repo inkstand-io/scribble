@@ -33,12 +33,12 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
     private static final Logger LOG = getLogger(BasePDFMatcher.class);
 
     @Override
-    public boolean matches(final Object o) {
+    public boolean matches(final Object object) {
 
-        if (!(o instanceof PDF)) {
+        if (!(object instanceof PDF)) {
             return false;
         }
-        final PDF pdf = (PDF) o;
+        final PDF pdf = (PDF) object;
         return matches(pdf);
     }
 
@@ -52,8 +52,8 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
      * @return <code>true</code> if the pdf document is a valid PDF document.
      */
     protected boolean matches(PDF pdf) {
-        try (InputStream is = (pdf.openStream())) {
-            final PDDocument doc = PDDocument.load(is);
+        try (InputStream inStream = pdf.openStream()) {
+            final PDDocument doc = PDDocument.load(inStream);
             return matchesPDF(doc);
         } catch (IOException e) {
             LOG.debug("Could not load PDF document", e);
@@ -69,7 +69,7 @@ class BasePDFMatcher extends BaseMatcher<PDF> {
      *
      * @return <code>true</code> if the PDF document matches the criteria
      */
-    protected boolean matchesPDF(final PDDocument doc) {
+    protected boolean matchesPDF(final PDDocument doc) { //NOSONAR
 
         return true;
     }

@@ -41,7 +41,7 @@ public class PDF {
         this.source = path;
     }
 
-    private PDF(final byte[] bytes) {
+    private PDF(final byte[] bytes) { //NOSONAR
         this.source = new  byte[bytes.length];
         System.arraycopy(bytes, 0, this.source, 0, bytes.length);
     }
@@ -61,7 +61,7 @@ public class PDF {
      * @return
      *  the PDF handle for the file
      */
-    public static PDF of(File file){
+    public static PDF of(File file){ //NOSONAR
         return new PDF(file.toPath());
     }
 
@@ -72,7 +72,7 @@ public class PDF {
      * @return
      *  the PDF handle for the file.
      */
-    public static PDF of(Path path){
+    public static PDF of(Path path){ //NOSONAR
         return new PDF(path);
     }
 
@@ -83,20 +83,20 @@ public class PDF {
      * @return
      *  the PDF handle for the file
      */
-    public static PDF of(String path){
+    public static PDF of(String path){ //NOSONAR
         return new PDF(Paths.get(path));
     }
 
     /**
      * Creates a PDF handle from an InputStream.
-     * @param is
+     * @param inStream
      *  the input stream to read the pdf from
      * @return
      *  the PDF handle for the data
      * @throws IOException
      */
-    public static PDF of(InputStream is) throws IOException {
-        return new PDF(is);
+    public static PDF of(InputStream inStream) throws IOException { //NOSONAR
+        return new PDF(inStream);
     }
 
     /**
@@ -106,7 +106,7 @@ public class PDF {
      * @return
      *  the PDF handle for the data
      */
-    public static PDF of(byte[] data){
+    public static PDF of(byte[] data){ //NOSONAR
         return new PDF(data);
     }
 
@@ -117,7 +117,7 @@ public class PDF {
      * @return
      *  the PDF handle for the data
      */
-    public static PDF of(URL url){
+    public static PDF of(URL url){ //NOSONAR
         return new PDF(url);
     }
 

@@ -57,7 +57,7 @@ public final class PDFMatchers {
 
         return new BasePDFMatcher(){
 
-            public int actualNumPages;
+            private int actualNumPages;
 
             @Override
             protected boolean matchesPDF(final PDDocument doc) {
@@ -87,7 +87,7 @@ public final class PDFMatchers {
      */
     public static Matcher<? super PDF> conformsTo(final PDFALevel conformanceLevel) {
         return new BasePDFMatcher() {
-            public ValidationResult validationResult;
+            private ValidationResult validationResult;
 
             @Override
             public void describeTo(Description description) {
