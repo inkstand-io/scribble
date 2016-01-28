@@ -129,19 +129,22 @@ public class PDF {
      * @throws IOException
      */
     public InputStream openStream() throws IOException {
+        final InputStream result;
         if(this.source instanceof byte[]) {
-            return new ByteArrayInputStream((byte[])this.source);
-        }
+            result = new ByteArrayInputStream((byte[])this.source);
+        } else
         if(this.source instanceof Path) {
-            return Files.newInputStream((Path)this.source);
-        }
+            result = Files.newInputStream((Path)this.source);
+        } else
         if(this.source instanceof URL) {
-            return ((URL)this.source).openStream();
-        }
+            result = ((URL)this.source).openStream();
+        } else
         if(this.source instanceof InputStream){
-            return (InputStream)this.source;
+            result = (InputStream)this.source;
+        } else {
+            throw new IllegalArgumentException("PDF source is null");
         }
-        throw new IllegalArgumentException("PDF source is null");
+        return result;
     }
 
     /**
@@ -153,16 +156,19 @@ public class PDF {
      * @throws IOException
      */
     public DataSource toDataSource() throws IOException {
+        final DataSource result;
         if (this.source instanceof byte[] || this.source instanceof InputStream) {
-            return new ByteArrayDataSource(openStream());
-        }
+            result = new ByteArrayDataSource(openStream());
+        } else
         if (this.source instanceof Path) {
-            return new FileDataSource(((Path) this.source).toFile());
-        }
+            result = new FileDataSource(((Path) this.source).toFile());
+        } else
         if (this.source instanceof URL) {
-            return new URLDataSource((URL) this.source);
+            result = new URLDataSource((URL) this.source);
+        } else {
+            throw new IllegalArgumentException("PDF source is null");
         }
-        throw new IllegalArgumentException("PDF source is null");
+        return result;
     }
 
     @Override
