@@ -114,8 +114,6 @@ public class UDPReceiverTest {
                 sendPacket("Test1".getBytes());
                 sendPacket("Test2".getBytes());
                 sendPacket("Test3".getBytes());
-                Thread.sleep(100);
-
             }
         } ;
         subject.apply(stmt, description).evaluate();
@@ -203,6 +201,9 @@ public class UDPReceiverTest {
         final DatagramPacket packet = new DatagramPacket(data, data.length, address, subject.getServerPort());
         try(DatagramSocket datagramSocket = new DatagramSocket()) {
             datagramSocket.send(packet);
+            Thread.sleep(25);
+        } catch (InterruptedException e) {
+            //omit
         }
     }
 }
