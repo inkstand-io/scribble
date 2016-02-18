@@ -16,10 +16,7 @@
 
 package io.inkstand.scribble.net;
 
-import static io.inkstand.scribble.net.NetworkMatchers.isAvailable;
-import static io.inkstand.scribble.net.NetworkMatchers.isReachable;
-import static io.inkstand.scribble.net.NetworkMatchers.port;
-import static io.inkstand.scribble.net.NetworkMatchers.remotePort;
+import static io.inkstand.scribble.net.NetworkMatchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -59,11 +56,28 @@ public class NetworkMatchersTest {
         int expected = 123;
 
         //act
-        TcpPort port = port(expected);
+        NetworkPort port = port(expected);
 
         //assert
         assertNotNull(port);
         assertEquals(expected, port.getPortNumber());
+        assertEquals(NetworkPort.Type.TCP, port.getType());
+    }
+
+    @Test
+    public void testDatagramPort() throws Exception {
+
+        //prepare
+
+        int expected = 123;
+
+        //act
+        NetworkPort port = datagramPort(expected);
+
+        //assert
+        assertNotNull(port);
+        assertEquals(expected, port.getPortNumber());
+        assertEquals(NetworkPort.Type.UDP, port.getType());
     }
 
     @Test
@@ -73,12 +87,30 @@ public class NetworkMatchersTest {
         int expectedPort = 123;
 
         //act
-        TcpPort port = remotePort(host, expectedPort);
+        NetworkPort port = remotePort(host, expectedPort);
 
         //assert
         assertNotNull(port);
         assertEquals(expectedPort, port.getPortNumber());
         assertEquals(host + "/127.0.0.1:" + expectedPort, port.getSocketAddress().toString());
+        assertEquals(NetworkPort.Type.TCP, port.getType());
+
+    }
+
+    @Test
+    public void testRemoteDatagramPort() throws Exception {
+        //prepare
+        String host = "localhost";
+        int expectedPort = 123;
+
+        //act
+        NetworkPort port = remoteDatagramPort(host, expectedPort);
+
+        //assert
+        assertNotNull(port);
+        assertEquals(expectedPort, port.getPortNumber());
+        assertEquals(host + "/127.0.0.1:" + expectedPort, port.getSocketAddress().toString());
+        assertEquals(NetworkPort.Type.UDP, port.getType());
 
     }
 

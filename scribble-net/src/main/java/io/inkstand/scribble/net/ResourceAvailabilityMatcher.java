@@ -16,13 +16,14 @@
 
 package io.inkstand.scribble.net;
 
-import static org.junit.Assert.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.URL;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.slf4j.Logger;
@@ -46,8 +47,8 @@ public class ResourceAvailabilityMatcher<RESOURCE> extends BaseMatcher<RESOURCE>
 
         final boolean result;
 
-        if (item instanceof TcpPort) {
-            result = this.isAvailable((TcpPort) item);
+        if (item instanceof NetworkPort) {
+            result = this.isAvailable((NetworkPort) item);
         } else if (item instanceof URL) {
             result = this.isAvailable((URL) item);
         } else {
@@ -65,17 +66,19 @@ public class ResourceAvailabilityMatcher<RESOURCE> extends BaseMatcher<RESOURCE>
      *
      * @return <code>true</code> if the port is available
      */
-    protected boolean isAvailable(final TcpPort port) {
+    protected boolean isAvailable(final NetworkPort port) {
 
         int portNumber = port.getPortNumber();
 
-        try (ServerSocket socket = new ServerSocket(portNumber)) {
-            assertTrue(socket.isBound());
+        try {
+            try (ServerSocket tcp = new ServerSocket(portNumber);
+                 DatagramSocket udp = new DatagramSocket(portNumber)) {
+                return tcp.isBound() && udp.isBound();
+            }
         } catch (IOException e) { //NOSONAR
             LOG.debug("Port {} not available", port.getSocketAddress(), e);
             return false;
         }
-        return true;
     }
 
     /**

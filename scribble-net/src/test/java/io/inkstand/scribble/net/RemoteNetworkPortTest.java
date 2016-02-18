@@ -23,28 +23,34 @@ import static org.junit.Assume.assumeTrue;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
-public class TcpPortTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RemoteNetworkPortTest {
+
 
     @Test
-    public void testGetPortNumber() throws Exception {
+    public void testRemoteTcpPort_getHostname() throws Exception {
 
         //prepare
-        int expected = 123;
+        String hostname = "local";
+        int port = 123;
 
         //act
-        TcpPort port = new TcpPort(expected);
-
+        RemoteNetworkPort tcp = new RemoteNetworkPort(hostname, port, NetworkPort.Type.TCP);
 
         //assert
-        assertEquals(expected,port.getPortNumber() );
+        assertEquals(hostname, tcp.getHostname() );
+        assertEquals(port, tcp.getPortNumber());
     }
 
     @Test
     public void testGetSocketAddress() throws Exception {
         //prepare
+        String hostname = "localhost";
         int portNumber = 123;
-        TcpPort port = new TcpPort(portNumber);
+        RemoteNetworkPort port = new RemoteNetworkPort(hostname, portNumber, NetworkPort.Type.TCP);
 
         //act
         SocketAddress addr = port.getSocketAddress();
@@ -52,20 +58,34 @@ public class TcpPortTest {
         //assert
         assertNotNull(addr);
         assumeTrue(addr instanceof InetSocketAddress);
+        assertEquals(hostname, ((InetSocketAddress)addr).getHostName());
         assertEquals(portNumber, ((InetSocketAddress)addr).getPort());
 
     }
 
     @Test
-    public void testToString() throws Exception {
+    public void testToString_tcp() throws Exception {
         //prepare
-        TcpPort port = new TcpPort(123);
+        RemoteNetworkPort port = new RemoteNetworkPort("localhost", 123, NetworkPort.Type.TCP);
 
         //act
         String toString = port.toString();
 
         //assert
-        assertEquals("tcp:123", toString);
+        assertEquals("tcp:localhost:123", toString);
+
+    }
+
+    @Test
+    public void testToString_udp() throws Exception {
+        //prepare
+        RemoteNetworkPort port = new RemoteNetworkPort("localhost", 123, NetworkPort.Type.UDP);
+
+        //act
+        String toString = port.toString();
+
+        //assert
+        assertEquals("udp:localhost:123", toString);
 
     }
 }
