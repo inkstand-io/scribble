@@ -114,6 +114,7 @@ public class UDPReceiverTest {
                 sendPacket("Test1".getBytes());
                 sendPacket("Test2".getBytes());
                 sendPacket("Test3".getBytes());
+                Thread.sleep(100);
 
             }
         } ;
