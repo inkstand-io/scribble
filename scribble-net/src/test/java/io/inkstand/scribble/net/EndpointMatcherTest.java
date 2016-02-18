@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.inkstand.scribble.net.matchers;
+package io.inkstand.scribble.net;
 
 import io.inkstand.scribble.net.EndpointMatcher;
 import io.inkstand.scribble.net.NetworkUtils;
-import io.inkstand.scribble.net.TcpPort;
+import io.inkstand.scribble.net.NetworkPort;
 import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +48,7 @@ public class EndpointMatcherTest {
     private EndpointMatcher subject;
 
     @Mock
-    private TcpPort tcpPort;
+    private NetworkPort networkPort;
 
     @Mock
     private Description description;
@@ -84,13 +84,13 @@ public class EndpointMatcherTest {
     public void testWithin_negativeTimout() throws Exception {
 
         //prepare
-        when(tcpPort.getSocketAddress()).thenReturn(new InetSocketAddress(port));
+        when(networkPort.getSocketAddress()).thenReturn(new InetSocketAddress(port));
 
         //act
         subject.within(-10, TimeUnit.SECONDS);
 
         //assert
-        subject.matches(tcpPort);
+        subject.matches(networkPort);
     }
 
     @Test
@@ -111,10 +111,10 @@ public class EndpointMatcherTest {
 
         //prepare
 
-        when(tcpPort.getSocketAddress()).thenReturn(new InetSocketAddress(port));
+        when(networkPort.getSocketAddress()).thenReturn(new InetSocketAddress(port));
 
         //act
-        boolean actual = subject.matches(tcpPort);
+        boolean actual = subject.matches(networkPort);
 
         //assert
         assertTrue(actual);
@@ -124,10 +124,10 @@ public class EndpointMatcherTest {
     public void testMatches_tcpPortUnreachable_false() throws Exception {
 
         //prepare
-        when(tcpPort.getSocketAddress()).thenReturn(new InetSocketAddress(port + 1));
+        when(networkPort.getSocketAddress()).thenReturn(new InetSocketAddress(port + 1));
 
         //act
-        boolean actual = subject.matches(tcpPort);
+        boolean actual = subject.matches(networkPort);
 
         //assert
         assertFalse(actual);

@@ -28,7 +28,7 @@ public final class NetworkMatchers {
     }
 
     /**
-     * Matcher to verify if a {@link io.inkstand.scribble.net.TcpPort} is available to be used as server port.
+     * Matcher to verify if a {@link NetworkPort} is available to be used as server port.
      *
      * @return a matcher to verify the avilability of a port
      */
@@ -38,7 +38,7 @@ public final class NetworkMatchers {
     }
 
     /**
-     * Matcher to verify if a {@link io.inkstand.scribble.net.TcpPort} is available to be used as server port.
+     * Matcher to verify if a {@link NetworkPort} is available to be used as server port.
      *
      * @return a matcher to verify the avilability of a port
      */
@@ -53,12 +53,27 @@ public final class NetworkMatchers {
      * @param port
      *         the tcp port number to be wrapped
      *
-     * @return a {@link TcpPort} instance describing the tcp port
+     * @return a {@link NetworkPort} instance describing the tcp port
      */
-    public static TcpPort port(int port) {
+    public static NetworkPort port(int port) {
 
-        return new TcpPort(port);
+        return new NetworkPort(port, NetworkPort.Type.TCP);
     }
+
+    /**
+     * Creates a type-safe udp port to be verified using matchers
+     *
+     * @param port
+     *         the udp port number to be wrapped
+     *
+     * @return a {@link NetworkPort} instance describing the tcp port
+     */
+    public static NetworkPort datagramPort(int port) {
+
+        return new NetworkPort(port, NetworkPort.Type.UDP);
+    }
+
+
 
     /**
      * Creates a type-safe tcp port pointing ot a remote host and port.
@@ -68,10 +83,24 @@ public final class NetworkMatchers {
      * @param port
      *         the port of the remote host
      *
-     * @return a {@link TcpPort} instance describing the tcp port
+     * @return a {@link NetworkPort} instance describing the tcp port
      */
-    public static TcpPort remotePort(String hostname, int port){
-        return new RemoteTcpPort(hostname, port);
+    public static NetworkPort remotePort(String hostname, int port){
+        return new RemoteNetworkPort(hostname, port, NetworkPort.Type.TCP);
+    }
+
+    /**
+     * Creates a type-safe udp port pointing ot a remote host and port.
+     *
+     * @param hostname
+     *         the hostname of the remote host
+     * @param port
+     *         the port of the remote host
+     *
+     * @return a {@link NetworkPort} instance describing the udp port
+     */
+    public static NetworkPort remoteDatagramPort(String hostname, int port){
+        return new RemoteNetworkPort(hostname, port, NetworkPort.Type.UDP);
     }
 
 }

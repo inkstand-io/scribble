@@ -27,13 +27,15 @@ import java.net.SocketAddress;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class TcpPort {
+public class NetworkPort {
 
     private final int portNumber;
+    private final Type type;
 
-    public TcpPort(final int portNumber) {
+    public NetworkPort(final int portNumber, Type type) {
 
         this.portNumber = portNumber;
+        this.type = type;
     }
 
     public SocketAddress getSocketAddress() {
@@ -51,9 +53,27 @@ public class TcpPort {
         return this.portNumber;
     }
 
+    /**
+     * The type of the transport layer protocol
+     * @return
+     *   The type of the transport layer protocol
+     */
+    public Type getType() {
+
+        return type;
+    }
+
     @Override
     public String toString() {
 
-        return "tcp:" + this.getPortNumber();
+        return this.type.name().toLowerCase() + ":" + this.getPortNumber();
+    }
+
+    /**
+     * Types of the transport layer port
+     */
+    public enum Type {
+        UDP,
+        TCP;
     }
 }

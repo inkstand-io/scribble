@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.inkstand.scribble.net.matchers;
+package io.inkstand.scribble.net;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.URL;
 import org.hamcrest.Description;
@@ -32,10 +33,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
-
-import io.inkstand.scribble.net.NetworkUtils;
-import io.inkstand.scribble.net.ResourceAvailabilityMatcher;
-import io.inkstand.scribble.net.TcpPort;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResourceAvailabilityMatcherTest {
@@ -51,7 +48,7 @@ public class ResourceAvailabilityMatcherTest {
     private Description description;
 
     @Mock
-    private TcpPort tcpPort;
+    private NetworkPort networkPort;
 
     @Test
     public void testMatches_anyObject_false() throws Exception {
@@ -91,21 +88,36 @@ public class ResourceAvailabilityMatcherTest {
     }
 
     @Test
-    public void testMatches_portAvailable_true() throws Exception {
+    public void testMatches_tcpPortAvailable_true() throws Exception {
 
         //prepare
-        //first, find a random port that is free
-
         int randomPort = NetworkUtils.findAvailablePort();
         LOG.debug("Port {} is available", randomPort);
-        when(tcpPort.getPortNumber()).thenReturn(randomPort);
+        when(networkPort.getPortNumber()).thenReturn(randomPort);
+        when(networkPort.getType()).thenReturn(NetworkPort.Type.TCP);
 
         //act
-        boolean matches = subject.matches(tcpPort);
+        boolean matches = subject.matches(networkPort);
 
         //assert
         assertTrue(matches);
 
+    }
+
+    @Test
+    public void testMatches_udpPortAvailable_true() throws Exception {
+
+        //prepare
+        int randomPort = NetworkUtils.findAvailablePort();
+        LOG.debug("Port {} is available", randomPort);
+        when(networkPort.getPortNumber()).thenReturn(randomPort);
+        when(networkPort.getType()).thenReturn(NetworkPort.Type.UDP);
+
+        //act
+        boolean matches = subject.matches(networkPort);
+
+        //assert
+        assertTrue(matches);
     }
 
     @Test
@@ -116,17 +128,22 @@ public class ResourceAvailabilityMatcherTest {
 
         int randomPort = NetworkUtils.findAvailablePort();
         LOG.debug("Port {} is available", randomPort);
-        when(tcpPort.getPortNumber()).thenReturn(randomPort);
+        when(networkPort.getPortNumber()).thenReturn(randomPort);
 
         //act
-        boolean matches;
+        boolean matchesTcp;
+        boolean matchesUdp;
         //open a server socket to make the port unavailable
         try(ServerSocket socket = new ServerSocket(randomPort)) {
-            matches = subject.matches(tcpPort);
+            matchesTcp = subject.matches(networkPort);
+        }
+        try(DatagramSocket socket = new DatagramSocket(randomPort)) {
+            matchesUdp = subject.matches(networkPort);
         }
 
         //assert
-        assertFalse(matches);
+        assertFalse(matchesTcp);
+        assertFalse(matchesUdp);
 
     }
 

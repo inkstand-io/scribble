@@ -18,6 +18,7 @@ package io.inkstand.scribble.net;
 
 import static org.junit.Assume.assumeTrue;
 
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -116,8 +117,9 @@ public final class NetworkUtils {
      */
     public static boolean isPortAvailable(final int port) {
 
-        try (ServerSocket socket = new ServerSocket(port)) {
-            return socket.isBound();
+        try (ServerSocket tcp = new ServerSocket(port);
+            DatagramSocket udp = new DatagramSocket(port)) {
+            return tcp.isBound() && udp.isBound();
         } catch (Exception e) { //NOSONAR
             return false;
         }
