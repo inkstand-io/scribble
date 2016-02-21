@@ -33,51 +33,57 @@ import io.inkstand.scribble.rules.ExternalResource;
 import org.slf4j.Logger;
 
 /**
- * A rule that starts a server thread accepting incoming UDP packages.
+ * A rule that starts a server thread accepting incoming UDP packages. Using the default packet handler, the UDP
+ * datagrams received are put into a queue to be accessed using the queue related methods
+ * <ul>
+ *     <li>{@link #packetCount()}</li>
+ *     <li>{@link #hasMorePackets()}</li>
+ *     <li>{@link #nextPacket()}</li>
+ * </ul>
+ * However, the default handler can be overridden with a custom handler, which will effectively render the
+ * above mentioned methods useless.
+ * <br>
+ * Further, the receiver's buffer can be adjusted. The default size is 2048 bytes. If the datagrams to receive are
+ * expected to be larger than this, the size should be increased.
+ * <br>
+ * The port of the receiver can be set to a specific port, otherwise a random available port is picked, which can
+ * be retrieved using the {@link #getServerPort()} method.
+ *
  */
 public class UDPReceiver extends ExternalResource {
 
-    private static final Logger LOG = getLogger(UDPReceiver.class);
-
+    /**
+     * Queue of received incoming packets
+     */
+    private final Deque<byte[]> packets = new ConcurrentLinkedDeque<>();
+    /**
+     * The UDP port the receiver listens on. The initial value is -1. In that case it will be assigned an available
+     * random port during initialization of the rule.
+     */
     private int serverPort = -1;
+    /**
+     * The buffer size used for receiving incoming packets. If a packet is larger that the size of the buffer, the
+     * remainder will be silently omitted.
+     */
     private int bufferSize = 2048;
+    /**
+     * The handler that processes the received packets. The default handler will put it in the packet queue. Note that
+     * if the handler gets changed, the packet queue related methods won't work
+     */
     private PacketHandler packetHandler = new PacketHandler() {
         @Override
         public void process(final byte[] data) {
             packets.addLast(data);
         }
     };
-
+    /**
+     * Executor service for managing the receiver thread.
+     */
     private ExecutorService threadPool;
-    private final Deque<byte[]> packets = new ConcurrentLinkedDeque<>();
+    /**
+     * The processor that is run in a separate thread to receive the incoming packets
+     */
     private UDPProcessor processor;
-
-    @Override
-    protected void before() throws Throwable {
-
-        if(this.serverPort <= 0){
-            this.serverPort = NetworkUtils.findAvailablePort();
-        }
-        this.threadPool = Executors.newFixedThreadPool(1);
-        this.processor = new UDPProcessor(this.serverPort, this.bufferSize, this.packetHandler);
-        this.threadPool.submit(this.processor);
-        //waiting for the server to come up
-        while(!this.processor.running.get()){
-            Thread.sleep(10);
-        }
-
-    }
-
-    @Override
-    protected void after() {
-        this.processor.stop();
-        this.threadPool.shutdownNow();
-        try {
-            threadPool.awaitTermination(5, SECONDS);
-        } catch (InterruptedException e) {
-            //omit
-        }
-    }
 
     @Override
     protected void beforeClass() throws Throwable {
@@ -89,6 +95,34 @@ public class UDPReceiver extends ExternalResource {
     protected void afterClass() {
 
         after();
+    }
+
+    @Override
+    protected void before() throws Throwable {
+
+        if (this.serverPort <= 0) {
+            this.serverPort = NetworkUtils.findAvailablePort();
+        }
+        this.threadPool = Executors.newFixedThreadPool(1);
+        this.processor = new UDPProcessor(this.serverPort, this.bufferSize, this.packetHandler);
+        this.threadPool.submit(this.processor);
+        //waiting for the server to come up
+        while (!this.processor.running.get()) {
+            Thread.sleep(10);
+        }
+
+    }
+
+    @Override
+    protected void after() {
+
+        this.processor.stop();
+        this.threadPool.shutdownNow();
+        try {
+            threadPool.awaitTermination(5, SECONDS);
+        } catch (InterruptedException e) {
+            //omit
+        }
     }
 
     /**
@@ -131,16 +165,6 @@ public class UDPReceiver extends ExternalResource {
     }
 
     /**
-     * Sets the server port to a specific port. If no port is selected or this value is less or equal 0, an available
-     * random port is used
-     * @param serverPort
-     */
-    public void setServerPort(final int serverPort) {
-        assertStateBefore(State.BEFORE_EXECUTED);
-        this.serverPort = serverPort;
-    }
-
-    /**
      * Returns the port of the sever. In case no particular port has been set, an available random port is chosen
      * on application of the rule.
      * @return
@@ -149,6 +173,17 @@ public class UDPReceiver extends ExternalResource {
     public int getServerPort() {
 
         return serverPort;
+    }
+
+    /**
+     * Sets the server port to a specific port. If no port is selected or this value is less or equal 0, an available
+     * random port is used
+     * @param serverPort
+     */
+    public void setServerPort(final int serverPort) {
+
+        assertStateBefore(State.BEFORE_EXECUTED);
+        this.serverPort = serverPort;
     }
 
     /**
@@ -169,7 +204,7 @@ public class UDPReceiver extends ExternalResource {
 
         private static final Logger LOG = getLogger(UDPProcessor.class);
 
-        private AtomicBoolean running = new AtomicBoolean(false);
+        private final AtomicBoolean running = new AtomicBoolean(false);
 
         /**
          * Listen port of the UDP receiver
@@ -183,13 +218,6 @@ public class UDPReceiver extends ExternalResource {
          * The handler that processes the incoming packets
          */
         private final PacketHandler handler;
-
-        /**
-         * Stops the server
-         */
-        public void stop(){
-            running.set(false);
-        }
 
         /**
          * Creates a new UDPProcessor on the specified port.
@@ -206,6 +234,14 @@ public class UDPReceiver extends ExternalResource {
             this.port = port;
             this.bufferSize = bufferSize;
             this.handler = handler;
+        }
+
+        /**
+         * Stops the server
+         */
+        public void stop() {
+
+            running.set(false);
         }
 
         @Override

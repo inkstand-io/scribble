@@ -14,7 +14,8 @@ that depend on certain networking aspects.
 
 The use case is, that you write a test that starts up a server listening on a dedicated port. But you don't know, if the 
 port you configure is available on the build agent. To be less prone to random errors, you require a way to find an 
-available port and skip the test if no available port is found.
+available port and skip the test if no available port is found. The port is checked for availability both as TCP and
+UDP port.
 
 To find a random port, use
 
@@ -38,7 +39,7 @@ by setting it directly:
 
 
 If you have a specific port in mind and want to verify, that it is available for listening - and optionally find an 
-available port
+available port. An available port is usable as UDP or TCP port.
 
         import static org.junit.Assume.assumeTrue;
         
