@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 DevCon5 GmbH, info@devcon5.ch
+ * Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -220,7 +220,7 @@ public class UDPReceiver extends ExternalResource {
                     receivePacket(channel, buf);
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Could not start UDP receiver");
+                throw new RuntimeException("Could not start UDP receiver", e);
             }
             LOG.info("Server stopped");
         }
@@ -238,11 +238,12 @@ public class UDPReceiver extends ExternalResource {
             try {
                 channel.receive(buf);
             } catch (IOException e) {
-                LOG.warn("Could not read packet");
+                LOG.warn("Could not read packet", e);
             }
             buf.flip();
             if(buf.remaining() > 0){
                 final byte[] receivedData = new byte[buf.remaining()];
+                LOG.debug("Received {} byte packet", receivedData.length);
                 buf.get(receivedData);
                 handler.process(receivedData);
             }
