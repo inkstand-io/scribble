@@ -128,7 +128,6 @@
 
         <!-- Properties for Jacoco and Sonar -->
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <surefireArgLine/>
         <skipTests>false</skipTests>
     </properties>
 
