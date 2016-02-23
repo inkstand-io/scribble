@@ -120,6 +120,11 @@ if the field's qualifier annotation match all the qualifier annotation classes s
     Scribble.inject(serviceA).asQualifyingInstance(QualifierA.class, QualifierB.class).into(testee);
 ```
 
+The @Default qualifier doesn't have to be specified explicitly on the source code, its implicitly applicable if no
+qualifier is set. In the test however, it has to be specified explicitly using Scribble in order to inject only into
+fields with explicit or implicit @Default qualifier. In case no qualifier is specified in the test, all fields that 
+match by type will be injected.
+
 ###Deltaspike ConfigurationProperty
 
 The Apache Deltaspike Project provides a set of portable CDI extensions. Part of the Core API is a configuration 
