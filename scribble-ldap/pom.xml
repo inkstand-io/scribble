@@ -20,7 +20,7 @@
     <parent>
         <artifactId>scribble</artifactId>
         <groupId>io.inkstand</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.2</version>
     </parent>
 
     <artifactId>scribble-ldap</artifactId>
@@ -31,12 +31,12 @@
         <dependency>
             <groupId>io.inkstand</groupId>
             <artifactId>scribble-core</artifactId>
-            <version>0.3.2-SNAPSHOT</version>
+            <version>0.3.2</version>
         </dependency>
         <dependency>
             <groupId>io.inkstand</groupId>
             <artifactId>scribble-net</artifactId>
-            <version>0.3.2-SNAPSHOT</version>
+            <version>0.3.2</version>
         </dependency>
         <!-- Apache DS -->
         <dependency>

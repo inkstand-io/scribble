@@ -20,7 +20,7 @@
     <parent>
         <artifactId>scribble</artifactId>
         <groupId>io.inkstand</groupId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.2</version>
     </parent>
 
     <artifactId>scribble-security</artifactId>
