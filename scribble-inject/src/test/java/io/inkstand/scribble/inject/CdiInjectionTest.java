@@ -114,7 +114,7 @@ public class CdiInjectionTest {
         //assert
         assertTrue(subject.isMatching(nField));
         assertTrue(subject.isMatching(qField));
-        assertFalse(subject.isMatching(aField));
+        assertTrue(subject.isMatching(aField));
     }
 
     @Test

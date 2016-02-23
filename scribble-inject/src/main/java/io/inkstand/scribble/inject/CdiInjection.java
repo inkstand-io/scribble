@@ -16,6 +16,7 @@
 
 package io.inkstand.scribble.inject;
 
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
@@ -61,9 +62,6 @@ public class CdiInjection extends Injection{
     }
 
     private boolean matchQualifiers(final Field field) {
-        if(qualifiers.isEmpty()){
-            return true;
-        }
         final Set<Class<? extends Annotation>> fieldQualifiers = collectQualifiers(field);
         for(Class<? extends Annotation> qualifierClass : this.qualifiers){
             if(!fieldQualifiers.contains(qualifierClass)){
@@ -80,6 +78,9 @@ public class CdiInjection extends Injection{
             if(an.annotationType().getAnnotation(Qualifier.class) != null) {
                 result.add(an.annotationType());
             }
+        }
+        if(result.isEmpty()){
+            result.add(Default.class);
         }
         return result;
     }
