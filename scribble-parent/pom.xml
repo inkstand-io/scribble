@@ -799,9 +799,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <configuration>
-                            <keyname>${devcon5.gpg.key}</keyname>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
