@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
+ * Copyright 2015-2016 DevCon5 GmbH, info@devcon5.ch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.hamcrest.Description;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class EndpointMatcher extends BaseMatcher<TcpPort> implements TimeoutSupport{
+public class EndpointMatcher extends BaseMatcher<NetworkPort> implements TimeoutSupport{
 
     private long timeout;
 
@@ -45,11 +45,11 @@ public class EndpointMatcher extends BaseMatcher<TcpPort> implements TimeoutSupp
     @Override
     public boolean matches(final Object item) {
 
-        if(!(item instanceof TcpPort)){
+        if(!(item instanceof NetworkPort)){
             return false;
         }
 
-        SocketAddress addr = ((TcpPort)item).getSocketAddress();
+        SocketAddress addr = ((NetworkPort)item).getSocketAddress();
 
         try(Socket socket = new Socket()){
             socket.connect(addr, (int) timeout);

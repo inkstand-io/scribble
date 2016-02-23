@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
+ * Copyright 2015-2016 DevCon5 GmbH, info@devcon5.ch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package io.inkstand.scribble.net;
 
 import static org.junit.Assume.assumeTrue;
 
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -116,8 +117,9 @@ public final class NetworkUtils {
      */
     public static boolean isPortAvailable(final int port) {
 
-        try (ServerSocket socket = new ServerSocket(port)) {
-            return socket.isBound();
+        try (ServerSocket tcp = new ServerSocket(port);
+            DatagramSocket udp = new DatagramSocket(port)) {
+            return tcp.isBound() && udp.isBound();
         } catch (Exception e) { //NOSONAR
             return false;
         }

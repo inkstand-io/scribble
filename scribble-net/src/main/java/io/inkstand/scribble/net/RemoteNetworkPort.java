@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
+ * Copyright 2015-2016 DevCon5 GmbH, info@devcon5.ch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@ import java.net.SocketAddress;
  *
  * @author <a href="mailto:gerald.muecke@gmail.com">Gerald M&uuml;cke</a>
  */
-public class RemoteTcpPort extends TcpPort {
+public class RemoteNetworkPort extends NetworkPort {
 
     private final String hostname;
 
-    public RemoteTcpPort(final String hostname, final int port) {
-        super(port);
+    public RemoteNetworkPort(final String hostname, final int port, final Type type) {
+        super(port,type);
         this.hostname = hostname;
 
     }
@@ -54,6 +54,6 @@ public class RemoteTcpPort extends TcpPort {
     @Override
     public String toString() {
 
-        return "tcp:" + getHostname() + ":" + getPortNumber();
+        return getType().name().toLowerCase() + ":" + getHostname() + ":" + getPortNumber();
     }
 }

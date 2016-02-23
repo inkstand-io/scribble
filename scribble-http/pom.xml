@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
+  ~ Copyright 2015-2016 DevCon5 GmbH, info@devcon5.ch
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
     <parent>
         <artifactId>scribble</artifactId>
         <groupId>io.inkstand</groupId>
-        <version>0.3.1</version>
+        <version>0.3.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

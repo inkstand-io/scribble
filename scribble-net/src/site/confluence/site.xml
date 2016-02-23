@@ -23,6 +23,7 @@
     <home name="Network" uri="index.confluence">
         <child name="Usage" uri="../markdown/usage.md"/>
         <child name="Matchers" uri="../markdown/matchers.md"/>
+        <child name="Rules" uri="../markdown/rules.md"/>
     </home>
 
     <label>network</label>

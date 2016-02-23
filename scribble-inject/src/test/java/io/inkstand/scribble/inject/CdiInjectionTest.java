@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
+ * Copyright 2015-2016 DevCon5 GmbH, info@devcon5.ch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import java.lang.annotation.Retention;
@@ -49,8 +50,6 @@ public class CdiInjectionTest {
 
     @Test
     public void testIsMatching_matchingTypeAndInjectPresent() throws Exception {
-
-
         //prepare
         String value = "123";
         CdiInjection subject = new CdiInjection(value);
@@ -62,7 +61,6 @@ public class CdiInjectionTest {
 
         //assert
         assertTrue(result);
-
     }
 
     @Test
@@ -81,6 +79,42 @@ public class CdiInjectionTest {
         assertTrue(subject.isMatching(field));
         assertTrue(subject.isMatching(qualifiedField));
         assertTrue(subject.isMatching(additionalField));
+    }
+
+    @Test
+    public void testIsMatching_withDefaultQualifier() throws Exception {
+
+
+        //prepare
+        String value = "123";
+        CdiInjection subject = new CdiInjection(value, Default.class);
+
+        //act
+        Field nField = DefaultQualifiedInjectField.class.getDeclaredField("nField");
+        Field qField = DefaultQualifiedInjectField.class.getDeclaredField("qField");
+        Field aField = DefaultQualifiedInjectField.class.getDeclaredField("aField");
+        //assert
+        assertTrue(subject.isMatching(nField));
+        assertTrue(subject.isMatching(qField));
+        assertFalse(subject.isMatching(aField));
+    }
+
+    @Test
+    public void testIsMatching_withoutDefaultQualifier() throws Exception {
+
+
+        //prepare
+        String value = "123";
+        CdiInjection subject = new CdiInjection(value);
+
+        //act
+        Field nField = DefaultQualifiedInjectField.class.getDeclaredField("nField");
+        Field qField = DefaultQualifiedInjectField.class.getDeclaredField("qField");
+        Field aField = DefaultQualifiedInjectField.class.getDeclaredField("aField");
+        //assert
+        assertTrue(subject.isMatching(nField));
+        assertTrue(subject.isMatching(qField));
+        assertTrue(subject.isMatching(aField));
     }
 
     @Test
@@ -117,8 +151,6 @@ public class CdiInjectionTest {
 
     @Test
     public void testIsMatching_matchingTypeAndNoInjectPresent() throws Exception {
-
-
         //prepare
         String value = "123";
         CdiInjection subject = new CdiInjection(value);
@@ -166,6 +198,20 @@ public class CdiInjectionTest {
 
         @Inject
         private Integer field;
+    }
+
+    static class DefaultQualifiedInjectField {
+
+        @Inject
+        private String nField;
+
+        @Default
+        @Inject
+        private String qField;
+
+        @AQualifier
+        @Inject
+        private String aField;
     }
 
     static class QualifiedInjectField {

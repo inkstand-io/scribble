@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Gerald Muecke, gerald.muecke@gmail.com
+ * Copyright 2015-2016 DevCon5 GmbH, info@devcon5.ch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,35 +22,30 @@ import static org.junit.Assume.assumeTrue;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RemoteTcpPortTest {
-
+public class NetworkPortTest {
 
     @Test
-    public void testRemoteTcpPort_getHostname() throws Exception {
+    public void testGetPortNumber() throws Exception {
 
         //prepare
-        String hostname = "local";
-        int port = 123;
+        int expected = 123;
 
         //act
-        RemoteTcpPort tcp = new RemoteTcpPort(hostname,port);
+        NetworkPort port = new NetworkPort(expected, NetworkPort.Type.TCP);
+
 
         //assert
-        assertEquals(hostname, tcp.getHostname() );
-        assertEquals(port, tcp.getPortNumber());
+        assertEquals(expected,port.getPortNumber() );
     }
 
     @Test
     public void testGetSocketAddress() throws Exception {
         //prepare
-        String hostname = "localhost";
         int portNumber = 123;
-        RemoteTcpPort port = new RemoteTcpPort(hostname, portNumber);
+        NetworkPort port = new NetworkPort(portNumber,NetworkPort.Type.TCP);
 
         //act
         SocketAddress addr = port.getSocketAddress();
@@ -58,21 +53,47 @@ public class RemoteTcpPortTest {
         //assert
         assertNotNull(addr);
         assumeTrue(addr instanceof InetSocketAddress);
-        assertEquals(hostname, ((InetSocketAddress)addr).getHostName());
         assertEquals(portNumber, ((InetSocketAddress)addr).getPort());
 
     }
 
     @Test
-    public void testToString() throws Exception {
+    public void testGetType() throws Exception {
         //prepare
-        RemoteTcpPort port = new RemoteTcpPort("localhost", 123);
+        int portNumber = 123;
+        NetworkPort port = new NetworkPort(portNumber,NetworkPort.Type.TCP);
+
+        //act
+        NetworkPort.Type type = port.getType();
+
+        //assert
+        assertEquals(NetworkPort.Type.TCP, type);
+
+    }
+
+    @Test
+    public void testToString_tcp() throws Exception {
+        //prepare
+        NetworkPort port = new NetworkPort(123,NetworkPort.Type.TCP);
 
         //act
         String toString = port.toString();
 
         //assert
-        assertEquals("tcp:localhost:123", toString);
+        assertEquals("tcp:123", toString);
+
+    }
+
+    @Test
+    public void testToString_udp() throws Exception {
+        //prepare
+        NetworkPort port = new NetworkPort(123,NetworkPort.Type.UDP);
+
+        //act
+        String toString = port.toString();
+
+        //assert
+        assertEquals("udp:123", toString);
 
     }
 }
