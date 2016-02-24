@@ -20,7 +20,7 @@
     <parent>
         <artifactId>scribble</artifactId>
         <groupId>io.inkstand</groupId>
-        <version>0.3.2</version>
+        <version>0.3.2.1</version>
     </parent>
 
     <artifactId>scribble-file</artifactId>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>io.inkstand</groupId>
             <artifactId>scribble-core</artifactId>
-            <version>0.3.2</version>
+            <version>0.3.2.1</version>
         </dependency>
         <!-- Apache Commons -->
         <dependency>
