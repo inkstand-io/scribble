@@ -611,7 +611,7 @@
                         <executions>
                             <execution>
                                 <id>site-deploy</id>
-                                <!--<phase>site-deploy</phase>-->
+                                <phase>site-deploy</phase>
                                 <goals>
                                     <goal>
                                         deploy
